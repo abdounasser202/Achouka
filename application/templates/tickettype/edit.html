@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-settings.html' %}
+            </div>
+            <div class="col-lg-10">
+                <section>
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Settings') }}">Settings</a></li>
+                          <li><a href="{{ url_for('TicketType_Index') }}">Ticket Type </a></li>
+                            {% if tickettype_id %}
+                                <li class="active">Edit</li>
+                            {% else %}
+                                <li class="active">New</li>
+                            {% endif %}
+                        </ol>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <form method="post" class="form-horizontal">
+                                    <fieldset><legend>Edit Ticket Type</legend>
+                                        {{ form.hidden_tag() }}
+                                         <div class="form-group {% if form.name.errors %} has-error {% endif %} has-feedback">
+                                            <label class="col-sm-3 control-label">{{ form.name.label }} :</label>
+                                            <div class="col-sm-9">
+                                              {{ form.name(class_='form-control')|safe }}
+                                              {% for message in form.name.errors %}
+                                                <span class="help-block text-danger">{{ message }}</span>
+                                              {% endfor %}
+
+                                            </div>
+                                          </div>
+                                          <div class="form-group {% if form.class_name.errors %} has-error {% endif %} has-feedback">
+                                            <label class="col-sm-3 control-label">{{ form.class_name.label }} :</label>
+                                            <div class="col-sm-9">
+                                                <select name="class_name" id="" class="form-control g-select input-lg">
+                                                    <option value="">{{ form.class_name.label }}</option>
+                                                    {% for class in listClassTicket %}
+                                                        <option value="{{ class.key.id() }}" {% if form.class_name.data == class.key or form.class_name.data|int == class.key.id() %} selected {% endif %}>{{ class.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                              {% for message in form.class_name.errors %}
+                                                <span class="help-block text-danger">{{ message }}</span>
+                                              {% endfor %}
+
+                                            </div>
+                                          </div>
+                                          <div class="form-group {% if form.type_name.errors %} has-error {% endif %} has-feedback">
+                                            <label class="col-sm-3 control-label">{{ form.type_name.label }} :</label>
+                                            <div class="col-sm-9">
+                                                <select name="type_name" id="" class="form-control g-select input-lg">
+                                                    <option value="">{{ form.type_name.label }}</option>
+                                                    {% for type in listTicketType %}
+                                                        <option value="{{ type.key.id() }}" {% if form.type_name.data == type.key or form.type_name.data|int == type.key.id() %} selected {% endif %}>{{ type.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                              {% for message in form.type_name.errors %}
+                                                <span class="help-block text-danger">{{ message }}</span>
+                                              {% endfor %}
+
+                                            </div>
+                                          </div>
+                                          <div class="form-group {% if form.journey_name.errors %} has-error {% endif %} has-feedback">
+                                            <label class="col-sm-3 control-label">{{ form.journey_name.label }} :</label>
+                                            <div class="col-sm-9">
+                                                <select name="journey_name" id="" class="form-control g-select input-lg">
+                                                    <option value="">{{ form.journey_name.label }}</option>
+                                                    {% for journey in listJourneyTicket %}
+                                                        <option value="{{ journey.key.id() }}" {% if form.journey_name.data == journey.key or form.journey_name.data|int == journey.key.id() %} selected {% endif %}>{{ journey.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                              {% for message in form.journey_name.errors %}
+                                                <span class="help-block text-danger">{{ message }}</span>
+                                              {% endfor %}
+
+                                            </div>
+                                          </div>
+
+                                     <div class="form-group {% if form.price.errors or form.currency.errors %} has-error {% endif %} has-feedback">
+                                        <label class="col-sm-3 control-label">{{ form.price.label }} :</label>
+                                        <div class="col-sm-9">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                  {{ form.price(class_='form-control')|safe }}
+                                                  {% for message in form.price.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+                                                </div>
+                                                <div class="col-lg-4">
+                                                   <select name="currency" id="" class="form-control g-select">
+                                                        <option value="">Choices your currency</option>
+                                                        {% for cur in listcurency %}
+                                                            <option value="{{ cur.key.id() }}" {% if form.currency.data == cur.key %} selected {% endif %}>{{ cur.code }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                  {% for message in form.currency.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                      </div>
+                                      <div class="form-group">
+                                        <div class="col-sm-offset-3 col-sm-10">
+                                          <button type="submit" class="btn btn-primary">Save</button>
+                                            <a href="{{ url_for('TicketType_Index') }}" class="btn btn-default">Return</a>
+                                        </div>
+                                      </div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="col-lg-4">
+
+                            </div>
+                        </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

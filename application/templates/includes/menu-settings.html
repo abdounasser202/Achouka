@@ -36,12 +36,12 @@
       <div class="dropdown pull-right">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
         <ul role="menu" class="dropdown-menu">
-          <li><a href="{# url_for('Destination_Index') #}">List</a></li>
-          <li><a href="{# url_for('Destination_Edit') #}">New</a></li>
+          <li><a href="{{ url_for('Destination_Index') }}">List</a></li>
+          <li><a href="{{ url_for('Destination_Edit') }}">New</a></li>
         </ul>
       </div>
 
-      <a href="{# url_for('Destination_Index') #}">
+      <a href="{{ url_for('Destination_Index') }}">
         Destination
       </a>
     </div>
@@ -52,11 +52,11 @@
       <div class="dropdown pull-right">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
         <ul role="menu" class="dropdown-menu">
-          <li><a href="{# url_for('TicketType_Index') #}">List</a></li>
-          <li><a href="{# url_for('TicketType_Edit') #}">New</a></li>
+          <li><a href="{{ url_for('TicketType_Index') }}">List</a></li>
+          <li><a href="{{ url_for('TicketType_Edit') }}">New</a></li>
         </ul>
       </div>
-      <a href="{# url_for('TicketType_Index') #}">
+      <a href="{{ url_for('TicketType_Index') }}">
         Ticket Type
       </a>
     </div>

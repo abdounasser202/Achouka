@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+<div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-settings.html' %}
+            </div>
+            <div class="col-lg-10">
+                <section>
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Settings') }}">Settings</a></li>
+                          <li class="active">Ticket Type </li>
+                        </ol>
+                        <nav class="navbar navbar-toolbar navbar-default" role="navigation">
+                          <div class="container-fluid">
+                            <div class="btn-toolbar" role="toolbar">
+                               <div class="btn-group pull-left">
+                                   <a href="{{ url_for('TicketType_Edit') }}" class="btn btn-danger btn-lg">New</a>
+                               </div>
+                               <div class="btn-group pull-left">
+                                   <a href="{{ url_for('Ticket_Type_Name_Index') }}" class="btn btn-default btn-lg">Ticket Type Name</a>
+                               </div>
+                               <div class="btn-group pull-left">
+                                   <a href="{{ url_for('JourneyType_Index') }}" class="btn btn-default btn-lg">Journey Type</a>
+                               </div>
+                                <div class="btn-group pull-left">
+                                   <a href="{{ url_for('ClassType_Index') }}" class="btn btn-default btn-lg">Class Type</a>
+                               </div>
+
+                            </div>
+                          </div>
+                        </nav>
+                        {% include 'includes/flash_message.html' %}
+
+                        <table class="table table-hover" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Name Ticket Type</th>
+                                    <th>Class</th>
+                                    <th>Type</th>
+                                    <th>Journey</th>
+                                    <th>Price</th>
+                                    <th class="nosort"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in tickettype %}
+                                    <tr {% if type.active %} class="success" {% endif %}>
+                                        <td>{{ type.name }}</td>
+                                        <td>
+                                            {{ type.class_name.get().name }}
+                                        </td>
+                                        <td>
+                                            {{ type.type_name.get().name }}
+                                        </td>
+                                        <td>
+                                            {{ type.journey_name.get().name }}
+                                        </td>
+                                        <td>{{ type.price }} {{ type.currency.get().code }}</td>
+                                        <td>
+                                            <a href="{{ url_for('TicketType_Edit', tickettype_id=type.key.id()) }}" class="btn btn-link  btn-xs">Edit</a>
+                                            {% if type.active %}
+                                                <a href="{{ url_for('Active_tickettype', tickettype_id=type.key.id()) }}" class="btn  btn-danger btn-xs ">Disable</a>
+                                            {% else %}
+                                                <a href="{{ url_for('Active_tickettype', tickettype_id=type.key.id()) }}"  class="btn  btn-success btn-xs">Activate</a>
+                                                <a href="{{ url_for('delete_tickettype', tickettype_id=type.key.id()) }}" class="btn btn-link btn-xs">Delete</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                </section>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
