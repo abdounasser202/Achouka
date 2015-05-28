@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+
+{% block layout_content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <section>
+                    <div class="page-header clearfix">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                 <h3 style='margin: 0;'>Welcome to POS <small>sell ticket</small> </h3>
+                            </div>
+                            <div class="col-lg-4">
+                                <form action="{{ url_for('Change_Current_Year') }}" method="get">
+                                    <div class="input-group">
+                                      <input type="text" class="form-control" name="year" id="datepickeryear">
+                                      <span class="input-group-btn">
+                                        <button class="btn" type="submit">Change Current Year</button>
+                                      </span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form role="form" class="form-horizontal" method="post">
+                                         <div class="row">
+                                             <div class="col-lg-5">
+                                                 <div class="form-group">
+                                                    {{ form.hidden_tag() }}
+                                                    <div class="col-sm-12">
+                                                        <select name="destination_start" id="" class="form-control g-select">
+                                                            <option value="">Select destination departure</option>
+                                                            {% for departure in destination_depart %}
+                                                                <option value="{{ departure.key.id() }}"
+                                                                        {% if form.destination_start.data|int == departure.key.id() %} selected {% endif %}
+                                                                        >{{ departure.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                      {% for message in form.destination_start.errors %}
+                                                        <span class="help-block text-danger">{{ message }}</span>
+                                                      {% endfor %}
+                                                    </div>
+                                                 </div>
+                                             </div>
+                                             <div class="col-lg-5">
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                      <select name="destination_check" id="" class="form-control g-select">
+                                                            <option value="">Select destination ckeck</option>
+                                                            {% for check in destination_check %}
+                                                                <option value="{{ check.key.id() }}"
+                                                                        {% if form.destination_check.data|int == check.key.id() %} selected {% endif %}
+                                                                        >{{ check.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                      {% for message in form.destination_check.errors %}
+                                                        <span class="help-block text-danger">{{ message }}</span>
+                                                      {% endfor %}
+                                                    </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-lg-2">
+                                                  <div class="form-group">
+                                                      <button type="submit" class="btn">Filter</button>
+                                                  </div>
+                                             </div>
+                                         </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                            <hr/>
+                            <table class="table table-hover table-condensed" id="posTable">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Journey</th>
+                                    <th style="width: 1px" class="nosort"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for departure in departure_list %}
+                                    <tr>
+                                        <td>{{ departure.departure_date|format_date("%A %d %B  %Y") }}</td>
+                                        <td>{{ departure.schedule|add_time(departure.time_delay)|format_date("%H:%M") }}</td>
+                                        <td>
+                                            {{ departure.destination.get().destination_start.get().name }}
+                                            -
+                                            {{ departure.destination.get().destination_check.get().name }}
+                                        </td>
+                                        <td>
+                                            {% if current_user.have_agency() %}
+                                                <a class="btn btn-info btn-xs {% if not current_user.have_credit() or departure.remaining_capacity == 0 or departure.departure_date < current_date %} disabled {% endif %}" href="{{ url_for('POS_Select_Ticket_Type', departure_id=departure.key.id()) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static" >sell ticket</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                
+
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-lg-4" id="pos">
+
+                            <div id="carousel-example-generic" class="carousel" data-ride="carousel" data-interval="false" data-pause="true">
+
+                              <!-- Wrapper for slides -->
+                              <div class="carousel-inner" data-wrap="false">
+                                  {% for month in cal_list %}
+                                    {% set current_month = loop.index %}
+                                    <div class="item {% if current_month == current_month_active %} active {% endif %}">
+                                        <h1 class="text-center">{{ ['January', 'Febuary', 'March', 'April',
+                                                'May', 'June', 'July', 'August',
+                                                'September', 'October', 'November', 'December'][loop.index0] }} {{ year }}</h1>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Mon</th>
+                                                    <th class="text-center">Tu</th>
+                                                    <th class="text-center">Wed</th>
+                                                    <th class="text-center">Thi</th>
+                                                    <th class="text-center">Fri</th>
+                                                    <th class="text-center">Sa</th>
+                                                    <th class="text-center">Su</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for week in month %}
+                                                <tr class="text-center">
+                                                    {% for date in week %}
+                                                        {% if date.month == current_month %}
+                                                            {% if date.day == current_day_active and date.month == current_month_active %}
+                                                                <td class="info">
+                                                                    <a href="{{ url_for('Pos', year=year, current_month_active=date.month, current_day_active=date.day) }}" class="btn btn-link btn-xs">
+                                                            {% else %}
+                                                                <td>
+                                                                    <a href="{{ url_for('Pos', year=year, current_month_active=date.month, current_day_active=date.day) }}" class="btn btn-link btn-xs">
+                                                            {% endif %}
+                                                        {% else %}
+                                                        <td class="active">
+                                                            <a  class="btn disabled btn-xs">
+                                                        {% endif %}
+                                                        {{ date.day }}</a>
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                  {% endfor %}
+                                </div>
+
+                              </div>
+
+                              <!-- Controls -->
+                              <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
+                                <span class="icon-prev"></span>
+                              </a>
+                              <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
+                                <span class="icon-next"></span>
+                              </a>
+
+                            {% include 'includes/flash_message.html' %}
+                            </div>
+                        </div>
+
+                </section>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+
+{% endblock %}

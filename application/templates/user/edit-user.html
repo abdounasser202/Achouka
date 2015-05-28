@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-recording.html' %}
+            </div>
+            <div class="col-lg-10">
+                <section>
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('User_Index') }}">User Management</a></li>
+                            {% if user_id %}
+                                <li class="active">Edit</li>
+                            {% else %}
+                                <li class="active">New</li>
+                            {% endif %}
+                        </ol>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                {% include 'includes/flash_message.html' %}
+                                <form method="post" class="form-horizontal">
+                                    <fieldset><legend>Edit User </legend>
+                                          {{ form.hidden_tag() }}
+                                            <div class="form-group {% if form.first_name.errors %} has-error {% endif %} has-feedback">
+                                                <label class="col-sm-3 control-label">{{ form.first_name.label }} :</label>
+                                                <div class="col-sm-9">
+                                                  {{ form.first_name(class_='form-control') }}
+                                                  {% for message in form.first_name.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group {% if form.last_name.errors %} has-error {% endif %} has-feedback">
+                                                <label class="col-sm-3 control-label">{{ form.last_name.label }} :</label>
+                                                <div class="col-sm-9">
+                                                  {{ form.last_name(class_='form-control') }}
+                                                  {% for message in form.last_name.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+
+                                                </div>
+                                            </div>
+                                            {% if not user_id %}
+                                                 <div class="form-group {% if form.password.errors %} has-error {% endif %} has-feedback">
+                                                    <label class="col-sm-3 control-label">{{ form.password.label }} :</label>
+                                                    <div class="col-sm-9">
+                                                      {{ form.password(class_='form-control')|safe }}
+                                                      {% for message in form.password.errors %}
+                                                        <span class="help-block text-danger">{{ message }}</span>
+                                                      {% endfor %}
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group {% if form.retype_password.errors %} has-error {% endif %} has-feedback">
+                                                    <label class="col-sm-3 control-label">{{ form.retype_password.label }} :</label>
+                                                    <div class="col-sm-9">
+                                                      {{ form.retype_password(class_='form-control')|safe }}
+                                                      {% for message in form.retype_password.errors %}
+                                                        <span class="help-block text-danger">{{ message }}</span>
+                                                      {% endfor %}
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="form-group {% if form.email.errors %} has-error {% endif %} has-feedback">
+                                                    <label class="col-sm-3 control-label">{{ form.email.label }} :</label>
+                                                    <div class="col-sm-9">
+                                                      {{ form.email(class_='form-control')|safe }}
+                                                      {% for message in form.email.errors %}
+                                                        <span class="help-block text-danger">{{ message }}</span>
+                                                      {% endfor %}
+
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            <div class="form-group {% if form.phone.errors %} has-error {% endif %} has-feedback">
+                                                <label class="col-sm-3 control-label">{{ form.phone.label }} :</label>
+                                                <div class="col-sm-9">
+                                                  {{ form.phone(class_='form-control')|safe }}
+                                                  {% for message in form.phone.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group {% if form.profil.errors %} has-error {% endif %} has-feedback">
+                                                <label class="col-sm-3 control-label">Select profil :</label>
+                                                <div class="col-sm-9">
+                                                   <select name="profil" id="" class="form-control g-select">
+                                                        <option value="">Select profil</option>
+                                                        {% for profil in profils %}
+                                                            <option value="{{ profil.profil_id.get().key.id() }}" {% if form.profil.data == profil.profil_id.get().key or form.profil.data|int == profil.profil_id.get().key.id() %} selected {% endif %}>{{ profil.profil_id.get().name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                  {% for message in form.profil.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group {% if form.agency.errors %} has-error {% endif %} has-feedback">
+                                                <label class="col-sm-3 control-label">Select agency :</label>
+                                                <div class="col-sm-9">
+                                                   <select name="agency" id="" class="form-control g-select">
+                                                        <option value="">Select agency</option>
+                                                        {% for agency in agency %}
+                                                            <option value="{{ agency.key.id() }}" {% if form.agency.data == agency.key or form.agency.data|int == agency.key.id() %} selected {% endif %}>{{ agency.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                  {% for message in form.agency.errors %}
+                                                    <span class="help-block text-danger">{{ message }}</span>
+                                                  {% endfor %}
+
+                                                </div>
+                                            </div>
+
+                                          <div class="form-group">
+                                            <div class="col-sm-offset-3 col-sm-10">
+
+                                              <button type="submit" class="btn btn-primary">Save</button>
+                                                <a href="{{ url_for('User_Index') }}" class="btn btn-default">Return</a>
+                                            </div>
+                                          </div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="col-lg-4">
+
+                            </div>
+                        </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

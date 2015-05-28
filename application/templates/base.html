@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <title>{% block title%}Achouka Application{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/todc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/select2.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-datetimepicker.css">
+    <style>  </style> <!-- Bootstrap -->
+    <link href="/static/css/app.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="/static/img/favicon.ico" />
+
+    <link href='http://fonts.googleapis.com/css?family=Kreon:400,700|Roboto:900,900italic,400italic,700italic,700,400' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="/static/js/jquery-1.11.2.js"></script>
+
+    {% block style_block %}{# page-specific CSS #}{% endblock %}
+
+    {% block head_script %}{# defer-incapable JS block #}{% endblock %}
+</head>
+<body>
+
+    {% block layout_body %}
+
+        {% block layout_before_content %}
+            {% include 'includes/nav.html' %}
+        {% endblock %}
+
+        {% block layout_content %}           {% endblock %}
+
+        {% block layout_after_content %}     {% endblock %}
+
+    {% endblock %}
+
+
+
+    <script type="text/javascript" src="/static/js/moment.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/js/dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" src="/static/js/select2.full.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+    {% block footer_script %}{# defer-capable JS block #}{% endblock %}
+    {{ profiler_includes|safe }}
+</body>
+</html>
