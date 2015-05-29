@@ -10,7 +10,7 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
-                          <li class="active">User Management</li>
+                          <li class="active">User Agency</li>
                         </ol>
                         <nav class="navbar navbar-toolbar navbar-default" role="navigation">
                           <div class="container-fluid">
@@ -43,10 +43,10 @@
                                                 <a href="" class="btn btn-link btn-xs">Reset password </a>
                                                 <a href="" class="btn btn-link btn-xs">Change email </a>
                                                 <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
-                                               {% if user.user_id %} 
-                                                <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
+                                                {% if user.user_id %}
+                                                         <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
                                                 {% else %}
-                                                <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                                                         <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
                                                 {% endif %}
                                             </td>
                                         </tr>

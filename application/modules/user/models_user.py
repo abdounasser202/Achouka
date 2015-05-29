@@ -53,7 +53,6 @@ class UserModel(ndb.Model):
             return True
         return False
 
-
     def have_credit(self): #verifie que l'agence de l'utilisateur courant a des tickets a vendre
         from ..ticket.models_ticket import TicketModel
         user_agence = AgencyModel.get_by_id(self.agency.id())
@@ -63,7 +62,7 @@ class UserModel(ndb.Model):
         ).count()
 
         if user_ticket >= 1:
-             return True
+            return True
 
         return False
 
@@ -109,6 +108,7 @@ class UserModel(ndb.Model):
 
         # All requirements have been met: return True
         return True
+
 
 class RoleModel(ndb.Model):
     name = ndb.StringProperty()

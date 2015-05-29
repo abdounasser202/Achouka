@@ -11,4 +11,4 @@ class CustomerModel(ndb.Model):
     nationality = ndb.StringProperty()
     phone = ndb.StringProperty()
     email = ndb.StringProperty()
-    status = ndb.BooleanProperty(default=False)
+    status = ndb.BooleanProperty(default=True)

@@ -66,9 +66,37 @@ class FormRegisterUserAdmin(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
     email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
-    phone = wtf.StringField(label='Phone Number', validators=[validators.Required()])
+    phone = wtf.StringField(label='Phone Number')
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
     retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
     currency = wtf.StringField(validators=[validators.Required()])
     agency = wtf.StringField()
     submit = wtf.SubmitField("Register")
+
+
+class FormEditUserAdmin(wtf.Form):
+    first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
+    last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
+    phone = wtf.StringField(label='Phone Number')
+    currency = wtf.StringField(validators=[validators.Required()])
+    agency = wtf.StringField()
+
+
+class FormRegisterUser(wtf.Form):
+    first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
+    last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
+    email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
+    phone = wtf.StringField(label='Phone Number')
+    password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
+    retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
+    profil = wtf.StringField(validators=[validators.Required()])
+    agency = wtf.StringField()
+    submit = wtf.SubmitField("Register")
+
+
+class FormEditUser(wtf.Form):
+    first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
+    last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
+    phone = wtf.StringField(label='Phone Number', validators=[validators.Required()])
+    profil = wtf.StringField(validators=[validators.Required()])
+    agency = wtf.StringField()

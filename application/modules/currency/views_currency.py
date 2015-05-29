@@ -5,7 +5,7 @@ from ...modules import *
 from models_currency import CurrencyModel, EquivalenceModel
 from ..ticket_type.models_ticket_type import TicketTypeModel
 from ..agency.models_agency import AgencyModel
-from ..transaction.models_transaction import TransactionModel
+
 from forms_currency import FormCurrency
 
 
@@ -133,6 +133,7 @@ def Currency_Equiv():
 def Currency_Delete(currency_id=None):
 
     from ..ticket.models_ticket import TicketModel, UserModel
+    from ..transaction.models_transaction import TransactionModel
 
     delete_currency = CurrencyModel.get_by_id(int(currency_id))
 

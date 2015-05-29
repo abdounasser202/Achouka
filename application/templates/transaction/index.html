@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+<div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-recording.html' %}
+            </div>
+            <div class="col-lg-10">
+                <section>
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li class="active">Transaction</li>
+                        </ol>
+                        <nav class="navbar navbar-toolbar navbar-default" role="navigation">
+                          <div class="container-fluid">
+                            <div class="btn-toolbar" role="toolbar">
+                               <div class="btn-group pull-left">
+                                   <a href="#" class="btn btn-danger btn-lg">Create entry</a>
+                               </div>
+                            </div>
+                          </div>
+                        </nav>
+                        {% include 'includes/flash_message.html' %}
+
+                        <table class="table table-hover" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Name Agency</th>
+                                    <th>Escrow Amount</th>
+                                    <th class="nosort"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in transactions %}
+                                <tr {% if transaction.transaction_type == 1 %} class="success" {% endif %}>
+                                    <td>{{ transaction.transaction_date|format_date("%d-%m-%Y %H:%M") }}</td>
+                                    <td>{{ transaction.reason }}</td>
+                                    <td>{{ transaction.amount|format_price() }} {{ transaction.currency.get().code }}</td>
+                                    <td>{{ transaction.agency.get().name }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-link btn-xs">view</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

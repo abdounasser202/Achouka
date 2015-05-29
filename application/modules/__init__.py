@@ -36,10 +36,13 @@ from lib.reportlab.graphics.shapes import Drawing, Group
 from lib.reportlab.graphics.barcode import code39, createBarcodeDrawing
 from lib.reportlab.graphics import renderPDF
 
+# Appel de l'ensemble des fonctions crees
+from application import function
+
+
 global_role = {
     'admin': False,
-    'manager_agence': False,
-    'manager_partner': False,
+    'manager_agency': False,
     'employee_POS': True,
     'employee_Boarding': True
 }
@@ -50,15 +53,6 @@ global_agencytype = {
         3: 'Coorporate'
 }
 
-global_personlist = {
-        1: 'Child',
-        2: 'Adult'
-}
-
-global_kindlist = {
-    1: 'One way',
-    2: 'Round Trip'
-}
 
 global_type_paymentlist = {
     1: 'Pre Payment',

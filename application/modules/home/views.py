@@ -62,10 +62,9 @@ def Home():
 
 @app.route('/logout_user')
 def logout_user():
-
     if 'user_id' in session:
         user_id = session.get('user_id')
-        UserLogout = UserModel.UserModel.get_by_id(int(user_id))
+        UserLogout = UserModel.get_by_id(int(user_id))
         UserLogout.logged = False
         change = UserLogout.put()
         if change:

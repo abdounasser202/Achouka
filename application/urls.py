@@ -8,7 +8,7 @@ from flask import render_template
 
 from application import app
 from application.modules import home, user, currency, agency, \
-    vessel, departure, travel, ticket_type, ticket, transaction, customer, profil
+    vessel, departure, travel, ticket_type, ticket, transaction, customer, profil, role
 
 
 ## Error handlers

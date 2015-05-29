@@ -1,1 +1,26 @@
 __author__ = 'wilrona'
+
+from lib.flaskext import wtf
+from lib.flaskext.wtf import validators
+from application import function
+import datetime
+
+def departure_date_activate(form, field):
+    date = function.date_convert(field.data)
+    if datetime.date.today() > date:
+        raise wtf.ValidationError('The departure date must be greater than or equal to the current date.')
+
+
+def schedule_activate(form, field):
+    time = function.time_convert(field.data)
+    if function.date_convert(form.departure_date.data) == datetime.date.today():
+        if datetime.datetime.today().time() >= time:
+            raise wtf.ValidationError('Time of departure of the current date must be greater than or equal to the current time.')
+
+
+
+class FormDeparture(wtf.Form):
+    departure_date = wtf.DateField(label='Departure Date', validators=[validators.Required(), departure_date_activate], format="%d/%m/%Y")
+    schedule = wtf.StringField(label='Departure Time', validators=[validators.Required(), schedule_activate])
+    destination = wtf.StringField(label='Select Travel line', validators=[validators.Required()])
+    vessel = wtf.StringField(label='Select Vessel', validators=[validators.Required()])

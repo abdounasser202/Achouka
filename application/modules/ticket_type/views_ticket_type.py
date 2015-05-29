@@ -5,6 +5,7 @@ from ...modules import *
 from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel, CurrencyModel
 from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, FormTicketTypeName
 
+
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
@@ -12,9 +13,6 @@ cache = Cache(app)
 def TicketType_Index():
     menu = 'settings'
     submenu = 'tickettype'
-
-    personlist = global_personlist
-    kindlist = global_kindlist
 
     tickettype = TicketTypeModel.query()
 
@@ -183,6 +181,19 @@ def ClassType_Delete(class_type_id):
 
     class_delete = ClassTypeModel.get_by_id(class_type_id)
 
+    class_ticket_type_exist = TicketTypeModel.query(
+        TicketTypeModel.class_name == class_delete.key
+    ).count()
+
+    from ..ticket.models_ticket import TicketModel
+    class_ticket_exist = TicketModel.query(
+        TicketModel.class_name == class_delete.key
+    ).count()
+
+    if class_ticket_type_exist >= 1 or class_ticket_exist >= 1:
+        flash(u"You can't delete this class"+class_delete.name+u" it's used by ticket type and some ticket!", "danger")
+        return redirect(url_for('ClassType_Index'))
+
     class_delete.key.delete()
     flash(u"Class Type has been deleted successfully!", "success")
     return redirect(url_for('ClassType_Index'))
@@ -253,6 +264,19 @@ def JourneyType_Default(journey_type_id):
 def JourneyType_Delete(journey_type_id):
 
     journey_delete = JourneyTypeModel.get_by_id(journey_type_id)
+
+    journey_ticket_type_exist = TicketTypeModel.query(
+        TicketTypeModel.journey_name == journey_delete.key
+    ).count()
+
+    from ..ticket.models_ticket import TicketModel
+    journey_ticket_exist = TicketModel.query(
+        TicketModel.journey_name == journey_delete.key
+    ).count()
+
+    if journey_ticket_exist >= 1 or journey_ticket_type_exist >= 1:
+        flash(u"You can't delete this journey :"+journey_delete.name+u" it's used by ticket type and some ticket!!", "danger")
+        return redirect(url_for('JourneyType_Index'))
 
     journey_delete.key.delete()
     flash(u"Journey Type has been deleted successfully!", "success")
@@ -359,8 +383,22 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 
 @app.route("/Delete_Ticket_Type_Name/<int:ticket_type_name_id>")
 def Delete_Ticket_Type_Name(ticket_type_name_id):
-    delete_ticket = TicketTypeNameModel.get_by_id(int(ticket_type_name_id))
+    delete_ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
     # On verifiera si le TicketTypeName est utilisee
+
+    ticket_type_name_ticket_type_exist = TicketTypeModel.query(
+        TicketTypeModel.type_name == delete_ticket.key
+    ).count()
+
+    from ..ticket.models_ticket import TicketModel
+    ticket_type_name_ticket_exist = TicketModel.query(
+        TicketModel.type_name == delete_ticket.key
+    ).count()
+
+    if ticket_type_name_ticket_exist >= 1 or ticket_type_name_ticket_type_exist >= 1:
+        flash(u"You can't delete this ticket type name :"+delete_ticket.name+u" it's used by ticket type and some ticket!!", "danger")
+        return redirect(url_for("Ticket_Type_Name_Index"))
+
     # Si oui il ne sera pas supprime
     delete_ticket.key.delete()
     flash(u"Ticket Type name has been deleted successfully!", "success")
