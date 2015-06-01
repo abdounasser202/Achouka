@@ -7,13 +7,112 @@
         <div class="row">
             <div class="col-lg-12">
                 <section>
-                    <div class="page-header clearfix">
+                    <div class="page-header clearfix text-center" style="margin: 0 !important;">
+                                <h3 style='margin: 0;'>Welcome to POS <small>sell ticket</small> </h3>
+                    </div>
+                    <div id="ScreenCreateTicket" class="hidden"></div>
+                    <div id="ScreenIndexPos" style="margin-top: 20px;">
                         <div class="row">
-                            <div class="col-lg-8">
-                                 <h3 style='margin: 0;'>Welcome to POS <small>sell ticket</small> </h3>
-                            </div>
-                        </div>
+                            <div class="col-lg-4">
+                                <div class="panel panel-primary">
+                                  <div class="panel-heading text-center">SEARCH TICKET/E-TICKET</div>
+                                  <div class="panel-body">
+                                      <form action="#" class="form-horizontal" id="SearchTicket">
+                                          <div class="form-group">
+                                            <div class="col-sm-12">
+                                              <input type="text" name="number_ticket" class="form-control" id="number_ticket">
+                                            </div>
+                                          </div>
+                                          <button class="btn btn-block" type="submit" id="SubmitTicket">Search</button>
+                                      </form>
+                                  </div>
+                                </div>
+                                <div class="panel panel-info">
+                                  <div class="panel-heading text-center">CURRENT JOURNEY</div>
+                                    <br/>
+                                    {% if current_departure %}
+                                        <table class="table text-center">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Journey</strong></td>
+                                                    <td>
+                                                        {{ current_departure.destination.get().destination_start.get().name }}
+                                                        -
+                                                        {{ current_departure.destination.get().destination_check.get().name }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Date</strong></td>
+                                                    <td>{{ current_departure.departure_date|format_date("%A %d %B  %Y") }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Time</strong></td>
+                                                    <td>{{ current_departure.schedule|add_time(current_departure.time_delay)|format_date("%H:%M") }}</td>
+                                                </tr>
 
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                          <div class="panel-body text-center">
+                                            <h3>No up coming journey</h3>
+                                          </div>
+                                    {% endif %}
+                                    <div class="panel-footer">
+                                        <a href="#" class="btn btn-info btn-block btn-sm">Change Current Journey</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="panel panel-primary">
+                                          <div class="panel-body">
+                                              <form action="#" class="form-inline clearfix" id="SearchCustomer">
+                                                  <fieldset>
+                                                      <legend>SELL A TICKET</legend>
+                                                      <div class="form-group" style=" width: 40%;">
+                                                        <label>Date of birth :</label>
+                                                        <input type="text" class="form-control" name="birthday" id="datepickerbirth" autofocus >
+                                                        <input type="hidden" name="current_departure" value="{% if current_departure %} {{ current_departure.key.id() }} {% endif %}" id="CurrentDeparture"/>
+                                                      </div>
+                                                      <button type="submit" class="btn" id="SubmitCustomer"><i class="fa fa-search"></i></button>
+
+
+                                                      <div class="pull-right">
+                                                          <a href="{{ url_for('create_customer_and_ticket_pos') }}" class="btn btn-primary btn-sm" id="CreateCustomer">Create customer</a>
+                                                      </div>
+                                                  </fieldset>
+                                              </form>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="Error_no_select_departure">
+                                            <div class="alert alert-danger text-center hidden">
+                                                <h3 style="margin-top: 10px;">None selected departure</h3>
+                                            </div>
+                                        </div>
+                                        <div id="result_search_customer">
+                                            <table class="table table-hover table-condensed" id="posTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>Customer name</th>
+                                                    <th class="nosort">Date of birth</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
                     </div>
 
                 </section>
@@ -22,13 +121,65 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+{% endblock %}
 
-        </div>
-      </div>
-    </div>
+{% block footer_script %}{# defer-capable JS block #}
+    <script>
+        $('#ScreenCreateTicket').empty();
 
+        function ValidateDate(dtValue)
+        {
+            var dtRegex = new RegExp(/\b\d{1,2}[\/-]\d{1,2}[\/-]\d{4}\b/);
+            return dtRegex.test(dtValue);
+        }
+
+        $('#number_ticket').inputmask("9999999999999999", { placeholder:"****************"});
+
+        $('button#SubmitCustomer').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '{{ url_for('search_customer_pos') }}',
+                data: $('#SearchCustomer').serialize(),
+                type: 'POST',
+                success: function(data) {
+                    $('#SearchCustomer .form-group').removeClass('has-error');
+                    $('#Error_no_select_departure').hide();
+                    $('#result_search_customer').html(data);
+                }
+            }).fail(function(){
+                $('#SearchCustomer .form-group').addClass('has-error')
+            });
+        });
+
+        $('#CreateCustomer').click(function(e){
+            e.preventDefault();
+            url = $(this).attr('href');
+
+            dtVal = $('#SearchCustomer #datepickerbirth').val();
+            departure = $('#SearchCustomer #CurrentDeparture').val();
+
+
+                if (ValidateDate(dtVal)){
+                     if (departure != ''){
+                           $.ajax({
+                                url: url,
+                                data: $('#SearchCustomer').serialize(),
+                                type: 'POST',
+                                success: function(data) {
+                                    $('#ScreenIndexPos').hide();
+                                    $('#ScreenCreateTicket').removeClass('hidden').html(data);
+                                }
+                            });
+                     }else{
+                        $('#Error_no_select_departure').show();
+                        $('#result_search_customer').hide();
+                     }
+                }else{
+                    $('#SearchCustomer .form-group').addClass('has-error')
+                }
+
+
+        });
+
+    </script>
 {% endblock %}

@@ -1,0 +1,25 @@
+<table class="table table-hover table-condensed" id="posTable">
+    <thead>
+    <tr>
+        <th>Customer name (load)</th>
+        <th class="nosort">Date of birth</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for customer in customer %}
+        <tr>
+            <td>{{ customer.last_name }} {{ customer.first_name }}</td>
+            <td>{{ customer.birthday|format_date("%d-%m-%Y") }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $('#posTable').dataTable({
+        'aoColumnDefs': [
+    	    {'bSortable': false, 'aTargets': ['nosort']},
+    	    {'bSearchable': false, "aTargets": ['nosort']}
+		]
+    });
+</script>

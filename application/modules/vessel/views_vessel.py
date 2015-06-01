@@ -3,7 +3,6 @@ __author__ = 'wilrona'
 from ...modules import *
 from forms_vessel import FormVessel
 from models_vessel import VesselModel
-from ..departure.models_departure import DepartureModel
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -70,6 +69,7 @@ def Vessel_Edit(vessel_id=None):
 def Vessel_Delete(vessel_id=None):
     menu = 'settings'
     submenu = 'vessel'
+    from ..departure.models_departure import DepartureModel
 
     delete_vessel = VesselModel.get_by_id(int(vessel_id))
 

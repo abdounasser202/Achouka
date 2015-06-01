@@ -7,7 +7,6 @@ from ..user.models_user import UserModel, RoleModel, UserRoleModel
 from ..user.forms_user import FormLogin
 
 
-
 cache = Cache(app)
 
 
@@ -83,8 +82,30 @@ def Dashboard():
 @app.route('/point-of-sell/', methods=['GET', 'POST'])
 def Pos(year=None, current_month_active=None, current_day_active=None):
     menu = 'pos'
+    from ..agency.models_agency import AgencyModel
+    from ..departure.models_departure import DepartureModel
+
+    departure = DepartureModel.query(
+        DepartureModel.departure_date == datetime.date.today(),
+        DepartureModel.schedule >= datetime.datetime.today().time()
+    ).order(
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    if current_user.have_agency():
+        user_agence = AgencyModel.get_by_id(int(session.get('agence_id')))
+
+        for dep in departure:
+            if dep.destination.get().destination_start == user_agence.destination:
+                current_departure = dep
+                break
+    else:
+        current_departure = departure.get()
 
     return render_template('/index/pos.html', **locals())
+
+
 
 
 @app.route('/settings')

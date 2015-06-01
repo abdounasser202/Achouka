@@ -14,8 +14,20 @@ class FormCustomer(wtf.Form):
     phone = wtf.StringField(label='Phone Number')
 
 
-
 class FormCustomerSearch(wtf.Form):
     first_name = wtf.StringField(label='Fist name', validators=[validators.Required()])
     last_name = wtf.StringField(label='Last name', validators=[validators.Required()])
     birthday = wtf.DateField(label='Birthday', validators=[validators.Required()], format="%d/%m/%Y")
+
+
+class FormCustomerPOS(wtf.Form):
+    first_name = wtf.StringField(label='Fist name', validators=[validators.Required()])
+    last_name = wtf.StringField(label='Last name', validators=[validators.Required()])
+    birthday = wtf.DateField(label='Birthday', validators=[validators.Required()], format="%d/%m/%Y")
+    profession = wtf.StringField(label='Profession')
+    nationality = wtf.StringField(label='Select Nationality')
+    email = wtf.StringField(label='Email Adress', validators=[validators.Email()])
+    phone = wtf.StringField(label='Phone Number')
+    type_name = wtf.StringField(validators=[validators.Required()])
+    class_name = wtf.StringField(validators=[validators.Required()])
+    journey_name = wtf.StringField(validators=[validators.Required()])

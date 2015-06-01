@@ -18,6 +18,7 @@ $(document).ready(function() {
         orientation: "top auto",
         todayHighlight: true
     });
+    /*
     $('#datepickerbirth').datepicker({
         format: "dd/mm/yyyy",
         startView: 2,
@@ -25,7 +26,10 @@ $(document).ready(function() {
         autoclose: true,
         orientation: "top auto",
         clearbtn: true
-    });
+    }); */
+
+    $('#datepickerbirth').inputmask("date", { placeholder:"__/__/____"})
+
 
     $('#datepickeryear').datepicker({
         format: "yyyy",
@@ -58,23 +62,24 @@ $(document).ready(function() {
         $('#confirm').removeClass('hidden');
         $('#body-cache').addClass('cache');
         $(this).hide();
-    })
+    });
+
 
     $('#unconfirm').on('click', function(e){
         e.preventDefault();
         $('#confirm').addClass('hidden');
         $('#body-cache').removeClass('cache');
         $('#presave').show();
-    })
+    });
     
     $('.carousel').carousel({
       interval: false
-    })
+    });
     
 	$('#dataTable').dataTable({
 		'aoColumnDefs': [
     	    {'bSortable': false, 'aTargets': ['nosort']},
-    	    {'bSearchable': false, "aTargets": ['nosort']},
+    	    {'bSearchable': false, "aTargets": ['nosort']}
 		]
 		});
 		
@@ -83,7 +88,7 @@ $(document).ready(function() {
 	    "bFilter": false,
 		'aoColumnDefs': [
     	    {'bSortable': false, 'aTargets': ['nosort']},
-    	    {'bSearchable': false, "aTargets": ['nosort']},
+    	    {'bSearchable': false, "aTargets": ['nosort']}
 		]
 		});
 		

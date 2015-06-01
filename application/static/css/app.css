@@ -197,5 +197,17 @@ section {
     color: #000000 !important;
 }
 
+.panel-pos .panel-heading {
+  padding-bottom: 0px;
+  padding-top: 1px;
+}
 
+.panel-pos .panel-body {
+  padding: 10px;
+}
 
+select.input-sm {
+    height: 30px !important;
+    line-height: 27px !important;
+    padding: 0px 8px !important;
+}

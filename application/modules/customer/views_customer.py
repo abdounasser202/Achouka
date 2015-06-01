@@ -32,6 +32,7 @@ def Customer_Edit(customer_id=None):
         customer = CustomerModel()
         form = FormCustomer(request.form)
 
+    customer_count = 0
     if form.validate_on_submit():
 
         customer_exist = CustomerModel.query(
@@ -39,9 +40,9 @@ def Customer_Edit(customer_id=None):
             CustomerModel.last_name == form.last_name.data,
             CustomerModel.birthday == function.date_convert(form.birthday.data)
         )
-        customer_exist.count()
+        customer_count = customer_exist.count()
 
-        if customer_exist >= 1:
+        if customer_count >= 1:
             customer_view = customer_exist.get()
             flash(u' This customer exist. ', 'danger')
         else:

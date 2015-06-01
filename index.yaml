@@ -10,6 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: DepartureModel
+  properties:
+  - name: departure_date
+  - name: schedule
+  - name: time_delay
+
 - kind: TicketModel
   properties:
   - name: agency
