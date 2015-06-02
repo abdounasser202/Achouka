@@ -8,7 +8,7 @@ from ..currency.models_currency import CurrencyModel
 from ..customer.models_customer import CustomerModel
 from ..departure.models_departure import DepartureModel
 from ..ticket_type.models_ticket_type import ClassTypeModel, TicketTypeNameModel, JourneyTypeModel
-
+from ..question.models_question import QuestionModel
 
 class TicketModel(ndb.Model):
 
@@ -36,3 +36,9 @@ class TicketModel(ndb.Model):
     e_ticket_seller = ndb.KeyProperty(kind=UserModel)
 
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
+
+
+class TicketQuestion(ndb.Model):
+    question_id = ndb.KeyProperty(kind=QuestionModel)
+    ticket_id = ndb.KeyProperty(kind=TicketModel)
+    response = ndb.BooleanProperty(default=False)

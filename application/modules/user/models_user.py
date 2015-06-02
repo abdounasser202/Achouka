@@ -109,6 +109,14 @@ class UserModel(ndb.Model):
         # All requirements have been met: return True
         return True
 
+    def remaining_ticket(self):
+        if self.agency:
+            agency_user = AgencyModel.get_by_id(self.agency.id())
+        else:
+            agency_user = 'No Ticket'
+        return agency_user.TicketUnsold()+' Available'
+
+
 
 class RoleModel(ndb.Model):
     name = ndb.StringProperty()

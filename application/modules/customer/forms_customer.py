@@ -31,3 +31,4 @@ class FormCustomerPOS(wtf.Form):
     type_name = wtf.StringField(validators=[validators.Required()])
     class_name = wtf.StringField(validators=[validators.Required()])
     journey_name = wtf.StringField(validators=[validators.Required()])
+    current_departure = wtf.HiddenField()

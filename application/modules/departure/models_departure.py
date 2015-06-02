@@ -11,4 +11,16 @@ class DepartureModel(ndb.Model):
     time_delay = ndb.TimeProperty()
     destination = ndb.KeyProperty(kind=TravelModel)
     vessel = ndb.KeyProperty(kind=VesselModel)
-    remaining_capacity = ndb.IntegerProperty(default=0)
+
+    def remaining_capacity(self):
+        from ..ticket.models_ticket import TicketModel
+
+        ticket_reserved = TicketModel.query(
+            TicketModel.selling == True,
+            TicketModel.departure == self.key
+        ).count()
+
+        if ticket_reserved > self.vessel.get().capacity:
+            return False
+        else:
+            return True

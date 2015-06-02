@@ -1,14 +1,20 @@
 <table class="table table-hover table-condensed" id="posTable">
     <thead>
     <tr>
-        <th>Customer name (load)</th>
+        <th>Customer name</th>
         <th class="nosort">Date of birth</th>
     </tr>
     </thead>
     <tbody>
     {% for customer in customer %}
         <tr>
-            <td>{{ customer.last_name }} {{ customer.first_name }}</td>
+            <td>
+                {% if current_departure %}
+                    <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer.key.id(), departure_id=current_departure.key.id()) }}" id="CustomerExist">{{ customer.last_name }} {{ customer.first_name }}</a>
+                {% else %}
+                    {{ customer.last_name }} {{ customer.first_name }}
+                {% endif %}
+            </td>
             <td>{{ customer.birthday|format_date("%d-%m-%Y") }}</td>
         </tr>
     {% endfor %}
@@ -21,5 +27,20 @@
     	    {'bSortable': false, 'aTargets': ['nosort']},
     	    {'bSearchable': false, "aTargets": ['nosort']}
 		]
+    });
+    $('#CustomerExist').click(function(e){
+        e.preventDefault();
+        url = $(this).attr('href');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            success: function(data) {
+                $('#ScreenIndexPos').hide();
+                $('#ScreenCreateTicket').removeClass('hidden').html(data);
+            }
+        });
+
+
+
     });
 </script>

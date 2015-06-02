@@ -1,0 +1,21 @@
+<div class="modal-header bg-primary">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="myModalLabel">Print Ticket</h4>
+</div>
+<div class="modal-body" style="height: 414px;">
+
+    <iframe id="frame" src="{{url_for('generate_pdf_ticket', ticket_id=ticket_id, _external=True)}}#zoom=100" height="100%" width="100%" style="border:none"></iframe><br/>
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+
+<!-- Code JavaScript -->
+<script>
+    document.getElementById("frame").contentWindow();
+    $('[data-toggle="modal"]').click(function(e) {
+        e.preventDefault();
+        window.location.replace(window.location.origin+'{{ url_for('Pos') }}')
+    });
+</script>
