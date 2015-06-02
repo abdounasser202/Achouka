@@ -74,7 +74,6 @@ def logout_user():
 @app.route('/dashboard')
 @login_required
 def Dashboard():
-
     menu = 'dashboard'
     return render_template('/index/dashboard.html', **locals())
 

@@ -112,9 +112,10 @@ class UserModel(ndb.Model):
     def remaining_ticket(self):
         if self.agency:
             agency_user = AgencyModel.get_by_id(self.agency.id())
+            number = agency_user.TicketUnsold()
         else:
-            agency_user = 'No Ticket'
-        return agency_user.TicketUnsold()+' Available'
+            number = 'No Ticket'
+        return number+' Available'
 
 
 

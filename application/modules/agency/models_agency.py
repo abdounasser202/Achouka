@@ -44,7 +44,7 @@ class AgencyModel(ndb.Model):
         else:
             title = ' tickets'
 
-        return str(ticket)+' '+title
+        return str(ticket)+' '+str(title)
 
     def DateLastPurchase(self):
         from ..ticket.models_ticket import TicketModel
