@@ -39,6 +39,11 @@ from lib.reportlab.graphics import renderPDF
 # Appel de l'ensemble des fonctions crees
 from application import function
 
+from lib.pytz.gae import pytz
+
+time_zone = pytz.timezone('Africa/Douala')
+date_auto_now = datetime.datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%S")
+
 
 global_role = {
     'admin': False,

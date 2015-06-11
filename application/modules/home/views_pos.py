@@ -190,7 +190,7 @@ def generate_pdf_ticket(ticket_id):
     return response
 
 
-@app.route('/Search_Ticket_Type', methods=['POST'])
+@app.route('/Search_Ticket_Type', methods=['GET','POST'])
 def Search_Ticket_Type():
 
     from ..ticket_type.models_ticket_type import TicketTypeModel
@@ -220,23 +220,32 @@ def Search_Ticket_Type():
         TicketModel.selling == False
     ).count()
 
-    not_tickket = 'true'
+    have_ticket = 'false'
     if Agency_ticket >= 1:
-        not_tickket = 'false'
-
+        have_ticket = 'true'
 
     if priceticket:
         data = json.dumps({
             'statut': 'OK',
             'price': priceticket.price,
             'currency': priceticket.currency.get().code,
-            'notticket': str(not_tickket)
+            'haveticket': have_ticket
         }, sort_keys=True)
     else:
         data = json.dumps({
             'statut': 'error',
             'value': 'Undefined',
-            'notticket': str(not_tickket)
+            'haveticket': have_ticket
         }, sort_keys=True)
+
+    return data
+
+
+@app.route('/remaining_ticket')
+def remaining_ticket():
+    number = current_user.remaining_ticket()
+    data = json.dumps({
+        'ticket': number
+    }, sort_keys=True)
 
     return data

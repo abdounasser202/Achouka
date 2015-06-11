@@ -8,14 +8,10 @@
 
 </div>
 <div class="modal-footer">
-<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+<button type="button" class="btn btn-default" data-dismiss="modal" id="Close">Close</button>
 </div>
 
 <!-- Code JavaScript -->
 <script>
     document.getElementById("frame").contentWindow();
-    $('[data-toggle="modal"]').click(function(e) {
-        e.preventDefault();
-        window.location.replace(window.location.origin+'{{ url_for('Pos') }}')
-    });
 </script>

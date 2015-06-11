@@ -32,11 +32,6 @@
                                     <br/>
 
                                     {% if current_departure %}
-                                        {% if not current_departure.remaining_capacity() %}
-                                            <div class="alert alert-danger text-center">
-                                                <h4>No place available</h4>
-                                            </div>
-                                        {% endif %}
                                         <table class="table text-center">
                                             <tbody>
                                                 <tr>
@@ -86,7 +81,7 @@
 
 
                                                       <div class="pull-right">
-                                                          <a href="{{ url_for('create_customer_and_ticket_pos') }}" class="btn btn-primary btn-sm" id="CreateCustomer">Create customer</a>
+                                                          <a href="{{ url_for('create_customer_and_ticket_pos') }}" class="btn btn-primary btn-sm" id="CreateCustomer" >Create customer</a>
                                                       </div>
                                                   </fieldset>
                                               </form>
@@ -143,26 +138,13 @@
 
         $('button#SubmitCustomer').click(function(e) {
             e.preventDefault();
-            departure = $('#SearchCustomer #CurrentDeparture').val();
-            if (departure != ''){
-                    $.ajax({
-                        url: '{{ url_for('search_customer_pos') }}',
-                        data: $('#SearchCustomer').serialize(),
-                        type: 'POST',
-                        success: function(data) {
-                            $('#SearchCustomer .form-group').removeClass('has-error');
-                            $('#Error_no_select_departure').addClass('hidden');
-                            $('#result_search_customer').show().html(data);
+            searchcustomer();
+        });
 
-                        }
-                    }).fail(function(){
-                        $('#SearchCustomer .form-group').addClass('has-error')
-                    });
-             }else{
-                $('#Error_no_select_departure').removeClass('hidden');
-                $('#result_search_customer').hide();
-             }
-
+        $(document).ready(function() {
+            $('#datepickerbirth').on('change', function () {
+                searchcustomer();
+            });
         });
 
         $('#CreateCustomer').click(function(e){
@@ -194,6 +176,38 @@
 
 
         });
+
+        function searchcustomer(){
+            departure = $('#SearchCustomer #CurrentDeparture').val();
+            if (departure != ''){
+                    $.ajax({
+                        url: '{{ url_for('search_customer_pos') }}',
+                        data: $('#SearchCustomer').serialize(),
+                        type: 'POST',
+                        success: function(data) {
+                            $('#SearchCustomer .form-group').removeClass('has-error');
+                            $('#Error_no_select_departure').addClass('hidden');
+                            $('#result_search_customer').show().html(data);
+
+                        }
+                    }).fail(function(){
+                        $('#SearchCustomer .form-group').addClass('has-error')
+                    });
+             }else{
+                $('#Error_no_select_departure').removeClass('hidden');
+                $('#result_search_customer').hide();
+             }
+        }
+
+        $(document).ready(function(){
+            $('#myModal').on('hidden.bs.modal', function () {
+                var url_remaining = "{{ url_for('remaining_ticket') }}";
+                $.get(url_remaining, function(data){
+                    $('#remaining_ticket').text(data['ticket']);
+                });
+            });
+        })
+
 
     </script>
 {% endblock %}

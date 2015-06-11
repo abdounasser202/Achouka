@@ -8,12 +8,13 @@
     <tbody>
     {% for customer in customer %}
         <tr>
-            <td>
+            <td><strong>
                 {% if current_departure %}
                     <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer.key.id(), departure_id=current_departure.key.id()) }}" id="CustomerExist">{{ customer.last_name }} {{ customer.first_name }}</a>
                 {% else %}
                     {{ customer.last_name }} {{ customer.first_name }}
                 {% endif %}
+            </strong>
             </td>
             <td>{{ customer.birthday|format_date("%d-%m-%Y") }}</td>
         </tr>
@@ -39,8 +40,5 @@
                 $('#ScreenCreateTicket').removeClass('hidden').html(data);
             }
         });
-
-
-
     });
 </script>

@@ -37,7 +37,12 @@ def Home():
 
     form = FormLogin()
     if form.validate_on_submit():
-        password = hashlib.sha224(form.password.data).hexdigest()
+        try:
+            password = hashlib.sha224(form.password.data).hexdigest()
+        except UnicodeEncodeError:
+            flash('Username or Password is invalid', 'danger')
+            return redirect(url_for('Home'))
+
         user_login = UserModel.query(
             UserModel.email == form.email.data,
             UserModel.password == password

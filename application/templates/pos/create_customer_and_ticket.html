@@ -60,7 +60,7 @@
             <div class="panel panel-info panel-pos">
               <div class="panel-heading text-center"><h4>Ticket Type</h4> </div>
               <div class="panel-body text-center">
-                  <div class="alert alert-danger" id="alert"> </div>
+                  <div class="alert alert-danger hidden" id="alert"> </div>
                   <div class="row">
                       {% for type_name in ticket_type_name %}
                           {% if not type_name.special and not type_name.is_child %}
@@ -95,6 +95,8 @@
                                               {% if type_name.special %}
                                                   <option value="{{ type_name.key.id() }}" {% if form.type_name.data|int == type_name.key.id() %} selected {% endif %}>{{ type_name.name }}</option>
                                               {% endif %}
+                                          {% else %}
+                                              <option value="">No Special</option>
                                           {% endfor %}
                                       </select>
                                     </div>
@@ -162,7 +164,7 @@
 
               </div>
               <div class="panel-footer clearfix">
-                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id) }}" class="btn btn-success pull-right" id="submit">Sell Ticket</a>
+                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit">Sell Ticket</a>
               </div>
             </div>
         </div>
@@ -204,7 +206,6 @@
     data['class_name'] = $('input:checked.ClassTicket').val();
     data['journey_name'] = $('input:checked.JourneyTicket').val();
     AjaxPrice(data);
-
     var modals = '{{ modal }}';
 
     if(modals == 'true'){
@@ -218,9 +219,9 @@
     }
 
 
-    $(document).ready(function(e){
+    $(document).ready(function(){
 
-        $('input.TicketTypeName, input.ClassTicket, input.JourneyTicket, input.CheckBox-Select').on('change', function(){
+        $("input.TicketTypeName,input.ClassTicket,input.JourneyTicket,input.CheckBox-Select").on('change', function(){
 
             data['type_name'] =  $('input:checked.TicketTypeName').val();
             data['class_name'] = $('input:checked.ClassTicket').val();
@@ -231,29 +232,44 @@
 
             if (InputCheckbox.is(':checked')){
                 SelectCheckbox.removeAttr('disabled');
-                selectVal = SelectCheckbox.val();
-                InputCheckbox.val(selectVal);
-                data['type_name'] =  $('input.CheckBox-Select').val();
+                var selectVal = SelectCheckbox.val();
+                if(!selectVal){
+                    $('#alert').removeClass('hidden');
+                    $('#alert').text('Any special ticket is created');
+                    SelectCheckbox.attr({disabled : 'disabled'});
+                    $('#submit').attr({disabled:'disabled'});
+
+                    $('#TicketPrice').text('Undefined');
+                    $('#TicketCurrency').text('');
+                    data['type_name'] = null;
+                }else{
+
+                    InputCheckbox.val(selectVal);
+                    data['type_name'] =  $('input.CheckBox-Select').val();
+                }
             }else{
                 SelectCheckbox.attr({disabled:'disabled'});
             }
             AjaxPrice(data);
+
         });
 
         $('#CheckBox-Select').on('change', function(){
 
-            selecVal  = $(this).val();
-            $('input.CheckBox-Select').val(selecVal);
+            var selectVal  = $(this).val();
+            $('input.CheckBox-Select').val(selectVal);
 
             data['class_name'] = $('input:checked.ClassTicket').val();
             data['journey_name'] = $('input:checked.JourneyTicket').val();
             data['type_name'] =  $('input.CheckBox-Select').val();
             AjaxPrice(data);
+
         });
 
         $('#submit').click(function(e) {
             e.preventDefault();
             var url = $(this).attr('href');
+            $(this).button('loading');
             $.ajax({
                 url: url,
                 data: $('#formulaire').serialize(),
@@ -265,10 +281,28 @@
             });
         });
 
+        $('#myModal').on('hidden.bs.modal', function () {
+
+            var url_remaining = "{{ url_for('remaining_ticket') }}";
+
+            $.ajax({
+                url: url_remaining,
+                type: 'GET',
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data) {
+                    $('#remaining_ticket').text(data['ticket']);
+
+                    $('#ScreenIndexPos').show();
+                    $('#ScreenCreateTicket').addClass('hidden').html('');
+                }
+            });
+        });
+
     });
 
     function AjaxPrice(datas){
-        url = "{{ url_for('Search_Ticket_Type') }}";
+        var url = "{{ url_for('Search_Ticket_Type') }}";
         $.ajax({
             url: url,
             type: 'POST',
@@ -276,30 +310,23 @@
             contentType: 'application/json;charset=UTF-8',
             dataType: "json",
             success: function(data) {
-                if (data['statut'] == 'OK'){
+                if(data['statut'] == 'OK'){
                     $('#TicketPrice').text(data['price']);
                     $('#TicketCurrency').text(data['currency']);
-
                 }else{
                     $('#TicketPrice').text(data['value']);
                     $('#TicketCurrency').text('');
                 }
-                if(data['notticket'] == 'true'){
-                    $("#alert").show();
-                    $("#alert").text('You don\'t have this ticket type. Contact Administrator');
-                    $('#submit').attr({disabled:'disabled'});
-                }else{
-                    $("#alert").hide().empty();
+                if(data['haveticket'] == 'true'){
+                    $('#alert').html('');
+                    $('#alert').addClass('hidden');
                     $('#submit').removeAttr('disabled');
+                }else{
+                    $('#alert').removeClass('hidden');
+                    $('#alert').text('You don\'t have this ticket type. Contact Administrator');
+                    $('#submit').attr({disabled:'disabled'});
                 }
             }
         });
     }
-
-
-
-
-
-
-
 </script>
