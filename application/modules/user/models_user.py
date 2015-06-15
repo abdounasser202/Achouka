@@ -117,6 +117,14 @@ class UserModel(ndb.Model):
             number = 'No Ticket'
         return number+' Available'
 
+    def get_currency_info(self):
+        if self.currency:
+            currency_user = CurrencyModel.get_by_id(self.currency.id())
+        else:
+            agency_user = AgencyModel.get_by_id(self.agency.id())
+            currency_user = CurrencyModel.get_by_id(agency_user.currency.id())
+
+        return currency_user
 
 
 class RoleModel(ndb.Model):

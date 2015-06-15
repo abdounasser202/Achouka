@@ -5,8 +5,9 @@ from lib.flaskext.wtf import validators
 
 
 def unique_email_validator(form, field):
-    if field.data:
-        wtf.validators.Email()
+    if not field.data:
+        field.errors[:] = []
+        raise validators.StopValidation()
 
 
 class FormCustomer(wtf.Form):
@@ -15,7 +16,7 @@ class FormCustomer(wtf.Form):
     birthday = wtf.DateField(label='Birthday', validators=[validators.Required()], format="%d/%m/%Y")
     profession = wtf.StringField(label='Profession')
     nationality = wtf.StringField(label='Select Nationality')
-    email = wtf.StringField(label='Email Adress', validators=[unique_email_validator])
+    email = wtf.StringField(label='Email Adress', validators=[unique_email_validator, validators.Email()])
     phone = wtf.StringField(label='Phone Number')
 
 
@@ -31,7 +32,7 @@ class FormCustomerPOS(wtf.Form):
     birthday = wtf.DateField(label='Birthday', validators=[validators.Required()], format="%d/%m/%Y")
     profession = wtf.StringField(label='Profession')
     nationality = wtf.StringField(label='Select Nationality')
-    email = wtf.StringField(label='Email Adress', validators=[unique_email_validator])
+    email = wtf.StringField(label='Email Adress', validators=[unique_email_validator, validators.Email()])
     phone = wtf.StringField(label='Phone Number')
     type_name = wtf.StringField(validators=[validators.Required()])
     class_name = wtf.StringField(validators=[validators.Required()])

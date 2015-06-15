@@ -25,7 +25,7 @@
                                 {% if customer_count >= 1 %}
                                     <div class="alert alert-warning">
                                         <a class="close" data-dismiss="alert">×</a>
-                                        Click here to update this customer <a href="{{ url_for('Customer_Edit', customer_id=customer_view.key.id()) }}"> {{ form.first_name(class_='form-control')|safe }} {{ form.last_name.label }}</a>
+                                        Click here to update this customer <a href="{{ url_for('Customer_Edit', customer_id=customer_view.key.id()) }}"> {{ customer_view.first_name }} {{ customer_view.last_name }}</a>
                                     </div>
 
                                 {% endif %}

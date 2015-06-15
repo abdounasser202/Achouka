@@ -12,7 +12,7 @@ class TransactionModel(ndb.Model):
     is_payment = ndb.BooleanProperty()
     agency = ndb.KeyProperty(kind=AgencyModel)
     currency = ndb.KeyProperty(kind=CurrencyModel)
-    transaction_date = ndb.DateTimeProperty(auto_now_add=True)
+    transaction_date = ndb.DateTimeProperty()
 
 
 class DetailsTransactionModel(ndb.Model):
@@ -24,4 +24,4 @@ class DetailsTransactionModel(ndb.Model):
 class ExpensePaymentTransactionModel(ndb.Model):
     transaction = ndb.KeyProperty(kind=TransactionModel)
     ticket = ndb.KeyProperty(kind=TicketModel)
-    is_difference = ndb.BooleanProperty(default=False)
+    is_difference = ndb.BooleanProperty(default=False) # si la transaction est different du montant du ticket

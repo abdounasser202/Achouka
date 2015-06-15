@@ -4,6 +4,7 @@ import re
 import datetime
 from application import app
 
+
 def datetime_convert(time): # Convertis time sous la forme YYYY-MM-DD HH:MM:SS
     _time = str(time)
     retime = re.compile(r'\W+')

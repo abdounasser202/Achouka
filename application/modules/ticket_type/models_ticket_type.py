@@ -2,7 +2,7 @@ __author__ = 'wilrona'
 
 
 from google.appengine.ext import ndb
-from ..currency.models_currency import CurrencyModel
+from ..currency.models_currency import CurrencyModel, EquivalenceModel
 
 class TicketTypeNameModel(ndb.Model):
     name = ndb.StringProperty()
@@ -29,3 +29,26 @@ class TicketTypeModel(ndb.Model):
     price = ndb.FloatProperty()
     currency = ndb.KeyProperty(kind=CurrencyModel)
     active = ndb.BooleanProperty(default=False)
+
+    def get_price(self, current_user):
+
+        #Traitement des prix en fonction de la devise.
+        db_currency = CurrencyModel.get_by_id(self.currency.id())
+        us_currency = current_user.get_currency_info()
+
+
+        custom_equi = EquivalenceModel.query(
+            EquivalenceModel.currencyRate == db_currency.key,
+            EquivalenceModel.currencyEqui == us_currency.key
+        ).get()
+
+        if not custom_equi:
+            price = self.price
+            currency = db_currency.code
+        else:
+            price = self.price*custom_equi.value
+            currency = us_currency.code
+
+        new_price = str(price)+" "+currency
+
+        return new_price

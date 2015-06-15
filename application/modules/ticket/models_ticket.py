@@ -35,7 +35,7 @@ class TicketModel(ndb.Model):
     ticket_seller = ndb.KeyProperty(kind=UserModel)
     e_ticket_seller = ndb.KeyProperty(kind=UserModel)
 
-    datecreate = ndb.DateTimeProperty(auto_now_add=True)
+    datecreate = ndb.DateTimeProperty()
 
 
 class TicketQuestion(ndb.Model):

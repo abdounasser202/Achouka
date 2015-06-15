@@ -84,6 +84,7 @@ def Ticket_Edit(tickettype, agency_id):
         insert_transaction.reason = 'Expense'
         insert_transaction.is_payment = False
         insert_transaction.currency = TicketType.currency
+        insert_transaction.transaction_date = function.datetime_convert(date_auto_now)
 
         key_transaction = insert_transaction.put()
 
@@ -100,6 +101,7 @@ def Ticket_Edit(tickettype, agency_id):
                 ticket.agency = info_agency.key
                 ticket.sellpriceAg = TicketType.price
                 ticket.sellpriceAgCurrency = TicketType.currency
+                ticket.datecreate = function.datetime_convert(date_auto_now)
 
                 ticket_create = ticket.put()
 

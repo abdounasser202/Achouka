@@ -110,7 +110,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
         Ticket_To_Sell.selling = True
         Ticket_To_Sell.is_ticket = True
-        Ticket_To_Sell.date_reservation = datetime.datetime.now()
+        Ticket_To_Sell.date_reservation = function.datetime_convert(date_auto_now)
         Ticket_To_Sell.sellprice = priceticket.price
         Ticket_To_Sell.sellpriceCurrency = priceticket.currency
 
@@ -264,8 +264,7 @@ def Search_Ticket_Type():
     if priceticket:
         data = json.dumps({
             'statut': 'OK',
-            'price': priceticket.price,
-            'currency': priceticket.currency.get().code,
+            'price': priceticket.get_price(current_user),
             'haveticket': have_ticket
         }, sort_keys=True)
     else:
@@ -332,6 +331,6 @@ def List_All_Departure(current_month_active=None, current_day_active=None):
     month_today = datetime.date.today().month
     date_day = datetime.date(year, month_today, day_today)
 
-    time_now = datetime.datetime.now().time()
+    time_now = function.datetime_convert(date_auto_now).time()
 
     return render_template('/pos/list_all_departure.html', **locals())

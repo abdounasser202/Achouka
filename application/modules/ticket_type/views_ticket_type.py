@@ -2,7 +2,8 @@ __author__ = 'wilrona'
 
 from ...modules import *
 
-from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel, CurrencyModel
+from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel
+from ..agency.models_agency import AgencyModel, CurrencyModel
 from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, FormTicketTypeName
 
 
@@ -25,8 +26,9 @@ def TicketType_Edit(tickettype_id=None):
     menu = 'settings'
     submenu = 'tickettype'
 
-    #liste des devises
-    listcurency = CurrencyModel.query()
+    # recuperation de la devise de l'utilisateur courant
+    currency_user = current_user.get_currency_info()
+
 
     #liste des ticket type name
     listTicketType = TicketTypeNameModel.query()
@@ -37,9 +39,29 @@ def TicketType_Edit(tickettype_id=None):
     #liste des journey
     listJourneyTicket = JourneyTypeModel.query()
 
+
+
     if tickettype_id:
         tickettype = TicketTypeModel.get_by_id(tickettype_id)
         form = FormTicketType(obj=tickettype)
+
+        #Traitement des prix en fonction de la devise.
+        db_currency = tickettype.currency.get().key
+        us_currency = currency_user.key
+
+        from ..currency.models_currency import EquivalenceModel
+
+        custom_equi = EquivalenceModel.query(
+            EquivalenceModel.currencyRate == db_currency,
+            EquivalenceModel.currencyEqui == us_currency
+        ).get()
+
+        if not custom_equi:
+            price = tickettype.price
+        else:
+            price = tickettype.price * custom_equi.value
+
+        form.price.data = price
     else:
         tickettype = TicketTypeModel()
         form = FormTicketType(request.form)
@@ -67,6 +89,7 @@ def TicketType_Edit(tickettype_id=None):
             return redirect(url_for('TicketType_Edit'))
 
     return render_template('/tickettype/edit.html', **locals())
+
 
 
 @app.route('/Active_tickettype/<int:tickettype_id>')

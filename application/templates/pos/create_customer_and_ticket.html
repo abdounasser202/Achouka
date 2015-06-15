@@ -141,8 +141,6 @@
               <h1 style="margin:0;">
                       <span class="text-muted" id="TicketPrice">
                       </span>
-                      <span class="text-primary" id="TicketCurrency">
-                      </span>
               </h1>
             </div>
             <div class="panel panel-info panel-pos">
@@ -317,10 +315,8 @@
             success: function(data) {
                 if(data['statut'] == 'OK'){
                     $('#TicketPrice').text(data['price']);
-                    $('#TicketCurrency').text(data['currency']);
                 }else{
                     $('#TicketPrice').text(data['value']);
-                    $('#TicketCurrency').text('');
                 }
                 if(data['haveticket'] == 'true'){
                     $('#alert').html('');

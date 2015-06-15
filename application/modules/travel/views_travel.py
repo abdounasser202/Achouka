@@ -41,6 +41,7 @@ def Travel_Edit(travel_id=None):
         start_destitravel = DestinationModel.get_by_id(int(form.destination_start.data))
         check_destitravel = DestinationModel.get_by_id(int(form.destination_check.data))
 
+        # on compte le nombre de travel ayant la meme destination depart et arrive
         count_dest_travel = TravelModel.query(
             TravelModel.destination_start == start_destitravel.key,
             TravelModel.destination_check == check_destitravel.key
@@ -67,10 +68,12 @@ def Travel_Edit(travel_id=None):
             travelmod.time = function.time_convert(form.time.data)
             travelmod.destination_start = start_destitravel.key
             travelmod.destination_check = check_destitravel.key
+            travelmod.datecreate = function.datetime_convert(date_auto_now)
 
             travelmod2.time = function.time_convert(form.time.data)
             travelmod2.destination_start = check_destitravel.key
             travelmod2.destination_check = start_destitravel.key
+            travelmod2.datecreate = function.datetime_convert(date_auto_now)
 
             try:
                 travelmod.put()

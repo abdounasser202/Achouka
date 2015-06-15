@@ -42,7 +42,7 @@ def Customer_Edit(customer_id=None):
         )
         customer_count = customer_exist.count()
 
-        if customer_count >= 1:
+        if customer_count >= 1 and not customer_id:
             customer_view = customer_exist.get()
             flash(u' This customer exist. ', 'danger')
         else:

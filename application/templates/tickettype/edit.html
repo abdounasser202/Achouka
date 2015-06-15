@@ -90,15 +90,9 @@
                                                   {% endfor %}
                                                 </div>
                                                 <div class="col-lg-4">
-                                                   <select name="currency" id="" class="form-control g-select">
-                                                        <option value="">Choices your currency</option>
-                                                        {% for cur in listcurency %}
-                                                            <option value="{{ cur.key.id() }}" {% if form.currency.data == cur.key %} selected {% endif %}>{{ cur.code }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                  {% for message in form.currency.errors %}
-                                                    <span class="help-block text-danger">{{ message }}</span>
-                                                  {% endfor %}
+
+                                                    <input type="text" value="{{ currency_user.code }}" class="form-control" disabled="disabled"/>
+                                                    <input type="hidden" value="{{ currency_user.key.id() }}" name="currency"/>
                                                 </div>
                                             </div>
 

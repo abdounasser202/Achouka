@@ -92,7 +92,7 @@ def Pos(departure_id=None):
 
     departure = DepartureModel.query(
         DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= datetime.datetime.today().time()
+        DepartureModel.schedule >= function.datetime_convert(date_auto_now).time()
     ).order(
         DepartureModel.schedule,
         DepartureModel.time_delay

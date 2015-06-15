@@ -4,6 +4,11 @@ from lib.flaskext import wtf
 from lib.flaskext.wtf import validators
 from application import function
 import datetime
+from lib.pytz.gae import pytz
+
+time_zone = pytz.timezone('Africa/Douala')
+date_auto_now = datetime.datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%S")
+
 
 def departure_date_activate(form, field):
     date = function.date_convert(field.data)
@@ -14,7 +19,7 @@ def departure_date_activate(form, field):
 def schedule_activate(form, field):
     time = function.time_convert(field.data)
     if function.date_convert(form.departure_date.data) == datetime.date.today():
-        if datetime.datetime.today().time() >= time:
+        if function.datetime_convert(date_auto_now).time() >= time:
             raise wtf.ValidationError('Time of departure of the current date must be greater than or equal to the current time.')
 
 
