@@ -83,8 +83,9 @@ def Dashboard():
     return render_template('/index/dashboard.html', **locals())
 
 
-@app.route('/point-of-sell/', methods=['GET', 'POST'])
-def Pos(year=None, current_month_active=None, current_day_active=None):
+@app.route('/point-of-sell/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/point-of-sell', methods=['GET', 'POST'])
+def Pos(departure_id=None):
     menu = 'pos'
     from ..agency.models_agency import AgencyModel
     from ..departure.models_departure import DepartureModel
@@ -96,16 +97,18 @@ def Pos(year=None, current_month_active=None, current_day_active=None):
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
+    if not departure_id:
+        if current_user.have_agency():
+            user_agence = AgencyModel.get_by_id(int(session.get('agence_id')))
 
-    if current_user.have_agency():
-        user_agence = AgencyModel.get_by_id(int(session.get('agence_id')))
-
-        for dep in departure:
-            if dep.destination.get().destination_start == user_agence.destination:
-                current_departure = dep
-                break
+            for dep in departure:
+                if dep.destination.get().destination_start == user_agence.destination:
+                    current_departure = dep
+                    break
+        else:
+            current_departure = departure.get()
     else:
-        current_departure = departure.get()
+        current_departure = DepartureModel.get_by_id(departure_id)
 
     return render_template('/index/pos.html', **locals())
 

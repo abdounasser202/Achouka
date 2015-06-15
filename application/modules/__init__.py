@@ -13,6 +13,7 @@ import hashlib
 import calendar
 import datetime
 
+
 from google.appengine.api import urlfetch
 import json
 
@@ -25,20 +26,19 @@ from lib.reportlab.lib.units import cm
 #ajoute des fonts dans mes pdfs
 import os
 import lib.reportlab
-import lib.reportlab.rl_config
-lib.reportlab.rl_config.warnOnMissingFontGlyphs = 0
+
+from lib.reportlab.platypus import Paragraph
+from lib.reportlab.lib.styles import getSampleStyleSheet
 from lib.reportlab.pdfbase import pdfmetrics
 from lib.reportlab.pdfbase.ttfonts import TTFont
-from lib.reportlab.pdfbase.pdfmetrics import registerFontFamily
+from lib.reportlab.lib.colors import black,white
 
-
-from lib.reportlab.graphics.shapes import Drawing, Group
 from lib.reportlab.graphics.barcode import code39, createBarcodeDrawing
-from lib.reportlab.graphics import renderPDF
 
 # Appel de l'ensemble des fonctions crees
 from application import function
 
+# variable pour la gestion automatique des dates en fonction des zones
 from lib.pytz.gae import pytz
 
 time_zone = pytz.timezone('Africa/Douala')

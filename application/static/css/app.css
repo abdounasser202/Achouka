@@ -190,7 +190,17 @@ section {
 }
 
 #pos > .carousel-control{
-    bottom: 72%;
+    bottom: 18%;
+    height: 50px;
+    top: 37%;
+}
+
+#pos > .carousel-control.left{
+    left:8px;
+}
+
+#pos > .carousel-control.right{
+    right:8px;
 }
 
 #pos a.btn.disabled.btn-xs, #pos a.btn.btn-link.btn-xs{

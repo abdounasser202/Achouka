@@ -164,7 +164,7 @@
 
               </div>
               <div class="panel-footer clearfix">
-                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit">Sell Ticket</a>
+                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit" data-backdrop="static">Sell Ticket</a>
               </div>
             </div>
         </div>
@@ -216,6 +216,10 @@
         $.get(url_modal, function(data) {
           $('.modal-content').empty().html(data);
         });
+        $("#submit").removeClass('btn-success');
+        $("#submit").addClass('btn-danger');
+        $("#submit").addClass('disabled');
+        $("#submit").text('Sale made');
     }
 
 
@@ -292,9 +296,10 @@
                 dataType: "json",
                 success: function(data) {
                     $('#remaining_ticket').text(data['ticket']);
-
-                    $('#ScreenIndexPos').show();
                     $('#ScreenCreateTicket').addClass('hidden').html('');
+                    $('#ScreenIndexPos').show();
+                    $('.datepickerbirth').val('');
+                    $('.datepickerbirth').focus();
                 }
             });
         });

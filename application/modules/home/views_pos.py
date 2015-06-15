@@ -22,8 +22,8 @@ def search_customer_pos():
         CustomerModel.birthday == function.date_convert(birtday)
     )
 
-
     return render_template('/pos/search_customer.html', **locals())
+
 
 
 @app.route('/search_ticket_pos', methods=['GET', 'POST'])
@@ -142,38 +142,75 @@ def generate_pdf_ticket(ticket_id):
 
     import cStringIO
     output = cStringIO.StringIO()
-    #(595.27, 280.63)
+
+    style = getSampleStyleSheet()
+    width, height = 595.27, 280.63
     p = canvas.Canvas(output, pagesize=(595.27, 280.63))
 
     code = str(Ticket_print.key.id())
-    # barcode = createBarcodeDrawing('Standard39', value=code, barHeight=20, humanReadable=True)
     barcode = code39.Standard39(code, barHeight=20, stop=1)
     barcode.humanReadable = 1
 
+    # from application import APP_STATIC
 
-    econo = Ticket_print.class_name.get().name
-    name = Ticket_print.customer.get().first_name+" "+Ticket_print.customer.get().last_name
-    froms = Ticket_print.departure.get().destination.get().destination_start.get().name
-    destination = Ticket_print.departure.get().destination.get().destination_check.get().name
-    date = str(function.format_date(Ticket_print.departure.get().departure_date, '%d-%m-%Y'))
-    time = str(function.format_date(function.add_time(Ticket_print.departure.get().schedule, Ticket_print.departure.get().time_delay), "%H:%M"))
-    lieu = Ticket_print.agency.get().name
-    agent = str(Ticket_print.ticket_seller.get().key.id())
+    # f = open(os.path.join(APP_STATIC, 'fonts/Lato-Bold.ttf'))
+    # font = f.read()
+
+    #font = r"Lato-Bold.ttf"
+    #pdfmetrics.registerFont("Lato-Bold.ttf")
+    string = '<font name="Times-Roman" size="14">%s</font>'
+
+    econo = string % Ticket_print.class_name.get().name
+    name = string % Ticket_print.customer.get().first_name+" "+ string % Ticket_print.customer.get().last_name
+    froms = string % Ticket_print.departure.get().destination.get().destination_start.get().name
+    destination = string % Ticket_print.departure.get().destination.get().destination_check.get().name
+    date = string % str(function.format_date(Ticket_print.departure.get().departure_date, '%d-%m-%Y'))
+    time = string % str(function.format_date(function.add_time(Ticket_print.departure.get().schedule, Ticket_print.departure.get().time_delay), "%H:%M"))
+    lieu = string % Ticket_print.agency.get().name
+    agent = string % str(Ticket_print.ticket_seller.get().key.id())
 
     p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
-    p.drawString(11.3*cm, 7.9*cm, econo)
-    p.drawString(2.97*cm, 6.22*cm, name)
-    p.drawString(2.97*cm, 4.7*cm, froms)
-    p.drawString(8.56*cm, 4.7*cm, destination)
-    p.drawString(2.97*cm, 3.22*cm, date)
-    p.drawString(8.56*cm, 3.22*cm, time)
-    p.drawString(2.97*cm, 1.7*cm, lieu)
-    p.drawString(8.56*cm, 1.7*cm, agent)
+
+    c = Paragraph(econo, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 11.3*cm, 7.9*cm)
+
+    c = Paragraph(name, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 2.97*cm, 6.42*cm)
+
+    c = Paragraph(froms, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 2.97*cm, 4.9*cm)
+
+    c = Paragraph(destination, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 8.56*cm, 4.9*cm)
+
+    c = Paragraph(date, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 2.97*cm, 3.42*cm)
+
+    c = Paragraph(time, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 8.56*cm, 3.42*cm)
+
+    c = Paragraph(lieu, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 2.97*cm, 1.9*cm)
+
+    c = Paragraph(agent, style=style['Normal'])
+    c.wrapOn(p, width, height)
+    c.drawOn(p, 8.56*cm, 1.9*cm)
 
 
     p.saveState()
     p.translate(2*cm, 13.9*cm)
+    p.setFillColorRGB(255, 255, 255)
+    p.setStrokeColorRGB(255, 255, 255)
+    p.rect(-1.1*cm, -12.5*cm, 1.2*cm, 5.5*cm, fill=1)
     p.rotate(-90)
+    p.setFillColorRGB(0, 0, 0)
     barcode.drawOn(p, 6.6*cm, -0.80*cm)
     p.restoreState()
 
@@ -249,3 +286,52 @@ def remaining_ticket():
     }, sort_keys=True)
 
     return data
+
+
+@app.route('/Calendrier')
+def Calendrier(current_month_active=None, current_day_active=None):
+
+    cal = calendar.Calendar(0)
+
+    year = datetime.date.today().year
+
+    if not current_month_active:
+        current_month_active = datetime.date.today().month
+
+    if not current_day_active:
+        current_day_active = datetime.date.today().day
+
+    cal_list = [cal.monthdatescalendar(year, i+1) for i in xrange(12)]
+
+    return render_template('/pos/calendrier.html', **locals())
+
+
+
+@app.route('/List_All_Departure/<int:current_month_active>/<int:current_day_active>')
+@app.route('/List_All_Departure')
+def List_All_Departure(current_month_active=None, current_day_active=None):
+    from ..departure.models_departure import DepartureModel
+
+    year = datetime.date.today().year
+
+    if not current_month_active:
+        current_month_active = datetime.date.today().month
+
+    if not current_day_active:
+        current_day_active = datetime.date.today().day
+
+    date = datetime.date(year, current_month_active, current_day_active)
+    departure_list = DepartureModel.query(
+        DepartureModel.departure_date == date
+    ).order(
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    day_today = datetime.date.today().day
+    month_today = datetime.date.today().month
+    date_day = datetime.date(year, month_today, day_today)
+
+    time_now = datetime.datetime.now().time()
+
+    return render_template('/pos/list_all_departure.html', **locals())

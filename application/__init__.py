@@ -36,6 +36,9 @@ else:
 # Enable jinja2 loop controls extension
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
+APP_STATIC = os.path.join(APP_ROOT, 'static')
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'Home'

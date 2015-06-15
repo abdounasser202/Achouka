@@ -8,17 +8,30 @@ def datetime_convert(time): # Convertis time sous la forme YYYY-MM-DD HH:MM:SS
     _time = str(time)
     retime = re.compile(r'\W+')
     _list = retime.split(_time)
-    try:
-        hour = int(_list[0])
-        minute = int(_list[1])
-        second = int(_list[2])
-        time = datetime.datetime(100, 1, 1, hour, minute, second)
+
+    if len(_list) >= 6:
+        year = int(_list[0])
+        mounth = int(_list[1])
+        day = int(_list[2])
+        hour = int(_list[3])
+        minute = int(_list[4])
+        second = int(_list[5])
+        time = datetime.datetime(year, mounth, day, hour, minute, second)
         return time
-    except IndexError:
-        hour = int(_list[0])
-        minute = int(_list[1])
-        time = datetime.datetime(hour, minute)
-        return time
+
+    else:
+        try:
+            hour = int(_list[0])
+            minute = int(_list[1])
+            second = int(_list[2])
+            time = datetime.datetime(100, 1, 1, hour, minute, second)
+            return time
+
+        except IndexError:
+            hour = int(_list[0])
+            minute = int(_list[1])
+            time = datetime.datetime(hour, minute)
+            return time
 
 
 def date_convert(date):# Convertis date sous la forme YYYY-MM-DD
