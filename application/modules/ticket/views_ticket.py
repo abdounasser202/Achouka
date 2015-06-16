@@ -13,6 +13,8 @@ from forms_ticket import FormTicket
 cache = Cache(app)
 
 @app.route('/recording/ticket')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Ticket_Index():
     menu = 'recording'
     submenu = 'ticket'
@@ -23,7 +25,8 @@ def Ticket_Index():
     return render_template('ticket/index.html', **locals())
 
 
-
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 @app.route('/Select_TicketType/<int:agency_id>', methods=['GET', 'POST'])
 def Select_TicketType(agency_id):
 
@@ -54,6 +57,8 @@ def Select_TicketType(agency_id):
     return render_template('ticket/select-tickettype.html', **locals())
 
 
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 @app.route('/recording/ticket/edit/<int:tickettype>/<int:agency_id>', methods=['GET', 'POST'])
 def Ticket_Edit(tickettype, agency_id):
     menu = 'recording'

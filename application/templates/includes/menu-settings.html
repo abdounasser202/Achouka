@@ -116,21 +116,19 @@
           </a>
         </div>
     </li>
-     {% if current_user.has_roles(('super_admin','admin')) %}
-          <li class="list-group-item {% if submenu == 'user_admin' %} active {% endif %}">
-            <div class="list-group-item-wrapper">
-              <div class="dropdown pull-right">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                  <li><a href="{{ url_for('User_Admin_Index') }}">List</a></li>
-                  <li><a href="{{ url_for('User_Admin_Edit') }}">New</a></li>
-                </ul>
-              </div>
+  <li class="list-group-item {% if submenu == 'user_admin' %} active {% endif %}">
+    <div class="list-group-item-wrapper">
+      <div class="dropdown pull-right">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+        <ul role="menu" class="dropdown-menu">
+          <li><a href="{{ url_for('User_Admin_Index') }}">List</a></li>
+          <li><a href="{{ url_for('User_Admin_Edit') }}">New</a></li>
+        </ul>
+      </div>
 
-              <a href="{{ url_for('User_Admin_Index') }}">
-                Administrator
-              </a>
-            </div>
-          </li>
-    {% endif %}
+      <a href="{{ url_for('User_Admin_Index') }}">
+        Administrator
+      </a>
+    </div>
+  </li>
 </ul>

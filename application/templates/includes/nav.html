@@ -18,11 +18,19 @@
 
 
                 <ul class="nav navbar-nav navbar-left">
+                {% if current_user.has_roles(('super_admin','manager_agency')) %}
                     <li {% if menu == 'dashboard' %} class="active" {% endif %}><a href="{{ url_for('Dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li>
                    <!-- <li><a href="#">Boarding <span class="sr-only">(current)</span></a></li> -->
+                {% endif %}
+                {% if current_user.has_roles(('super_admin','employee_POS')) %}
                     <li {% if menu == 'pos' %} class="active" {% endif %}><a href="{{ url_for('Pos') }}">POS <span class="sr-only">(current)</span></a></li>
+                {% endif %}
+                {% if current_user.has_roles(('super_admin','admin')) %}
                     <li {% if menu == 'recording' %} class="active" {% endif %}><a href="{{ url_for('Recording') }}">Recording <span class="sr-only">(current)</span></a></li>
+                {% endif %}
+                {% if current_user.has_roles(('super_admin','manager_agency')) %}
                     <li {% if menu == 'settings' %} class="active" {% endif %} ><a href="{{ url_for('Settings') }}">Settings <span class="sr-only">(current)</span></a></li>
+                {% endif %}
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">

@@ -83,6 +83,7 @@ def Dashboard():
 
 @app.route('/point-of-sell/<int:departure_id>', methods=['GET', 'POST'])
 @app.route('/point-of-sell', methods=['GET', 'POST'])
+@login_required
 def Pos(departure_id=None):
     menu = 'pos'
     from ..agency.models_agency import AgencyModel
@@ -124,6 +125,7 @@ def Pos(departure_id=None):
 
 
 @app.route('/settings')
+@login_required
 def Settings():
 
     menu = 'settings'
@@ -131,6 +133,7 @@ def Settings():
 
 
 @app.route('/recording')
+@login_required
 def Recording():
 
     menu = 'recording'

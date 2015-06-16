@@ -9,6 +9,8 @@ from forms_travel import FormTravel
 cache = Cache(app)
 
 @app.route('/recording/travel')
+@login_required
+@roles_required(('super_admin', 'admin'))
 def Travel_Index():
     menu = 'recording'
     submenu = 'travel'
@@ -18,11 +20,18 @@ def Travel_Index():
     return render_template('/travel/index.html', **locals())
 
 
+@login_required
+@roles_required(('super_admin', 'admin'))
 @app.route('/recording/travel/edit', methods=['GET', 'POST'])
 @app.route('/recording/travel/edit/<int:travel_id>', methods=['GET', 'POST'])
 def Travel_Edit(travel_id=None):
     menu = 'recording'
     submenu = 'travel'
+
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     destitravel = DestinationModel.query()
     if travel_id:
@@ -68,12 +77,12 @@ def Travel_Edit(travel_id=None):
             travelmod.time = function.time_convert(form.time.data)
             travelmod.destination_start = start_destitravel.key
             travelmod.destination_check = check_destitravel.key
-            travelmod.datecreate = function.datetime_convert(date_auto_now)
+            travelmod.datecreate = function.datetime_convert(date_auto_nows)
 
             travelmod2.time = function.time_convert(form.time.data)
             travelmod2.destination_start = check_destitravel.key
             travelmod2.destination_check = start_destitravel.key
-            travelmod2.datecreate = function.datetime_convert(date_auto_now)
+            travelmod2.datecreate = function.datetime_convert(date_auto_nows)
 
             try:
                 travelmod.put()

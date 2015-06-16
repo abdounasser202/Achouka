@@ -8,7 +8,8 @@ from forms_departure import FormDeparture
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-
+@login_required
+@roles_required(('super_admin', 'admin'))
 @app.route('/recording/departure')
 def Departure_Index():
     menu = 'recording'
@@ -21,6 +22,9 @@ def Departure_Index():
     )
     return render_template('/departure/index.html', **locals())
 
+
+@login_required
+@roles_required(('super_admin', 'admin'))
 @app.route('/recording/departure/edit', methods=['GET', 'POST'])
 @app.route('/recording/departure/edit/<int:departure_id>', methods=['GET', 'POST'])
 def Departure_Edit(departure_id=None):
@@ -74,6 +78,8 @@ def Departure_Edit(departure_id=None):
     return render_template('/departure/edit.html', **locals())
 
 
+@login_required
+@roles_required(('super_admin', 'admin'))
 @app.route('/Time_Delay_Edit/<int:departure_id>', methods=['GET', 'POST'])
 def Time_Delay_Edit(departure_id):
     departmod = DepartureModel.get_by_id(departure_id)
