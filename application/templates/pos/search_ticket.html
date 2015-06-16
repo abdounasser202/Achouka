@@ -65,7 +65,7 @@
                                                                       <tr>
                                                                           <td><strong>Price</strong></td>
                                                                           <td>
-                                                                              {{ ticket.sellprice }} {{ ticket.sellpriceCurrency.get().code }}
+                                                                              {{ ticket.get_price_sell(current_user) }}
                                                                           </td>
                                                                       </tr>
                                                                   </table>

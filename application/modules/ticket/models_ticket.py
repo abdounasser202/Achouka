@@ -4,7 +4,7 @@ from google.appengine.ext import ndb
 
 from ..user.models_user import UserModel
 from ..agency.models_agency import AgencyModel
-from ..currency.models_currency import CurrencyModel
+from ..currency.models_currency import CurrencyModel, EquivalenceModel
 from ..customer.models_customer import CustomerModel
 from ..departure.models_departure import DepartureModel
 from ..ticket_type.models_ticket_type import ClassTypeModel, TicketTypeNameModel, JourneyTypeModel
@@ -36,6 +36,29 @@ class TicketModel(ndb.Model):
     e_ticket_seller = ndb.KeyProperty(kind=UserModel)
 
     datecreate = ndb.DateTimeProperty()
+
+    def get_price_sell(self, current_user):
+
+        #Traitement des prix en fonction de la devise.
+        db_currency = CurrencyModel.get_by_id(self.sellpriceCurrency.id())
+        us_currency = current_user.get_currency_info()
+
+
+        custom_equi = EquivalenceModel.query(
+            EquivalenceModel.currencyRate == db_currency.key,
+            EquivalenceModel.currencyEqui == us_currency.key
+        ).get()
+
+        if not custom_equi:
+            price = self.sellprice
+            currency = db_currency.code
+        else:
+            price = self.sellprice*custom_equi.value
+            currency = us_currency.code
+
+        new_price = str(price)+" "+currency
+
+        return new_price
 
 
 class TicketQuestion(ndb.Model):
