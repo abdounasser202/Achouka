@@ -43,10 +43,12 @@
                                                 <a href="" class="btn btn-link btn-xs">Reset password </a>
                                                 <a href="" class="btn btn-link btn-xs">Change email </a>
                                                 <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
-                                                {% if user.user_id %}
-                                                         <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
-                                                {% else %}
-                                                         <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                                                {% if current_user.key != user.user_id %}
+                                                    {% if user.user_id.get().is_enabled %}
+                                                        <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
+                                                    {% else %}
+                                                        <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </td>
                                         </tr>

@@ -40,6 +40,10 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     from ..departure.models_departure import DepartureModel
     from ..user.models_user import UserModel
 
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     nationalList = global_nationality_contry
 
     #Verifier que les questions obligatoires ont ete selectionne
@@ -110,7 +114,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
         Ticket_To_Sell.selling = True
         Ticket_To_Sell.is_ticket = True
-        Ticket_To_Sell.date_reservation = function.datetime_convert(date_auto_now)
+        Ticket_To_Sell.date_reservation = function.datetime_convert(date_auto_nows)
         Ticket_To_Sell.sellprice = priceticket.price
         Ticket_To_Sell.sellpriceCurrency = priceticket.currency
 
@@ -244,7 +248,6 @@ def Search_Ticket_Type():
     journeyticket = JourneyTypeModel.get_by_id(int(journey_name))
     classticket = ClassTypeModel.get_by_id(int(class_name))
 
-    agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
 
     priceticket = TicketTypeModel.query(
         TicketTypeModel.type_name == typeticket.key,
@@ -253,13 +256,17 @@ def Search_Ticket_Type():
         TicketTypeModel.active == True
     ).get()
 
-    Agency_ticket = TicketModel.query(
-        TicketModel.class_name == classticket.key,
-        TicketModel.type_name == typeticket.key,
-        TicketModel.journey_name == journeyticket.key,
-        TicketModel.agency == agency_user.key,
-        TicketModel.selling == False
-    ).count()
+    Agency_ticket = 0
+    if session.get('agence_id'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+        Agency_ticket = TicketModel.query(
+            TicketModel.class_name == classticket.key,
+            TicketModel.type_name == typeticket.key,
+            TicketModel.journey_name == journeyticket.key,
+            TicketModel.agency == agency_user.key,
+            TicketModel.selling == False
+        ).count()
+
 
     have_ticket = 'false'
     if Agency_ticket >= 1:

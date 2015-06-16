@@ -67,8 +67,6 @@ def Super_Admin_Create():
 
     return render_template('user/edit-super-admin.html', **locals())
 
-
-
 @login_required
 @roles_required(('super_admin', 'admin'))
 @app.route('/settings/user/admin')
@@ -157,7 +155,10 @@ def User_Admin_Edit(user_id=None):
             ).get()
 
             currency = CurrencyModel.get_by_id(int(form.currency.data))
-            agency = AgencyModel.get_by_id(int(form.agency.data))
+
+            agency = 0
+            if form.agency.data:
+                agency = AgencyModel.get_by_id(int(form.agency.data))
 
 
 
@@ -166,8 +167,12 @@ def User_Admin_Edit(user_id=None):
 
             User.phone = form.phone.data
             User.currency = currency.key
+
+            User.agency = None
             if agency:
                 User.agency = agency.key
+
+
 
             if not user_id:
                 User.email = form.email.data

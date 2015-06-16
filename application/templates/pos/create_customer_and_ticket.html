@@ -162,7 +162,7 @@
 
               </div>
               <div class="panel-footer clearfix">
-                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit" data-backdrop="static">Sell Ticket</a>
+                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit" data-backdrop="static" disabled="disabled">Sell Ticket</a>
               </div>
             </div>
         </div>
@@ -204,6 +204,7 @@
     data['class_name'] = $('input:checked.ClassTicket').val();
     data['journey_name'] = $('input:checked.JourneyTicket').val();
     AjaxPrice(data);
+
     var modals = '{{ modal }}';
 
     if(modals == 'true'){
@@ -242,7 +243,6 @@
                     $('#submit').attr({disabled:'disabled'});
 
                     $('#TicketPrice').text('Undefined');
-                    $('#TicketCurrency').text('');
                     data['type_name'] = null;
                 }else{
 
