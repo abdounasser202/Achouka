@@ -41,9 +41,6 @@ from application import function
 # variable pour la gestion automatique des dates en fonction des zones
 from lib.pytz.gae import pytz
 
-time_zone = pytz.timezone('Africa/Douala')
-date_auto_now = datetime.datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%S")
-
 
 global_role = {
     'admin': False,

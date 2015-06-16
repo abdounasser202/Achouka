@@ -66,6 +66,10 @@ def Ticket_Edit(tickettype, agency_id):
     #information de l'agence
     info_agency = AgencyModel.get_by_id(agency_id)
 
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     form = FormTicket(request.form)
 
     if form.validate_on_submit():
@@ -84,7 +88,7 @@ def Ticket_Edit(tickettype, agency_id):
         insert_transaction.reason = 'Expense'
         insert_transaction.is_payment = False
         insert_transaction.currency = TicketType.currency
-        insert_transaction.transaction_date = function.datetime_convert(date_auto_now)
+        insert_transaction.transaction_date = function.datetime_convert(date_auto_nows)
 
         key_transaction = insert_transaction.put()
 
@@ -101,7 +105,7 @@ def Ticket_Edit(tickettype, agency_id):
                 ticket.agency = info_agency.key
                 ticket.sellpriceAg = TicketType.price
                 ticket.sellpriceAgCurrency = TicketType.currency
-                ticket.datecreate = function.datetime_convert(date_auto_now)
+                ticket.datecreate = function.datetime_convert(date_auto_nows)
 
                 ticket_create = ticket.put()
 

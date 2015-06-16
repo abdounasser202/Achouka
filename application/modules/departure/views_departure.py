@@ -14,7 +14,11 @@ def Departure_Index():
     menu = 'recording'
     submenu = 'departure'
 
-    departures = DepartureModel.query()
+    departures = DepartureModel.query().order(
+        DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
     return render_template('/departure/index.html', **locals())
 
 @app.route('/recording/departure/edit', methods=['GET', 'POST'])

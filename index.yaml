@@ -16,14 +16,17 @@ indexes:
   - name: schedule
   - name: time_delay
 
-- kind: TicketModel
+- kind: DepartureModel
   properties:
-  - name: agency
-  - name: class_name
-  - name: journey_name
-  - name: selling
-  - name: type_name
-  - name: datecreate
+  - name: departure_date
+    direction: desc
+  - name: schedule
+  - name: time_delay
+
+- kind: DepartureModel
+  properties:
+  - name: schedule
+  - name: time_delay
 
 - kind: TicketModel
   properties:

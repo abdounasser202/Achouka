@@ -128,11 +128,15 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
     return render_template('/pos/create_customer_and_ticket.html', **locals())
 
+
+
 @app.route('/modal_generate_pdf_ticket')
 @app.route('/modal_generate_pdf_ticket/<int:ticket_id>')
 def modal_generate_pdf_ticket(ticket_id=None):
 
     return render_template('/pos/view-pdf.html', **locals())
+
+
 
 
 @app.route('/generate_pdf_ticket/<int:ticket_id>')
@@ -331,6 +335,10 @@ def List_All_Departure(current_month_active=None, current_day_active=None):
     month_today = datetime.date.today().month
     date_day = datetime.date(year, month_today, day_today)
 
-    time_now = function.datetime_convert(date_auto_now).time()
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    time_now = function.datetime_convert(date_auto_nows).time()
 
     return render_template('/pos/list_all_departure.html', **locals())

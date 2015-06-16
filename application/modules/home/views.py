@@ -6,9 +6,7 @@ from application import login_manager
 from ..user.models_user import UserModel, RoleModel, UserRoleModel
 from ..user.forms_user import FormLogin
 
-
 cache = Cache(app)
-
 
 @login_manager.user_loader
 def load_user(userid):
@@ -90,16 +88,26 @@ def Pos(departure_id=None):
     from ..agency.models_agency import AgencyModel
     from ..departure.models_departure import DepartureModel
 
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    heure = function.datetime_convert(date_auto_nows).time()
+
     departure = DepartureModel.query(
         DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= function.datetime_convert(date_auto_now).time()
+        DepartureModel.schedule >= heure
     ).order(
+        -DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
+
     if not departure_id:
+
         if current_user.have_agency():
-            user_agence = AgencyModel.get_by_id(int(session.get('agence_id')))
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
                 if dep.destination.get().destination_start == user_agence.destination:
