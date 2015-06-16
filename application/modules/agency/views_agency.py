@@ -9,7 +9,8 @@ from forms_agency import FormAgency
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route('/settings/agency')
 def Agency_Index():
     menu = 'settings'
@@ -22,7 +23,8 @@ def Agency_Index():
 
     return render_template('agency/index.html', **locals())
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route('/settings/agency/edit', methods=['GET', 'POST'])
 @app.route('/settings/agency/edit/<int:agency_id>', methods=['GET', 'POST'])
 def Agency_Edit(agency_id=None):
@@ -91,7 +93,8 @@ def Agency_Edit(agency_id=None):
 
     return render_template('agency/edit.html', **locals())
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route("/settings/agency/activate/<int:agency_id>")
 def Active_Agency(agency_id):
     agencymod = AgencyModel.get_by_id(agency_id)

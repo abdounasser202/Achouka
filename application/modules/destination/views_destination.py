@@ -10,7 +10,8 @@ from forms_destination import FormDestination
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route('/settings/destination')
 def Destination_Index():
     menu = 'settings'
@@ -20,7 +21,8 @@ def Destination_Index():
 
     return render_template('/destination/index.html', **locals())
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route('/settings/destination/Edit/<int:destination_id>', methods=['GET', 'POST'])
 @app.route('/settings/destination/Edit', methods=['GET', 'POST'])
 def Destination_Edit(destination_id=None):
@@ -66,7 +68,8 @@ def Destination_Edit(destination_id=None):
 
     return render_template('/destination/edit.html', **locals())
 
-
+@login_required
+@roles_required(('admin', 'super_admin'))
 @app.route('/settings/destination/delete/', methods=['GET', 'POST'])
 @app.route('/settings/destination/delete/<int:destination_id>', methods=['GET', 'POST'])
 def Destination_Delete(destination_id=None):
