@@ -3,7 +3,7 @@
     <h4 class="modal-title" id="myModalLabel">Select Ticket Type for your ticket</h4>
 </div>
 
-<form class="form-horizontal" method="post" id="formulaire">
+<form class="form-horizontal" id="formulaire">
     <div class="modal-body">
             {% include 'includes/flash_message.html' %}
             {{ form.hidden_tag() }}
@@ -55,7 +55,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" type="button" id="submit">Continued</button>
+        <button class="btn btn-info" type="submit" id="submit">Continued</button>
     </div>
 </form>
 

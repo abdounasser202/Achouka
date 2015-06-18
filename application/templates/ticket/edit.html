@@ -3,7 +3,7 @@
     <h4 class="modal-title" id="myModalLabel">Create Ticket</h4>
 </div>
 
-<form class="form-horizontal" method="post" id="formulaire">
+<form class="form-horizontal" id="formulaire">
 <div class="modal-body">
       {% include 'includes/flash_message.html' %}
       {{ form.hidden_tag() }}
@@ -57,8 +57,8 @@
 
 <script>
 
-    val = {{ refresh }} ;
-    btn = $('button#submit');
+    var val = {{ refresh }} ;
+    var btn = $('button#submit');
 
     if(val === true){
         btn.button('loading');
@@ -89,6 +89,20 @@
         });
     });
 
+    $('#number').keypress(function(e) {
+        if (e.which == 13){
+            var btns = btn;
+            btns.button('loading');
+            $.ajax({
+                url: "{{ url_for('Ticket_Edit', tickettype=tickettype, agency_id=agency_id) }}",
+                data: $('#formulaire').serialize(),
+                type: 'POST',
+                success: function(data) {
+                    $('.modal-content').html(data);
+                }
+            });
+        }
+    });
 
     $('a#return').click(function(e) {
       e.preventDefault();

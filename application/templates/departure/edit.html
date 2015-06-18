@@ -20,6 +20,7 @@
                         </ol>
                         <div class="row">
                             <div class="col-lg-8">
+                                {% include 'includes/flash_message.html' %}
                                 <form method="post" class="form-horizontal">
                                     <fieldset><legend>Edit Departure {{ time }}</legend>
                                           {{ form.hidden_tag() }}

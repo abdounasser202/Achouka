@@ -55,12 +55,6 @@ global_agencytype = {
         3: 'Coorporate'
 }
 
-
-global_type_paymentlist = {
-    1: 'Pre Payment',
-    2: 'Post Payment'
-}
-
 global_nationality_contry = {
     'abkhazia' : 'Abkhazian',
     'afghanistan' : 'Afghan',

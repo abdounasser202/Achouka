@@ -32,3 +32,9 @@ indexes:
   properties:
   - name: agency
   - name: datecreate
+
+- kind: TicketModel
+  properties:
+  - name: agency
+  - name: datecreate
+    direction: desc

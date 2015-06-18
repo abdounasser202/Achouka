@@ -51,7 +51,9 @@ class AgencyModel(ndb.Model):
 
         ticket = TicketModel.query(
             TicketModel.agency == self.key
-        ).order(TicketModel.datecreate).get()
+        ).order(-TicketModel.datecreate)
+
+        ticket = ticket.get()
 
         if ticket:
             date = ticket.datecreate

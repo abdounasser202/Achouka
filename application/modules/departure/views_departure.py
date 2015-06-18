@@ -52,17 +52,16 @@ def Departure_Edit(departure_id=None):
             DepartureModel.destination == travel_destination.key
         ).count()
 
-        if departure_exist == 0:
-            #insertion et modification de la capacite restante pour les reservations
-            if not departure_id or (departmod.vessel != vessel_departure.key and departure_id):
+        if departure_exist >= 1:
 
-                if not departure_id:
-                    departmod.remaining_capacity = vessel_departure.capacity
+            if departmod.destination == travel_destination.key and departmod.departure_date == function.date_convert(form.departure_date.data) and departmod.schedule == function.time_convert(form.schedule.data):
+                departmod.vessel = vessel_departure.key
+                flash(u' Departure Updated. ', 'success')
+                return redirect(url_for('Departure_Index'))
+            else:
+                flash(u'This departure exist. ', 'danger')
 
-                else:
-                    reservation_number = departmod.vessel.get().capacity - departmod.remaining_capacity
-                    new_remaining_capacity = vessel_departure.capacity - reservation_number
-                    departmod.remaining_capacity = new_remaining_capacity
+        else:
 
             departmod.departure_date = function.date_convert(form.departure_date.data)
             departmod.schedule = function.time_convert(form.schedule.data)
@@ -72,8 +71,17 @@ def Departure_Edit(departure_id=None):
             depart = departmod.put()
             flash(u' Departure Saved. ', 'success')
             return redirect(url_for('Departure_Index'))
-        else:
-             flash(u'This departure exist. ', 'danger')
+
+            #insertion et modification de la capacite restante pour les reservations
+            # if not departure_id or (departmod.vessel != vessel_departure.key and departure_id):
+            #
+            #     if not departure_id:
+            #         departmod.remaining_capacity = vessel_departure.capacity
+            #
+            #     else:
+            #         reservation_number = departmod.vessel.get().capacity - departmod.remaining_capacity
+            #         new_remaining_capacity = vessel_departure.capacity - reservation_number
+            #         departmod.remaining_capacity = new_remaining_capacity
 
     return render_template('/departure/edit.html', **locals())
 

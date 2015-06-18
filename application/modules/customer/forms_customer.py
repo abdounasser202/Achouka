@@ -17,6 +17,7 @@ class FormCustomer(wtf.Form):
     profession = wtf.StringField(label='Profession')
     nationality = wtf.StringField(label='Select Nationality')
     email = wtf.StringField(label='Email Adress', validators=[unique_email_validator, validators.Email()])
+    dial_code = wtf.StringField(label='Code')
     phone = wtf.StringField(label='Phone Number')
 
 
@@ -34,6 +35,7 @@ class FormCustomerPOS(wtf.Form):
     nationality = wtf.StringField(label='Select Nationality')
     email = wtf.StringField(label='Email Adress', validators=[unique_email_validator, validators.Email()])
     phone = wtf.StringField(label='Phone Number')
+    dial_code = wtf.StringField(label='Code')
     type_name = wtf.StringField(validators=[validators.Required()])
     class_name = wtf.StringField(validators=[validators.Required()])
     journey_name = wtf.StringField(validators=[validators.Required()])

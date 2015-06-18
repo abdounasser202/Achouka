@@ -12,9 +12,10 @@ from forms_ticket import FormTicket
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-@app.route('/recording/ticket')
+
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
+@app.route('/recording/ticket')
 def Ticket_Index():
     menu = 'recording'
     submenu = 'ticket'
@@ -37,14 +38,14 @@ def Select_TicketType(agency_id):
     form = FormSelectTicketType(request.form)
 
     if form.validate_on_submit():
-        class_ticket = ClassTypeModel.get_by_id(int(form.class_name.data))
-        type_ticket = TicketTypeNameModel.get_by_id(int(form.type_name.data))
-        journey_type = JourneyTypeModel.get_by_id(int(form.journey_name.data))
+        class_ticket_form = ClassTypeModel.get_by_id(int(form.class_name.data))
+        type_ticket_form = TicketTypeNameModel.get_by_id(int(form.type_name.data))
+        journey_type_form = JourneyTypeModel.get_by_id(int(form.journey_name.data))
 
         ticket_type = TicketTypeModel.query(
-            TicketTypeModel.class_name == class_ticket.key,
-            TicketTypeModel.journey_name == journey_type.key,
-            TicketTypeModel.type_name == type_ticket.key,
+            TicketTypeModel.class_name == class_ticket_form.key,
+            TicketTypeModel.journey_name == journey_type_form.key,
+            TicketTypeModel.type_name == type_ticket_form.key,
             TicketTypeModel.active == True
         )
         exist = ticket_type.count()

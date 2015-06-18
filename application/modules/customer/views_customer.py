@@ -15,6 +15,13 @@ def Customer_Index():
     menu = 'recording'
     submenu = 'customer'
 
+    from lib.phonenumbers import phonenumber
+    from lib.phonenumbers import geocoder
+
+    number = phonenumbers.parse("+23776370738", None)
+    national_number = phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.NATIONAL)
+    country_name = repr(geocoder.description_for_number(number, "en"))
+
     customers = CustomerModel.query()
 
     return render_template('customer/index.html', **locals())

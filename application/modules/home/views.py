@@ -78,15 +78,18 @@ def logout_user():
 @login_required
 def Dashboard():
     menu = 'dashboard'
+
+    if current_user.has_roles(('manager_agency', 'super_admin')):
+        return render_template('/index/dashboard.html', **locals())
+
     if current_user.has_roles('employee_POS'):
         return redirect(url_for('Pos'))
 
-    if current_user.has_roles(('admin', 'super_admin')):
-        return render_template('/index/dashboard.html', **locals())
 
 
-@app.route('/point-of-sell/<int:departure_id>', methods=['GET', 'POST'])
-@app.route('/point-of-sell', methods=['GET', 'POST'])
+
+@app.route('/point-of-sale/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/point-of-sale', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
 def Pos(departure_id=None):
