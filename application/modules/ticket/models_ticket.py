@@ -6,7 +6,7 @@ from ..user.models_user import UserModel
 from ..agency.models_agency import AgencyModel
 from ..currency.models_currency import CurrencyModel, EquivalenceModel
 from ..customer.models_customer import CustomerModel
-from ..departure.models_departure import DepartureModel
+from ..departure.models_departure import DepartureModel, TravelModel
 from ..ticket_type.models_ticket_type import ClassTypeModel, TicketTypeNameModel, JourneyTypeModel
 from ..question.models_question import QuestionModel
 
@@ -18,6 +18,7 @@ class TicketModel(ndb.Model):
     type_name = ndb.KeyProperty(kind=TicketTypeNameModel)
     class_name = ndb.KeyProperty(kind=ClassTypeModel)
     journey_name = ndb.KeyProperty(kind=JourneyTypeModel)
+    travel_type_ticket = ndb.KeyProperty(kind=TravelModel)
 
     agency = ndb.KeyProperty(kind=AgencyModel)
     is_prepayment = ndb.BooleanProperty(default=True)

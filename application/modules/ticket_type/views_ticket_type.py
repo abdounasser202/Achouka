@@ -2,7 +2,7 @@ __author__ = 'wilrona'
 
 from ...modules import *
 
-from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel
+from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel, TravelModel
 from ..agency.models_agency import AgencyModel, CurrencyModel
 from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, FormTicketTypeName
 
@@ -29,60 +29,50 @@ def TicketType_Edit(tickettype_id=None):
     menu = 'settings'
     submenu = 'tickettype'
 
-    # recuperation de la devise de l'utilisateur courant
-    currency_user = current_user.get_currency_info()
-
+    #liste des voyages
+    listTravel = TravelModel.query().order(TravelModel.destination_start)
 
     #liste des ticket type name
-    listTicketType = TicketTypeNameModel.query()
+    listTicketType = TicketTypeNameModel.query().order(TicketTypeModel.name)
 
     #liste des classes de ticket
-    listClassTicket = ClassTypeModel.query()
+    listClassTicket = ClassTypeModel.query().order(ClassTypeModel.name)
 
     #liste des journey
-    listJourneyTicket = JourneyTypeModel.query()
-
-
+    listJourneyTicket = JourneyTypeModel.query().order(JourneyTypeModel.name)
 
     if tickettype_id:
         tickettype = TicketTypeModel.get_by_id(tickettype_id)
         form = FormTicketType(obj=tickettype)
 
-        #Traitement des prix en fonction de la devise.
-        db_currency = tickettype.currency.get().key
-        us_currency = currency_user.key
+        form_currency = CurrencyModel.get_by_id(int(tickettype.currency.get().key.id()))
+        form_currency = form_currency.code
 
-        from ..currency.models_currency import EquivalenceModel
-
-        custom_equi = EquivalenceModel.query(
-            EquivalenceModel.currencyRate == db_currency,
-            EquivalenceModel.currencyEqui == us_currency
-        ).get()
-
-        if not custom_equi:
-            price = tickettype.price
-        else:
-            price = tickettype.price * custom_equi.value
-
-        form.price.data = price
+        form_travel = tickettype.travel.get().key.id()
     else:
         tickettype = TicketTypeModel()
         form = FormTicketType(request.form)
 
+        if form.currency.data:
+            form_currency = CurrencyModel.get_by_id(int(form.currency.data))
+            form_currency = form_currency.code
 
     if form.validate_on_submit():
+        #recuperation des informations de selection
         currency = CurrencyModel.get_by_id(int(form.currency.data))
         type_name = TicketTypeNameModel.get_by_id(int(form.type_name.data))
         class_name = ClassTypeModel.get_by_id(int(form.class_name.data))
         journey_name = JourneyTypeModel.get_by_id(int(form.journey_name.data))
+        travel = TravelModel.get_by_id(int(form.travel.data))
 
         tickettype.name = form.name.data
         tickettype.type_name = type_name.key
         tickettype.journey_name = journey_name.key
         tickettype.class_name = class_name.key
-        tickettype.active = form.active.data
         tickettype.currency = currency.key
         tickettype.price = form.price.data
+        tickettype.travel = travel.key
+
         try:
             tickettype.put()
             flash(u' Ticket  Type  Save. ', 'success')
@@ -105,15 +95,15 @@ def Active_tickettype(tickettype_id):
         TicketTypeModel.type_name == tickettype_active.type_name,
         TicketTypeModel.class_name == tickettype_active.class_name,
         TicketTypeModel.journey_name == tickettype_active.journey_name,
+        TicketTypeModel.travel == tickettype_active.travel,
         TicketTypeModel.active == True
     ).count()
 
     if tickettype_exit >= 1:
         if tickettype_active.active is False:
-
             flash(' Other ticket type have Class = '+str(tickettype_active.class_name)
                   +', Type  = '+str(tickettype_active.type_name)+' and Journey = '
-                  +str(tickettype_active.journey_name)+' is activated', 'danger')
+                  +str(tickettype_active.journey_name)+'from '+str(tickettype_active.travel.get().destination_start.get().name)+" to "+str(tickettype_active.travel.get().destination_check.get().name)+" is activated", 'danger')
             return redirect(url_for('TicketType_Index'))
         else:
             if tickettype_active.active:
@@ -142,6 +132,28 @@ def delete_tickettype(tickettype_id):
     TicketType_delete.key.delete()
     return redirect(url_for('TicketType_Index'))
 
+
+@app.route('/Currency_Travel')
+@app.route('/Currency_Travel/<int:travel_id>')
+def Currency_Travel(travel_id=None):
+
+    travel = None
+    if travel_id:
+        travel = TravelModel.get_by_id(travel_id)
+
+    if travel:
+        data = json.dumps({
+            'statut': 'OK',
+            'currency': travel.destination_start.get().currency.get().code,
+            'id': travel.destination_start.get().currency.get().key.id(),
+        }, sort_keys=True)
+    else:
+        data = json.dumps({
+            'statut': 'error',
+            'value': 'Choice travel'
+        }, sort_keys=True)
+
+    return data
 
 #-------------------------------------------------------------------------------
 #

@@ -11,5 +11,4 @@ class FormAgency(wtf.Form):
     address = wtf.StringField(label='Adresse')
     reduction = wtf.FloatField(label='Reduction', default=0)
     destination = wtf.StringField(label='Select town', validators=[validators.Required()])
-    currency = wtf.StringField(label='Select currency',  validators=[validators.Required()])
     status = wtf.BooleanField(default=True)

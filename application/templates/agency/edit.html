@@ -105,22 +105,6 @@
                                         </div>
                                       </div>
 
-                                      <div class="form-group {% if form.currency.errors %} has-error {% endif %} has-feedback">
-                                        <label class="col-sm-3 control-label">{{ form.currency.label }} :</label>
-                                        <div class="col-sm-9">
-                                            <select name="currency" id="" class="form-control g-select input-lg">
-                                                <option value="">{{ form.currency.label }}</option>
-                                                {% for currency in currency %}
-                                                    <option value="{{ currency.key.id() }}" {% if form.currency.data == currency.key or form.currency.data|int == currency.key.id() %} selected {% endif %}> {{ currency.code }}</option>
-                                                {% endfor %}
-                                            </select>
-                                          {% for message in form.currency.errors %}
-                                            <span class="help-block text-danger">{{ message }}</span>
-                                          {% endfor %}
-
-                                        </div>
-                                      </div>
-
                                       <div class="form-group">
                                         <div class="col-sm-offset-3 col-sm-10">
                                           <button type="submit" class="btn btn-primary">Save</button>

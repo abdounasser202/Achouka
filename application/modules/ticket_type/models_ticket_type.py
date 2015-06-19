@@ -3,6 +3,8 @@ __author__ = 'wilrona'
 
 from google.appengine.ext import ndb
 from ..currency.models_currency import CurrencyModel, EquivalenceModel
+from ..travel.models_travel import TravelModel
+
 
 class TicketTypeNameModel(ndb.Model):
     name = ndb.StringProperty()
@@ -29,6 +31,7 @@ class TicketTypeModel(ndb.Model):
     price = ndb.FloatProperty()
     currency = ndb.KeyProperty(kind=CurrencyModel)
     active = ndb.BooleanProperty(default=False)
+    travel = ndb.KeyProperty(kind=TravelModel)
 
     def get_price(self, current_user):
 

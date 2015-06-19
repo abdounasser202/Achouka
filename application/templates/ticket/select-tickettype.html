@@ -5,73 +5,73 @@
 
 <form class="form-horizontal" id="formulaire">
     <div class="modal-body">
-            {% include 'includes/flash_message.html' %}
-            {{ form.hidden_tag() }}
-          <div class="form-group {% if form.class_name.errors %} has-error {% endif %} has-feedback">
-            <label class="col-sm-3 control-label">{{ form.class_name.label }} :</label>
-            <div class="col-sm-9">
-                <select name="class_name" id="" class="form-control g-select">
-                    <option value="">{{ form.class_name.label }}</option>
-                    {% for class in class_ticket %}
-                        <option value="{{ class.key.id() }}" {% if form.class_name.data == class.key or form.class_name.data|int == class.key.id() %} selected {% endif %}>{{ class.name }}</option>
-                    {% endfor %}
-                </select>
-              {% for message in form.class_name.errors %}
-                <span class="help-block text-danger">{{ message }}</span>
-              {% endfor %}
-
-            </div>
-          </div>
-          <div class="form-group {% if form.type_name.errors %} has-error {% endif %} has-feedback">
-            <label class="col-sm-3 control-label">{{ form.type_name.label }} :</label>
-            <div class="col-sm-9">
-                <select name="type_name" id="" class="form-control g-select">
-                    <option value="">{{ form.type_name.label }}</option>
-                    {% for type in type_ticket %}
-                        <option value="{{ type.key.id() }}" {% if form.type_name.data == type.key or form.type_name.data|int == type.key.id() %} selected {% endif %}>{{ type.name }}</option>
-                    {% endfor %}
-                </select>
-              {% for message in form.type_name.errors %}
-                <span class="help-block text-danger">{{ message }}</span>
-              {% endfor %}
-
-            </div>
-          </div>
-          <div class="form-group {% if form.journey_name.errors %} has-error {% endif %} has-feedback">
-            <label class="col-sm-3 control-label">{{ form.journey_name.label }} :</label>
-            <div class="col-sm-9">
-                <select name="journey_name" id="" class="form-control g-select">
-                    <option value="">{{ form.journey_name.label }}</option>
-                    {% for journey in journey_ticket %}
-                        <option value="{{ journey.key.id() }}" {% if form.journey_name.data == journey.key or form.journey_name.data|int == journey.key.id() %} selected {% endif %}>{{ journey.name }}</option>
-                    {% endfor %}
-                </select>
-              {% for message in form.journey_name.errors %}
-                <span class="help-block text-danger">{{ message }}</span>
-              {% endfor %}
-
-            </div>
-          </div>
+          <table class="table table-hover" id="dataTables">
+               <thead>
+                    <tr>
+                       <th>Name</th>
+                       <th>Type</th>
+                       <th>Class</th>
+                       <th>Journey</th>
+                    </tr>
+               </thead>
+               <tbody>
+               {% for type in ticket_type %}
+                   <tr id="{{ type.key.id() }}" class="line">
+                       <td>{{ type.name }}</td>
+                       <td>{{ type.type_name.get().name }}</td>
+                       <td>{{ type.class_name.get().name }}</td>
+                       <td>{{ type.journey_name.get().name }}</td>
+                   </tr>
+               {% endfor %}
+               </tbody>
+           </table>
     </div>
     <div class="modal-footer">
+        <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" type="submit" id="submit">Continued</button>
+        <button type="button" data-href="" class="btn btn-success hidden" id="submit">Continued</button>
+
     </div>
 </form>
 
 <script>
-    $('button#submit').click(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '{{ url_for('Select_TicketType', agency_id=agency_id) }}',
-            data: $('#formulaire').serialize(),
-            type: 'POST',
-            success: function(data) {
-                $('.modal-content').html(data);
-            }
-        });
+    $('a#return').click(function(e) {
+      e.preventDefault();
+      var url = $(this).attr('href');
+      $.get(url, function(data) {
+          $('.modal-content').html(data);
+      });
     });
 
-    // Google styled selects
-    $("select.g-select").select2();
+    $('.line').on('click', function(){
+        var id = "/"+$(this).attr('id');
+        var url = "{{ url_for('Ticket_Edit', agency_id=agency_id) }}"+id;
+
+        $('.pred').removeClass('info');
+        var pred = $('.pred').attr('id');
+        $(pred).removeClass('pred');
+
+        $(this).addClass('info');
+        $(this).addClass('pred');
+        $('#submit').removeClass('hidden');
+        $('#submit').attr({'data-href': url});
+    });
+
+    $('#submit').on('click', function(){
+        $.ajax({
+                url: $(this).attr('data-href'),
+                type: 'GET',
+                success: function(data) {
+                    $('.modal-content').html(data);
+                }
+            });
+    });
+
+
+    $('#dataTables').dataTable({
+    'aoColumnDefs': [
+        {'bSortable': false, 'aTargets': ['nosort']},
+        {'bSearchable': false, "aTargets": ['nosort']}
+    ]
+    });
 </script>

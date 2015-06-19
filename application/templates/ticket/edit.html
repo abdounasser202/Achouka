@@ -32,7 +32,7 @@
           <div class="form-group">
             <label class="col-sm-4 control-label">Prix :</label>
             <div class="col-sm-8">
-              <p class="form-control-static">{{ TicketType.get_price(current_user) }}
+              <p class="form-control-static">{{ TicketType.price }} {{ TicketType.currency.get().code }}
               </p>
             </div>
           </div>
@@ -50,7 +50,7 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal" id="close">Close</button>
-    <a href="{{ url_for('Select_TicketType', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+    <a href="{{ url_for('Select_TicketType', travel_id=TicketType.travel.get().key.id(), agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
     <button class="btn btn-info" type="button" id="submit" data-loading-text="Loading...">Validate</button>
 </div>
 </form>

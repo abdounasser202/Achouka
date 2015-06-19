@@ -36,10 +36,6 @@ def Travel_Edit(travel_id=None):
     destitravel = DestinationModel.query()
     if travel_id:
         travelmod = TravelModel.get_by_id(travel_id)
-        travelmod2 = TravelModel.query(
-            TravelModel.destination_check == travelmod.destination_start,
-            TravelModel.destination_start == travelmod.destination_check
-        ).get()
         form = FormTravel(obj=travelmod)
     else:
         travelmod = TravelModel()
@@ -60,10 +56,8 @@ def Travel_Edit(travel_id=None):
             if travelmod.destination_start == start_destitravel.key and travelmod.destination_check == check_destitravel.key:
 
                 travelmod.time = function.time_convert(form.time.data)
-                travelmod2.time = function.time_convert(form.time.data)
                 try:
                     travelmod.put()
-                    travelmod2.put()
                     flash(u' Travel Save. ', 'success')
                     return redirect(url_for("Travel_Index"))
                 except CapabilityDisabledError:
@@ -77,16 +71,20 @@ def Travel_Edit(travel_id=None):
             travelmod.time = function.time_convert(form.time.data)
             travelmod.destination_start = start_destitravel.key
             travelmod.destination_check = check_destitravel.key
-            travelmod.datecreate = function.datetime_convert(date_auto_nows)
 
-            travelmod2.time = function.time_convert(form.time.data)
-            travelmod2.destination_start = check_destitravel.key
-            travelmod2.destination_check = start_destitravel.key
-            travelmod2.datecreate = function.datetime_convert(date_auto_nows)
+            if not travel_id:
+                travelmod.datecreate = function.datetime_convert(date_auto_nows)
+
+            if not travel_id:
+                travelmod2.time = function.time_convert(form.time.data)
+                travelmod2.destination_start = check_destitravel.key
+                travelmod2.destination_check = start_destitravel.key
+                travelmod2.datecreate = function.datetime_convert(date_auto_nows)
 
             try:
                 travelmod.put()
-                travelmod2.put()
+                if not travel_id:
+                    travelmod2.put()
                 flash(u' Travel Save. ', 'success')
                 return redirect(url_for("Travel_Index"))
             except CapabilityDisabledError:

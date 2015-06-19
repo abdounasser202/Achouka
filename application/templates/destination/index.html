@@ -28,6 +28,7 @@
                                 <tr>
                                     <th>Code </th>
                                     <th>Name destination</th>
+                                    <th>Currency used</th>
                                     <th class="nosort"></th>
                                 </tr>
                             </thead>
@@ -36,6 +37,7 @@
                             <tr>
                                 <td>{{ destination.code }}</td>
                                 <td>{{ destination.name }}</td>
+                                <td>{{ destination.currency.get().code }}</td>
                                 <td>
                                     <a href="{{ url_for('Destination_Edit', destination_id = destination.key.id()) }}" class="btn btn-link btn-xs">Edit</a>
                                     <a href="{{ url_for('Destination_Delete', destination_id = destination.key.id()) }}" class="btn btn-link  btn-xs">Delete</a>

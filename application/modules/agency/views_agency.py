@@ -44,8 +44,6 @@ def Agency_Edit(agency_id=None):
     if form.validate_on_submit():
         destsave = DestinationModel.get_by_id(int(form.destination.data))
 
-        cursave = CurrencyModel.get_by_id(int(form.currency.data))
-
         agency_exist = AgencyModel.query(
             AgencyModel.name == form.name.data,
             AgencyModel.is_achouka == True
@@ -62,7 +60,6 @@ def Agency_Edit(agency_id=None):
                 agencymod.reduction = form.reduction.data
                 agencymod.is_achouka = True
                 agencymod.destination = destsave.key
-                agencymod.currency = cursave.key
 
                 try:
                     agencymod.put()
@@ -82,7 +79,6 @@ def Agency_Edit(agency_id=None):
             agencymod.reduction = form.reduction.data
             agencymod.is_achouka = True
             agencymod.destination = destsave.key
-            agencymod.currency = cursave.key
             try:
                 agencymod.put()
                 flash(u' Agency Save. ', 'success')

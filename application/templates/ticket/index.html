@@ -51,7 +51,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{{ url_for('Select_TicketType', agency_id=ticket.key.id()) }}" class="btn btn-info btn-xs"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Purchase</a>
+                                            <a href="{{ url_for('Select_Travel', agency_id=ticket.key.id()) }}" class="btn btn-info btn-xs"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Purchase</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

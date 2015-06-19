@@ -3,7 +3,7 @@ __author__ = 'wilrona'
 from ...modules import *
 
 from models_ticket import AgencyModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel
-from ..ticket_type.models_ticket_type import TicketTypeModel
+from ..ticket_type.models_ticket_type import TicketTypeModel, TravelModel
 from ..transaction.models_transaction import TransactionModel, TicketModel, ExpensePaymentTransactionModel
 
 from ..ticket_type.forms_ticket_type import FormSelectTicketType
@@ -28,42 +28,40 @@ def Ticket_Index():
 
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/Select_TicketType/<int:agency_id>', methods=['GET', 'POST'])
-def Select_TicketType(agency_id):
+@app.route('/Select_Travel/<int:agency_id>')
+def Select_Travel(agency_id):
 
-    type_ticket = TicketTypeNameModel.query()
-    class_ticket = ClassTypeModel.query()
-    journey_ticket = JourneyTypeModel.query()
+    current_agency = AgencyModel.get_by_id(agency_id)
 
-    form = FormSelectTicketType(request.form)
+    travellist = TravelModel.query(
+        TravelModel.destination_start == current_agency.destination.get().key
+    )
 
-    if form.validate_on_submit():
-        class_ticket_form = ClassTypeModel.get_by_id(int(form.class_name.data))
-        type_ticket_form = TicketTypeNameModel.get_by_id(int(form.type_name.data))
-        journey_type_form = JourneyTypeModel.get_by_id(int(form.journey_name.data))
+    return render_template('ticket/select-travel.html', **locals())
 
-        ticket_type = TicketTypeModel.query(
-            TicketTypeModel.class_name == class_ticket_form.key,
-            TicketTypeModel.journey_name == journey_type_form.key,
-            TicketTypeModel.type_name == type_ticket_form.key,
-            TicketTypeModel.active == True
-        )
-        exist = ticket_type.count()
-        if exist >= 1:
-            ticket_type = ticket_type.get()
-            return redirect(url_for('Ticket_Edit', tickettype=ticket_type.key.id(), agency_id=agency_id))
-        else:
-            flash(u'Any ticket type with either setting information is activated ', 'danger')
+
+
+
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
+@app.route('/Select_TicketType/<int:travel_id>/<int:agency_id>', methods=['GET', 'POST'])
+def Select_TicketType(travel_id, agency_id):
+
+    travel_select = TravelModel.get_by_id(travel_id)
+
+    ticket_type = TicketTypeModel.query(
+        TicketTypeModel.travel == travel_select.key,
+        TicketTypeModel.active == True
+    )
 
     return render_template('ticket/select-tickettype.html', **locals())
 
 
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/ticket/edit/<int:tickettype>/<int:agency_id>', methods=['GET', 'POST'])
-def Ticket_Edit(tickettype, agency_id):
-    menu = 'recording'
-    submenu = 'ticket'
+@app.route('/recording/ticket/edit/<int:agency_id>/<int:tickettype>', methods=['GET', 'POST'])
+@app.route('/recording/ticket/edit/<int:agency_id>', methods=['GET', 'POST'])
+def Ticket_Edit(agency_id, tickettype):
     refresh = 'false'
 
     #information du type de ticket pour les tickets

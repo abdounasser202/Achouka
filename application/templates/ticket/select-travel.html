@@ -1,0 +1,58 @@
+<div class="modal-header bg-warning">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="myModalLabel">Select Travel</h4>
+</div>
+
+<form class="form-horizontal" id="formulaire">
+    <div class="modal-body">
+           <table class="table table-hover" id="dataTables">
+               <thead>
+                    <tr>
+                       <th>Travel</th>
+                       <th class="nosort"></th>
+                    </tr>
+               </thead>
+               <tbody>
+               {% for travel in travellist %}
+                   <tr>
+                       <td>{{ travel.destination_start.get().name }} - {{ travel.destination_check.get().name }}</td>
+                       <td>
+                           <a class="btn btn-xs btn-success unselect select" href="{{ url_for('Select_TicketType', travel_id=travel.key.id(), agency_id=agency_id) }}" data-loading-text="Loading...">selected</a>
+                       </td>
+                   </tr>
+               {% endfor %}
+               </tbody>
+           </table>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+</form>
+
+<script>
+
+    $('.select').click(function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var url = $(this).attr('href');
+        btn.button('loading');
+        $(this).removeClass('unselect');
+        $('.btn.unselect').addClass('disabled');
+        $.ajax({
+            url: url,
+            data: $('#formulaire').serialize(),
+            type: 'GET',
+            success: function(data) {
+                $('.modal-content').html(data);
+            }
+        });
+    });
+
+    $('#dataTables').dataTable({
+    'aoColumnDefs': [
+        {'bSortable': false, 'aTargets': ['nosort']},
+        {'bSearchable': false, "aTargets": ['nosort']}
+    ]
+    });
+</script>

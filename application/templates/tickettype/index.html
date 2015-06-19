@@ -19,7 +19,7 @@
                                    <a href="{{ url_for('TicketType_Edit') }}" class="btn btn-danger btn-lg">New</a>
                                </div>
                                <div class="btn-group pull-left">
-                                   <a href="{{ url_for('Ticket_Type_Name_Index') }}" class="btn btn-default btn-lg">Ticket Type Name</a>
+                                   <a href="{{ url_for('Ticket_Type_Name_Index') }}" class="btn btn-default btn-lg">Ticket Type</a>
                                </div>
                                <div class="btn-group pull-left">
                                    <a href="{{ url_for('JourneyType_Index') }}" class="btn btn-default btn-lg">Journey Type</a>
@@ -36,7 +36,8 @@
                         <table class="table table-hover" id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Name Ticket Type</th>
+                                    <th>Name</th>
+                                    <th>Travel</th>
                                     <th>Class</th>
                                     <th>Type</th>
                                     <th>Journey</th>
@@ -48,6 +49,7 @@
                                 {% for type in tickettype %}
                                     <tr {% if type.active %} class="success" {% endif %}>
                                         <td>{{ type.name }}</td>
+                                        <td>{{ type.travel.get().destination_start.get().name }} - {{ type.travel.get().destination_check.get().name }}</td>
                                         <td>
                                             {{ type.class_name.get().name }}
                                         </td>
@@ -57,7 +59,7 @@
                                         <td>
                                             {{ type.journey_name.get().name }}
                                         </td>
-                                        <td>{{ type.get_price(current_user) }}</td>
+                                        <td>{{ type.price }} {{ type.currency.get().code }}</td>
                                         <td>
                                             <a href="{{ url_for('TicketType_Edit', tickettype_id=type.key.id()) }}" class="btn btn-link  btn-xs">Edit</a>
                                             {% if type.active %}

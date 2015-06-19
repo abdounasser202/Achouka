@@ -275,7 +275,8 @@ def Search_Ticket_Type():
     if priceticket:
         data = json.dumps({
             'statut': 'OK',
-            'price': priceticket.get_price(current_user),
+            'price': priceticket.price,
+            'currency': priceticket.currency.get().code,
             'haveticket': have_ticket
         }, sort_keys=True)
     else:

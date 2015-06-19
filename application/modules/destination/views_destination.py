@@ -2,9 +2,7 @@ __author__ = 'wilrona'
 
 from ...modules import *
 
-from models_destination import DestinationModel
-from ..travel.models_travel import TravelModel
-
+from models_destination import DestinationModel, CurrencyModel
 from forms_destination import FormDestination
 
 # Flask-Cache (configured to use App Engine Memcache API)
@@ -29,6 +27,9 @@ def Destination_Edit(destination_id=None):
     menu = 'settings'
     submenu = 'destination'
 
+    #liste des devises
+    listcurency = CurrencyModel.query()
+
     if destination_id:
         # formulaire et information de la devise a editer
         destination = DestinationModel.get_by_id(destination_id)
@@ -37,34 +38,36 @@ def Destination_Edit(destination_id=None):
         form = FormDestination()
         destination = DestinationModel()
 
-    if request.method == "POST":
-        if form.validate_on_submit():
-
-            dest_exit = DestinationModel.query(DestinationModel.code == form.code.data).count()
-            if dest_exit >= 1:
-                if destination.code == form.code.data: #Traitement pour la mise a jour
-                    destination.code = form.code.data
-                    destination.name = form.name.data
-                    try:
-                        destination.put()
-                        flash(u' Destination Update. ', 'success')
-                        return redirect(url_for('Destination_Index'))
-                    except CapabilityDisabledError:
-                        flash(u' Error data base. ', 'danger')
-                        return redirect(url_for('Destination_Edit'))
-                else:
-                    form.code.errors.append('Other destination use this code '+form.code.data)
-            else:
+    if form.validate_on_submit():
+        currency_dest = CurrencyModel.get_by_id(int(form.currency.data))
+        dest_exit = DestinationModel.query(DestinationModel.code == form.code.data).count()
+        if dest_exit >= 1:
+            if destination.code == form.code.data: #Traitement pour la mise a jour
                 destination.code = form.code.data
                 destination.name = form.name.data
+                destination.currency = currency_dest.key
                 try:
                     destination.put()
-                    flash(u' Destination Save. ', 'success')
-
+                    flash(u' Destination Update. ', 'success')
                     return redirect(url_for('Destination_Index'))
                 except CapabilityDisabledError:
                     flash(u' Error data base. ', 'danger')
                     return redirect(url_for('Destination_Edit'))
+            else:
+                form.code.errors.append('Other destination use this code '+form.code.data)
+        else:
+            destination.code = form.code.data
+            destination.name = form.name.data
+            destination.currency = currency_dest.key
+
+            try:
+                destination.put()
+                flash(u' Destination Save. ', 'success')
+
+                return redirect(url_for('Destination_Index'))
+            except CapabilityDisabledError:
+                flash(u' Error data base. ', 'danger')
+                return redirect(url_for('Destination_Edit'))
 
     return render_template('/destination/edit.html', **locals())
 
@@ -79,6 +82,8 @@ def Destination_Delete(destination_id=None):
     delete_destination = DestinationModel.get_by_id(int(destination_id))
 
     from ..agency.models_agency import AgencyModel
+    from ..travel.models_travel import TravelModel
+
     agency_destination_exist = AgencyModel.query(
         AgencyModel.destination == delete_destination.key
     ).count()

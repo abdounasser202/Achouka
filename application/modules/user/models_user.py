@@ -66,18 +66,6 @@ class UserModel(ndb.Model):
 
         return False
 
-    def currencys(self):
-        currency = None
-        if self.agency:
-            agency_data = AgencyModel.get_by_id(self.agency.id())
-            currency = agency_data.currency.get().code
-        else:
-            currency_data = CurrencyModel.query(
-                CurrencyModel.key == self.currency
-            ).get()
-            currency = currency_data.code
-        return currency
-
     def has_roles(self, *requirements):
 
         user_role = UserRoleModel.query(
@@ -117,14 +105,6 @@ class UserModel(ndb.Model):
             number = 'No Ticket'
         return number+' Available'
 
-    def get_currency_info(self):
-        if self.currency:
-            currency_user = CurrencyModel.get_by_id(self.currency.id())
-        else:
-            agency_user = AgencyModel.get_by_id(self.agency.id())
-            currency_user = CurrencyModel.get_by_id(agency_user.currency.id())
-
-        return currency_user
 
 
 class RoleModel(ndb.Model):

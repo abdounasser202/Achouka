@@ -141,6 +141,8 @@
               <h1 style="margin:0;">
                       <span class="text-muted" id="TicketPrice">
                       </span>
+                      <span class="text-primary" id="TicketCurrency">
+                      </span>
               </h1>
             </div>
             <div class="panel panel-info panel-pos">
@@ -243,6 +245,7 @@
                     $('#submit').attr({disabled:'disabled'});
 
                     $('#TicketPrice').text('Undefined');
+                    $('#TicketCurrency').text('');
                     data['type_name'] = null;
                 }else{
 
@@ -315,6 +318,7 @@
             success: function(data) {
                 if(data['statut'] == 'OK'){
                     $('#TicketPrice').text(data['price']);
+                    $('#TicketCurrency').text(data['currency']);
                 }else{
                     $('#TicketPrice').text(data['value']);
                 }
