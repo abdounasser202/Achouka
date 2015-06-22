@@ -63,3 +63,20 @@ def Question_Delete(question_id=None):
 
     flash(u"Question has been deleted!", "success")
     return redirect(url_for("Question_Index"))
+
+
+@login_required
+@roles_required(('admin', 'super_admin'))
+@app.route('/questions/active/<int:question_id>')
+def Question_Active(question_id):
+    items = QuestionModel.get_by_id(int(question_id))
+
+    if items.active:
+        items.active = False
+        flash(u"Question has been disabled!", "success")
+    else:
+        items.active = True
+        flash(u"Question has been activated!", "success")
+    items.put()
+    return redirect(url_for("Question_Index"))
+

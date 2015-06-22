@@ -31,6 +31,15 @@ indexes:
 - kind: TicketModel
   properties:
   - name: agency
+  - name: class_name
+  - name: journey_name
+  - name: selling
+  - name: type_name
+  - name: datecreate
+
+- kind: TicketModel
+  properties:
+  - name: agency
   - name: datecreate
 
 - kind: TicketModel

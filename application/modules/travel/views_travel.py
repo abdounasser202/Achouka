@@ -39,7 +39,6 @@ def Travel_Edit(travel_id=None):
         form = FormTravel(obj=travelmod)
     else:
         travelmod = TravelModel()
-        travelmod2 = TravelModel()
         form = FormTravel(request.form)
 
     if form.validate_on_submit():
@@ -68,7 +67,8 @@ def Travel_Edit(travel_id=None):
         elif start_destitravel == check_destitravel:
             flash(u"This travel kind  does'nt exist!", "danger")
         else:
-            travelmod.time = function.time_convert(form.time.data)
+            if form.time.data:
+                travelmod.time = function.time_convert(form.time.data)
             travelmod.destination_start = start_destitravel.key
             travelmod.destination_check = check_destitravel.key
 
@@ -76,15 +76,16 @@ def Travel_Edit(travel_id=None):
                 travelmod.datecreate = function.datetime_convert(date_auto_nows)
 
             if not travel_id:
-                travelmod2.time = function.time_convert(form.time.data)
+                travelmod2 = TravelModel()
+                if form.time.data:
+                    travelmod2.time = function.time_convert(form.time.data)
                 travelmod2.destination_start = check_destitravel.key
                 travelmod2.destination_check = start_destitravel.key
                 travelmod2.datecreate = function.datetime_convert(date_auto_nows)
+                travelmod2.put()
 
             try:
                 travelmod.put()
-                if not travel_id:
-                    travelmod2.put()
                 flash(u' Travel Save. ', 'success')
                 return redirect(url_for("Travel_Index"))
             except CapabilityDisabledError:

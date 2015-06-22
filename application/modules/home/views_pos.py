@@ -33,6 +33,7 @@ def search_ticket_pos():
     return render_template('/pos/search_ticket.html', **locals())
 
 
+
 @app.route('/create_customer_and_ticket_pos', methods=['GET', 'POST'])
 @app.route('/create_customer_and_ticket_pos/<int:customer_id>/<int:departure_id>', methods=['GET', 'POST'])
 def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
@@ -44,16 +45,41 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    number_list = global_dial_code_custom
     nationalList = global_nationality_contry
 
     #Verifier que les questions obligatoires ont ete selectionne
     question_request = request.form.getlist('questions')
+
+    #liste des questions
+    questions = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True
+    )
+
+    #Traitement des questions obligatoires
+    quest_obligated = []
+    obligated = False
+    count = 0
+    number_obligated_question = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True
+    ).count()
+
+    for quest in question_request:
+        if quest in [question.key.id() for question in questions]:
+            count += 1
+
+    # if count < number_obligated_question:
+    #     obligated = True
+
 
     if customer_id:
         customer = CustomerModel.get_by_id(customer_id)
         form = FormCustomerPOS(obj=customer)
     else:
         customer = CustomerModel()
+        # recuperation du formulaire en fonction de la methode
         if request.method == 'GET':
             form = FormCustomerPOS(request.args)
         else:
@@ -66,20 +92,19 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     class_ticket = ClassTypeModel.query()
     ticket_type_name = TicketTypeNameModel.query()
 
-    questions = QuestionModel.query(
-        QuestionModel.is_pos == True
-    )
+
 
     modal = 'false'
     ticket_update = None
 
-    if form.validate_on_submit():
+    if form.validate_on_submit() and not obligated:
 
         customer.first_name = form.first_name.data
         customer.last_name = form.last_name.data
         customer.birthday = function.date_convert(form.birthday.data)
         customer.email = form.email.data
         customer.nationality = form.nationality.data
+        customer.dial_code = form.dial_code.data
         customer.phone = form.phone.data
         customer.profession = form.profession.data
         customer_save = customer.put()
@@ -177,7 +202,7 @@ def generate_pdf_ticket(ticket_id):
     lieu = string % Ticket_print.agency.get().name
     agent = string % str(Ticket_print.ticket_seller.get().key.id())
 
-    p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
+    # p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
 
     c = Paragraph(econo, style=style['Normal'])
     c.wrapOn(p, width, height)
@@ -239,20 +264,25 @@ def generate_pdf_ticket(ticket_id):
 def Search_Ticket_Type():
 
     from ..ticket_type.models_ticket_type import TicketTypeModel
+    from ..departure.models_departure import DepartureModel
 
     type_name = request.json['type_name']
     class_name = request.json['class_name']
     journey_name = request.json['journey_name']
+    current_departure = request.json['current_departure']
 
     typeticket = TicketTypeNameModel.get_by_id(int(type_name))
     journeyticket = JourneyTypeModel.get_by_id(int(journey_name))
     classticket = ClassTypeModel.get_by_id(int(class_name))
+
+    departure = DepartureModel.get_by_id(int(current_departure))
 
 
     priceticket = TicketTypeModel.query(
         TicketTypeModel.type_name == typeticket.key,
         TicketTypeModel.class_name == classticket.key,
         TicketTypeModel.journey_name == journeyticket.key,
+        TicketTypeModel.travel == departure.destination.get().key,
         TicketTypeModel.active == True
     ).get()
 

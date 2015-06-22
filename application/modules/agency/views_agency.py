@@ -50,6 +50,7 @@ def Agency_Edit(agency_id=None):
         ).count()
 
         if agency_exist >= 1:
+
             if agencymod.name == form.name.data:
 
                 agencymod.name = form.name.data
@@ -58,7 +59,6 @@ def Agency_Edit(agency_id=None):
                 agencymod.fax = form.fax.data
                 agencymod.address = form.address.data
                 agencymod.reduction = form.reduction.data
-                agencymod.is_achouka = True
                 agencymod.destination = destsave.key
 
                 try:

@@ -45,7 +45,7 @@ def first_name_validator(form, field):
     first_name = field.data
     if len(first_name) < 3:
         raise wtf.ValidationError('Username must be at least 3 characters long')
-    valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._'
+    valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._ '
     chars = list(first_name)
     for char in chars:
         if char not in valid_chars:
@@ -56,7 +56,7 @@ def last_name_validator(form, field):
     last_name = field.data
     if len(last_name) < 3:
         raise wtf.ValidationError('Username must be at least 3 characters long')
-    valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._'
+    valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._ '
     chars = list(last_name)
     for char in chars:
         if char not in valid_chars:
@@ -70,7 +70,7 @@ class FormRegisterUserAdmin(wtf.Form):
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
     retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
     currency = wtf.StringField(validators=[validators.Required()])
-    agency = wtf.StringField()
+    # agency = wtf.StringField()
     submit = wtf.SubmitField("Register")
 
 

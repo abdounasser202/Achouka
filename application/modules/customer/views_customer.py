@@ -15,13 +15,6 @@ def Customer_Index():
     menu = 'recording'
     submenu = 'customer'
 
-    from lib.phonenumbers import phonenumber
-    from lib.phonenumbers import geocoder
-
-    number = phonenumbers.parse("+23776370738", None)
-    national_number = phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.NATIONAL)
-    country_name = repr(geocoder.description_for_number(number, "en"))
-
     customers = CustomerModel.query()
 
     return render_template('customer/index.html', **locals())
@@ -34,6 +27,8 @@ def Customer_Index():
 def Customer_Edit(customer_id=None):
     menu = 'recording'
     submenu = 'customer'
+
+    number_list = global_dial_code_custom
     nationalList = global_nationality_contry
 
     if customer_id:
@@ -65,6 +60,7 @@ def Customer_Edit(customer_id=None):
             customer.email = form.email.data
             customer.nationality = form.nationality.data
             customer.phone = form.phone.data
+            customer.dial_code = form.dial_code.data
 
             custom = customer.put()
             flash(u' Customer save. ', 'success')

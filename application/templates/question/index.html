@@ -27,12 +27,12 @@
                             <thead>
                                 <tr>
                                     <th>Question</th>
-                                    <th>This question is for</th>
+                                    <th>This question is for POS</th>
                                     <th>This question is mandatory ?</th>
                                     <th class="nosort"></th>
                                 </tr>
                             </thead>
-                            
+
                             <tbody>
                             {% for item in items %}
                             <tr>
@@ -41,14 +41,20 @@
                                 <td>{{ item.is_obligate }}</td>
                                 <td class="nosearch">
                                     <a href="{{ url_for('Question_Edit', question_id = item.key.id()) }}" class="btn btn-link btn-xs">Edit</a>
-                                   <a href="{{ url_for('Question_Delete', question_id = item.key.id()) }}" class="btn btn-link btn-xs">Delete</a>
+                                    <a href="{{ url_for('Question_Active', question_id = item.key.id()) }}" class="btn btn-xs
+                                    {% if item.active %}
+                                        btn-danger">Disabled
+                                    {% else %}
+                                        btn-success">Activate
+                                    {% endif %}
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
-                            
+
                             </tbody>
                         </table>
-                        
+
                 </section>
             </div>
         </div>

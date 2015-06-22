@@ -47,13 +47,6 @@
                         {% endif %}
                         {{ form.retype_password(class_='form-control', placeholder='Retype Password') }}
 
-                        {% if form.phone.errors %}
-                                {% for message in form.phone.errors %}
-                                <span class="text-danger">{{ message }}</span>
-                                {% endfor %}
-                        {% endif %}
-                        {{ form.phone(class_='form-control', placeholder='Phone Number') }}
-
 
                         <br/>
 

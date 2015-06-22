@@ -11,4 +11,4 @@ class FormAgency(wtf.Form):
     address = wtf.StringField(label='Adresse')
     reduction = wtf.FloatField(label='Reduction', default=0)
     destination = wtf.StringField(label='Select town', validators=[validators.Required()])
-    status = wtf.BooleanField(default=True)
+    status = wtf.BooleanField(default=False)

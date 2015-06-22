@@ -34,9 +34,24 @@
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
                 </div>
-                <div class="form-group">
+                <div class="form-group {% if form.dial_code.errors %} has-error {% endif %} has-feedback">
+                    <label>{{ form.dial_code.label }} :</label>
+                     <select name="dial_code" id="" class="form-control g-select input-lg">
+                        <option value="">{{ form.dial_code.label }}</option>
+                        {% for key, val in number_list.items() %}
+                            <option value="{{ val }}" {% if form.dial_code.data == val %} selected {% endif %}>{{ key }} ({{ val }})</option>
+                        {% endfor %}
+                    </select>
+                    {% for message in form.dial_code.errors %}
+                        <span class="help-block text-danger">{{ message }}</span>
+                      {% endfor %}
+                </div>
+                <div class="form-group {% if form.phone.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.phone.label }} :</label>
                     {{ form.phone(class_='form-control')|safe }}
+                    {% for message in form.phone.errors %}
+                        <span class="help-block text-danger">{{ message }}</span>
+                    {% endfor %}
                 </div>
                   <div class="form-group">
                     <label>{{ form.profession.label }} :</label>
@@ -149,7 +164,7 @@
               <div class="panel-heading text-center"><h4>Question</h4></div>
               <div class="panel-body">
                 {% for question in questions %}
-                    <div class="checkbox" id="{{ question.key.id() }}">
+                    <div class="checkbox" {% if question.key.id() in quest_obligated  %} style ="color:red;" {% endif %} id="{{ question.key.id() }}">
                       <label>
                         <input type="checkbox" name="questions" value="{{ question.key.id() }}" >
                         {{ question.question }}
@@ -205,6 +220,7 @@
     data['type_name'] =  $('input:checked.TicketTypeName').val();
     data['class_name'] = $('input:checked.ClassTicket').val();
     data['journey_name'] = $('input:checked.JourneyTicket').val();
+    data['current_departure'] = $('#current_departure').val();
     AjaxPrice(data);
 
     var modals = '{{ modal }}';
@@ -231,6 +247,7 @@
             data['type_name'] =  $('input:checked.TicketTypeName').val();
             data['class_name'] = $('input:checked.ClassTicket').val();
             data['journey_name'] = $('input:checked.JourneyTicket').val();
+            data['current_departure'] = $('#current_departure').val();
 
             var InputCheckbox = $('input.CheckBox-Select');
             var SelectCheckbox = $('#CheckBox-Select');
@@ -321,6 +338,7 @@
                     $('#TicketCurrency').text(data['currency']);
                 }else{
                     $('#TicketPrice').text(data['value']);
+                    $('#TicketCurrency').text('');
                 }
                 if(data['haveticket'] == 'true'){
                     $('#alert').html('');

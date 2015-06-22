@@ -6,3 +6,4 @@ class QuestionModel(ndb.Model):
     question = ndb.StringProperty()
     is_pos = ndb.BooleanProperty() # Appartenance
     is_obligate = ndb.BooleanProperty(default=False)
+    active = ndb.BooleanProperty(default=True)

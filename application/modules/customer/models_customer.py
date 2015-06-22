@@ -10,5 +10,6 @@ class CustomerModel(ndb.Model):
     profession = ndb.StringProperty()
     nationality = ndb.StringProperty()
     phone = ndb.StringProperty()
+    dial_code = ndb.StringProperty()
     email = ndb.StringProperty()
     status = ndb.BooleanProperty(default=True)

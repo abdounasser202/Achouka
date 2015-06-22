@@ -11,7 +11,7 @@ class AgencyModel(ndb.Model):
     fax = ndb.StringProperty()
     address = ndb.StringProperty()
     reduction = ndb.FloatProperty()
-    status = ndb.BooleanProperty(default=True)
+    status = ndb.BooleanProperty(default=False)
     destination = ndb.KeyProperty(kind=DestinationModel)
     is_achouka = ndb.BooleanProperty()
     is_coorporate = ndb.BooleanProperty()

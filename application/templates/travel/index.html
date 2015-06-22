@@ -37,7 +37,7 @@
                                 <tr>
                                     <td>{{ travel.destination_start.get().name }}</td>
                                     <td>{{ travel.destination_check.get().name }}</td>
-                                    <td>{{ travel.time|format_date("%H:%M") }}</td>
+                                    <td>{% if travel.time %} {{ travel.time|format_date("%H:%M") }} {% endif %}</td>
                                     <td>
                                         <a href="{{ url_for('Travel_Edit', travel_id=travel.key.id()) }}" class="btn btn-link btn-xs">Edit</a>
                                     </td>

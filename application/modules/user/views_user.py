@@ -38,20 +38,15 @@ def Super_Admin_Create():
             CurrencyCreate.code = form.currency.data
             CurrencyCreate.name = 'Franc CFA'
             currencyCreate = CurrencyCreate.put()
+            currencyCreate = CurrencyModel.get_by_id(currencyCreate.id())
         else:
             currencyCreate = currency
 
         if role:
-            if currencyCreate:
-                currency = CurrencyModel.get_by_id(currencyCreate.id())
-            else:
-                currency = CurrencyModel.get_by_id(currencyCreate.key.id())
-
             User.first_name = form.first_name.data
             User.last_name = form.last_name.data
             User.email = form.email.data
-            User.phone = form.phone.data
-            User.currency = currency.key
+            User.currency = currencyCreate.key
 
             password = hashlib.sha224(form.password.data).hexdigest()
             User.password = password
@@ -290,6 +285,7 @@ def User_Edit(user_id=None):
         profil = ProfilModel.get_by_id(int(form.profil.data))
         agency = AgencyModel.get_by_id(int(form.agency.data))
 
+        # supprimer les roles lors de la modification du profil
         if User.profil and User.profil != profil.key and user_id:
             role_del = ProfilRoleModel.query(
                 ProfilRoleModel.profil_id == User.profil
@@ -319,7 +315,7 @@ def User_Edit(user_id=None):
 
         UserCreate = User.put()
 
-        #recuperation de chaque role appartenant au profil ayant le role admin
+        #recuperation de chaque role appartenant au profil choisie
         all_role = ProfilRoleModel.query(
             ProfilRoleModel.profil_id == profil.key
         )
