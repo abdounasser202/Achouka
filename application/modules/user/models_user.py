@@ -19,6 +19,7 @@ class UserModel(ndb.Model):
     first_name = ndb.StringProperty()
     last_name = ndb.StringProperty()
     phone = ndb.StringProperty()
+    dial_code = ndb.StringProperty()
     logged = ndb.BooleanProperty(default=False)
     date_last_logged = ndb.DateTimeProperty()
 
