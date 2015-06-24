@@ -106,7 +106,11 @@ def Add_Role_Profil(profil_id):
 
     profil_update = ProfilModel.get_by_id(profil_id)
 
-    profilrole = ProfilRoleModel.query(ProfilRoleModel.profil_id == profil_update.key).fetch()
+    profilrole = ProfilRoleModel.query(
+        ProfilRoleModel.profil_id == profil_update.key
+    )
+
+    profilrole = [role.role_id for role in profilrole]
 
     if current_user.has_roles('super_admin'):
         roles = RoleModel.query()
@@ -136,6 +140,8 @@ def Add_Role_Profil(profil_id):
 
     return render_template('/profil/list_role.html', **locals())
 
+
+
 @login_required
 @roles_required(('admin', 'super_admin'))
 @roles_required(('super_admin', 'admin'))
@@ -154,27 +160,29 @@ def Delete_Role_Profil(profilrole_id, profil_id):
 
     return redirect(url_for('Profil_Edit', profil_id=profil.key.id()))
 
+
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/profil/delete', methods=['GET', 'POST'])
 @app.route('/settings/profil/delete/<int:profil_id>', methods=['GET', 'POST'])
-def Profil_Delete(profil_id=None):
-    from ..user.models_user import ProfilRoleModel
-
+def Profil_Delete(profil_id):
+    from ..user.models_user import ProfilRoleModel, UserModel
     """ Suppression des profils """
-    menu = 'settings'
-    submenu = 'profil'
 
     delete_profil = ProfilModel.get_by_id(profil_id)
 
-    role_profil_exist = ProfilRoleModel.query(ProfilRoleModel.profil_id==delete_profil.key).count()
+    role_profil_exist = ProfilRoleModel.query(
+        ProfilRoleModel.profil_id == delete_profil.key
+    ).count()
 
-    if role_profil_exist  >= 1:
+    user_profil_exist = UserModel.query(
+        UserModel.profil == delete_profil.key
+    ).count()
+
+    if role_profil_exist >= 1 or user_profil_exist >= 1:
         flash(u'You can\'t delete this profil', 'danger')
         return redirect(url_for("Profil_Index"))
     else:
         delete_profil.key.delete()
         flash(u'Profil has been deleted successfully', 'success')
-        return  redirect(url_for("Profil_Index"))
+        return redirect(url_for("Profil_Index"))
 
-    return render_template('/profil/index.html', **locals())

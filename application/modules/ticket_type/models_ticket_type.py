@@ -16,6 +16,7 @@ class TicketTypeNameModel(ndb.Model):
 class JourneyTypeModel(ndb.Model):
     name = ndb.StringProperty()
     default = ndb.BooleanProperty(default=False)
+    returned = ndb.BooleanProperty(default=False)
 
 
 class ClassTypeModel(ndb.Model):

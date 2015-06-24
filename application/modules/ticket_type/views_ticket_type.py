@@ -203,19 +203,19 @@ def ClassType_Default(class_type_id):
 
     if not class_type.default:
         journey_default_exist = ClassTypeModel.query(
-            ClassTypeModel.default == True,
-            ClassTypeModel.key == class_type.key
+            ClassTypeModel.default == True
         ).count()
         if journey_default_exist >= 1:
             flash(u"you can not define two class type as a criterion 'is default'!", "danger")
         else:
+            flash(u"Journey Updated!", "success")
             class_type.default = True
     else:
+        flash(u"Journey Updated!", "success")
         class_type.default = False
     class_type.put()
-
-    flash(u"Journey Updated!", "success")
     return redirect(url_for('ClassType_Index'))
+
 
 @login_required
 @roles_required(('admin', 'super_admin'))
@@ -281,6 +281,7 @@ def JourneyType_Index(journey_type_id=None):
 
     return render_template("/tickettype/index-journey-type.html", **locals())
 
+
 @login_required
 @roles_required(('admin', 'super_admin'))
 @app.route('/JourneyType_Default/<int:journey_type_id>')
@@ -290,19 +291,55 @@ def JourneyType_Default(journey_type_id):
 
     if not journey_type.default:
         journey_default_exist = JourneyTypeModel.query(
-            JourneyTypeModel.default == True,
-            JourneyTypeModel.key == journey_type.key
+            JourneyTypeModel.default == True
         ).count()
         if journey_default_exist >= 1:
             flash(u"you can not define two type of ticket as a criterion 'is default'!", "danger")
         else:
+            flash(u"Journey Updated!", "success")
             journey_type.default = True
     else:
+        flash(u"Journey Updated!", "success")
         journey_type.default = False
     journey_type.put()
 
-    flash(u"Journey Updated!", "success")
     return redirect(url_for('JourneyType_Index'))
+
+
+
+@login_required
+@roles_required(('admin', 'super_admin'))
+@app.route('/JourneyType_retuned/<int:journey_type_id>')
+def JourneyType_retuned(journey_type_id):
+
+    journey_type = JourneyTypeModel.get_by_id(journey_type_id)
+
+    if not journey_type.returned:
+        journey_returned_exist = JourneyTypeModel.query(
+            JourneyTypeModel.returned == True
+        ).count()
+
+        from ..ticket.models_ticket import TicketModel
+        journey_used_ticket = TicketModel.query(
+            TicketModel.journey_name == journey_type.key
+        ).count()
+
+        if journey_returned_exist >= 1 or journey_used_ticket >= 1:
+            if journey_used_ticket:
+                flash(u"this type journey is already used in ticket for One Way Trip ", "danger")
+            else:
+                flash(u"you can not define two type of ticket as a criterion 'Used to return the tickets'!", "danger")
+        else:
+            flash(u"Journey Updated!", "success")
+            journey_type.returned = True
+    else:
+        flash(u"Journey Updated!", "success")
+        journey_type.returned = False
+
+    journey_type.put()
+
+    return redirect(url_for('JourneyType_Index'))
+
 
 @login_required
 @roles_required(('admin', 'super_admin'))
@@ -414,6 +451,7 @@ def Ticket_Type_Name_Default(ticket_type_name_id):
     flash(u"Ticket Type Name Updated!", "success")
     return redirect(url_for("Ticket_Type_Name_Index"))
 
+
 @login_required
 @roles_required(('admin', 'super_admin'))
 @app.route("/Ticket_Type_Name_Special/<int:ticket_type_name_id>")
@@ -429,6 +467,7 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 
     flash(u"Ticket Type Name Updated!", "success")
     return redirect(url_for("Ticket_Type_Name_Index"))
+
 
 @login_required
 @roles_required(('admin', 'super_admin'))
