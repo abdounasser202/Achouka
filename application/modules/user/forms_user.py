@@ -11,6 +11,26 @@ class FormLogin(wtf.Form):
     remember_me = wtf.BooleanField(label='Remember me')
     submit = wtf.SubmitField("Sign In")
 
+def verify_dial_code(form, field):
+    if form.phone.data:
+        if not field.data:
+            raise wtf.ValidationError('Select country code.')
+
+
+def verify_format_number(form, field):
+    if form.dial_code.data:
+        # appel de la librairie de verification de numero de telephone
+        from lib.python_phonenumbers.python import phonenumbers
+        from lib.python_phonenumbers.python.phonenumbers import geocoder
+
+        number = field.data
+        code = form.dial_code.data
+
+        phone_number = str(code)+str(number)
+        numbers = phonenumbers.parse(phone_number, None)
+        country_name = str(geocoder.description_for_number(numbers, "en"))
+        if not country_name:
+            raise wtf.ValidationError('Error! Your mobile number is not valid!')
 
 def unique_email_validator(form, field):
     """ email must be unique"""
@@ -66,7 +86,8 @@ class FormRegisterUserAdmin(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
     email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
-    phone = wtf.StringField(label='Phone Number')
+    phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
+    dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
     retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
     currency = wtf.StringField(validators=[validators.Required()])
@@ -77,7 +98,8 @@ class FormRegisterUserAdmin(wtf.Form):
 class FormEditUserAdmin(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
-    phone = wtf.StringField(label='Phone Number')
+    phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
+    dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     currency = wtf.StringField(validators=[validators.Required()])
     agency = wtf.StringField()
 
@@ -86,7 +108,8 @@ class FormRegisterUser(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
     email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
-    phone = wtf.StringField(label='Phone Number')
+    phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
+    dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
     retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
     profil = wtf.StringField(validators=[validators.Required()])
@@ -97,6 +120,7 @@ class FormRegisterUser(wtf.Form):
 class FormEditUser(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
-    phone = wtf.StringField(label='Phone Number', validators=[validators.Required()])
+    phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
+    dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     profil = wtf.StringField(validators=[validators.Required()])
     agency = wtf.StringField()
