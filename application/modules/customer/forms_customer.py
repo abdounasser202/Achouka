@@ -16,18 +16,19 @@ def verify_dial_code(form, field):
 
 
 def verify_format_number(form, field):
-    # appel de la librairie de verification de numero de telephone
-    from lib.python_phonenumbers.python import phonenumbers
-    from lib.python_phonenumbers.python.phonenumbers import geocoder
+    if form.dial_code.data:
+        # appel de la librairie de verification de numero de telephone
+        from lib.python_phonenumbers.python import phonenumbers
+        from lib.python_phonenumbers.python.phonenumbers import geocoder
 
-    number = field.data
-    code = form.dial_code.data
+        number = field.data
+        code = form.dial_code.data
 
-    phone_number = str(code)+str(number)
-    numbers = phonenumbers.parse(phone_number, None)
-    country_name = str(geocoder.description_for_number(numbers, "en"))
-    if not country_name:
-        raise wtf.ValidationError('Error! Your mobile number is not valid!')
+        phone_number = str(code)+str(number)
+        numbers = phonenumbers.parse(phone_number, None)
+        country_name = str(geocoder.description_for_number(numbers, "en"))
+        if not country_name:
+            raise wtf.ValidationError('Error! Your mobile number is not valid!')
 
 
 def first_name_validator(form, field):

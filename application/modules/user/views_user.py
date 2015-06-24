@@ -113,6 +113,8 @@ def User_Admin_Index():
 def User_Admin_Edit(user_id=None):
     menu='settings'
     submenu ='user_admin'
+    
+    number_list = global_dial_code_custom
 
     # recuperation du role admin
     role = RoleModel.query(
@@ -155,6 +157,7 @@ def User_Admin_Edit(user_id=None):
             User.last_name = form.last_name.data
 
             User.phone = form.phone.data
+            User.dial_code = form.dial_code.data
             User.currency = currency.key
 
             User.agency = None
@@ -257,6 +260,8 @@ def User_Index():
 def User_Edit(user_id=None):
     menu = 'recording'
     submenu = 'user'
+    
+    number_list = global_dial_code_custom
 
     # recuperation du role admin
     role = RoleModel.query(
@@ -312,6 +317,7 @@ def User_Edit(user_id=None):
         User.last_name = form.last_name.data
 
         User.phone = form.phone.data
+        User.dial_code = form.dial_code.data
         User.profil = profil.key
 
         if agency:
