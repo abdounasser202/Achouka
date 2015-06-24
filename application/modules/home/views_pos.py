@@ -49,7 +49,10 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     nationalList = global_nationality_contry
 
     #Verifier que les questions obligatoires ont ete selectionne
-    question_request = request.form.getlist('questions')
+
+    question_request = None
+    if request.method == 'POST':
+        question_request = request.form.getlist('questions')
 
     #liste des questions
     questions = QuestionModel.query(
@@ -57,21 +60,48 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         QuestionModel.active == True
     )
 
+    # information du depart pour le ticket
+    if departure_id:
+        print_depature = DepartureModel.get_by_id(int(departure_id))
+    else:
+        if request.method == 'GET':
+            print_depature = DepartureModel.get_by_id(int(request.args.get('current_departure')))
+        else:
+            print_depature = DepartureModel.get_by_id(int(request.form['current_departure']))
+
+
     #Traitement des questions obligatoires
     quest_obligated = []
     obligated = False
-    count = 0
     number_obligated_question = QuestionModel.query(
         QuestionModel.is_pos == True,
-        QuestionModel.active == True
+        QuestionModel.active == True,
+        QuestionModel.is_obligate == True
     ).count()
 
-    for quest in question_request:
-        if quest in [question.key.id() for question in questions]:
-            count += 1
+    obligated_question = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True,
+        QuestionModel.is_obligate == True
+    )
 
-    # if count < number_obligated_question:
+    # # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definient
+    # if number_obligated_question >= 1 and not question_request and request.method == 'POST':
     #     obligated = True
+    #     quest_obligated = [question.key.id() for question in obligated_question]
+    # else:
+    #     if question_request:
+    #         count = 0
+    #
+    #         #boucle la liste des questions envoyees et verifie si c'est dans la liste des questions obligatoires
+    #         for quest in question_request:
+    #             if quest in [question.key.id() for question in obligated_question]:
+    #                 count += 1
+    #                 quest_obligated.append(quest)
+    #
+    #         # verifie que le quota de question obligatoire est atteint dans le questionnaire
+    #         if count <= number_obligated_question:
+    #             obligated = True
 
 
     if customer_id:
@@ -193,8 +223,8 @@ def generate_pdf_ticket(ticket_id):
     #pdfmetrics.registerFont("Lato-Bold.ttf")
     string = '<font name="Times-Roman" size="14">%s</font>'
 
-    econo = string % Ticket_print.class_name.get().name
-    name = string % Ticket_print.customer.get().first_name+" "+ string % Ticket_print.customer.get().last_name
+    econo = string % Ticket_print.class_name.get().name+" - "+string % Ticket_print.type_name.get().name+" - "+string % Ticket_print.journey_name.get().name
+    name = string % Ticket_print.customer.get().first_name+" "+string % Ticket_print.customer.get().last_name
     froms = string % Ticket_print.departure.get().destination.get().destination_start.get().name
     destination = string % Ticket_print.departure.get().destination.get().destination_check.get().name
     date = string % str(function.format_date(Ticket_print.departure.get().departure_date, '%d-%m-%Y'))
@@ -202,11 +232,11 @@ def generate_pdf_ticket(ticket_id):
     lieu = string % Ticket_print.agency.get().name
     agent = string % str(Ticket_print.ticket_seller.get().key.id())
 
-    # p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
+    p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
 
     c = Paragraph(econo, style=style['Normal'])
     c.wrapOn(p, width, height)
-    c.drawOn(p, 11.3*cm, 7.9*cm)
+    c.drawOn(p, 7.3*cm, 7.9*cm)
 
     c = Paragraph(name, style=style['Normal'])
     c.wrapOn(p, width, height)
@@ -307,12 +337,18 @@ def Search_Ticket_Type():
             'statut': 'OK',
             'price': priceticket.price,
             'currency': priceticket.currency.get().code,
+            'type_name' : typeticket.name,
+            'class_name': classticket.name,
+            'journey_name': journeyticket.name,
             'haveticket': have_ticket
         }, sort_keys=True)
     else:
         data = json.dumps({
             'statut': 'error',
             'value': 'Undefined',
+            'type_name' : typeticket.name,
+            'class_name': classticket.name,
+            'journey_name': journeyticket.name,
             'haveticket': have_ticket
         }, sort_keys=True)
 

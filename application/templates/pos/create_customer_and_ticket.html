@@ -70,7 +70,9 @@
               </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-lg-6">
 
             <div class="panel panel-info panel-pos">
               <div class="panel-heading text-center"><h4>Ticket Type</h4> </div>
@@ -151,36 +153,89 @@
             </div>
 
         </div>
-        <div class="col-lg-4">
-            <div class="text-center well">
-              <h1 style="margin:0;">
-                      <span class="text-muted" id="TicketPrice">
-                      </span>
-                      <span class="text-primary" id="TicketCurrency">
-                      </span>
-              </h1>
-            </div>
-            <div class="panel panel-info panel-pos">
-              <div class="panel-heading text-center"><h4>Question</h4></div>
-              <div class="panel-body">
-                {% for question in questions %}
-                    <div class="checkbox" {% if question.key.id() in quest_obligated  %} style ="color:red;" {% endif %} id="{{ question.key.id() }}">
-                      <label>
-                        <input type="checkbox" name="questions" value="{{ question.key.id() }}" >
-                        {{ question.question }}
-                      </label>
-                      <p class="text-right hidden" id="error-question-{{ question.key.id() }}"><small>(*) Obligation</small></p>
+        <div class="col-lg-6">
+                    <div class="text-center well">
+                      <h1 style="margin:0;">
+                              <span class="text-muted" id="TicketPrice">
+                              </span>
+                              <span class="text-primary" id="TicketCurrency">
+                              </span>
+                      </h1>
                     </div>
-                {% else %}
-                    <div class="panel-body text-center">
-                        <h3>No request Question</h3>
-                    </div>
-                {% endfor %}
+                    <div class="panel panel-info panel-pos">
+                      <div class="panel-heading text-center"><h4>Question</h4></div>
+                      <div class="panel-body">
+                        {% for question in questions %}
+                            <div class="checkbox" {% if question.key.id() in quest_obligated and obligated == true  %} style ="color:red;" {% endif %}>
+                              <label>
+                                <input type="checkbox" name="questions" value="{{ question.key.id() }}" {% if question_request and  question.key.id() in question_request %} checked="checked" {% endif %} >
+                                {{ question.question }}
+                              </label>
+                              <p class="text-right {% if question.key.id() not in quest_obligated %} hidden {% endif %}"><small>(*) Obligation</small></p>
+                            </div>
+                        {% else %}
+                            <div class="panel-body text-center">
+                                <h3>No request Question</h3>
+                            </div>
+                        {% endfor %}
 
-              </div>
-              <div class="panel-footer clearfix">
-                  <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Selling..." id="submit" data-backdrop="static" disabled="disabled">Sell Ticket</a>
-              </div>
+                      </div>
+                    </div>
+        </div>
+                <div class="col-lg-12">
+                    <div class="ticket_background clearfix">
+                          <div class="col-lg-6"></div>
+                          <div class="col-lg-6 info_left">
+                              Ticket Type<br><i id="type_ticket"> </i>
+                          </div>
+                          <div class="col-lg-12">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">NAME/NOM</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value ="{{ form.first_name.data }} {{ form.last_name.data }}" id="name">
+                              </div>
+                          </div>
+                          <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">FROM/DE</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.destination.get().destination_start.get().name }}">
+                              </div>
+                          </div>
+                          <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">DESTINATION/A</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.destination.get().destination_check.get().name }}">
+                              </div>
+                          </div>
+                         <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">DATE/DE</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.departure_date|format_date("%d-%m-%Y") }}">
+                              </div>
+                          </div>
+                          <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">TIME/HEURE</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.schedule|add_time(print_depature.time_delay)|format_date("%H:%M") }}">
+                              </div>
+                          </div>
+                         <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">SOLDE AT/LIEU DE VENTE</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ current_user.agencys() }}">
+                              </div>
+                          </div>
+                          <div class="col-lg-6">
+                              <div class="form-group">
+                                <label for="exampleInputEmail1">AGENCE CODE</label>
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ current_user.key.id() }}">
+                              </div>
+                          </div>
+                    </div>
+                </div>
+            <div class="col-lg-12">
+                <br/>
+                <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Confirmation..." id="submit" data-backdrop="static" disabled="disabled">Confirm Sell Ticket</a>
+            </div>
             </div>
         </div>
     </div>
@@ -241,6 +296,12 @@
 
 
     $(document).ready(function(){
+        $("input#last_name,input#first_name").on('change', function() {
+            var last_name = $("input#last_name").val();
+            var first_name = $("input#first_name").val();
+            $('#name').val(last_name+" "+first_name)
+
+        });
 
         $("input.TicketTypeName,input.ClassTicket,input.JourneyTicket,input.CheckBox-Select").on('change', function(){
 
@@ -349,6 +410,8 @@
                     $('#alert').text('You don\'t have this ticket type. Request purchase from manager');
                     $('#submit').attr({disabled:'disabled'});
                 }
+
+                $('#type_ticket').text(data['class_name']+" - "+data['type_name']+" - "+data['journey_name'])
             }
         });
     }

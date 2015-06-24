@@ -151,12 +151,6 @@ def User_Admin_Edit(user_id=None):
 
             currency = CurrencyModel.get_by_id(int(form.currency.data))
 
-            agency = 0
-            if form.agency.data:
-                agency = AgencyModel.get_by_id(int(form.agency.data))
-
-
-
             User.first_name = form.first_name.data
             User.last_name = form.last_name.data
 
@@ -164,8 +158,6 @@ def User_Admin_Edit(user_id=None):
             User.currency = currency.key
 
             User.agency = None
-            if agency:
-                User.agency = agency.key
 
 
 

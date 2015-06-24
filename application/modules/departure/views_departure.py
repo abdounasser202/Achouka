@@ -15,6 +15,18 @@ def Departure_Index():
     menu = 'recording'
     submenu = 'departure'
 
+    year = datetime.date.today().year
+
+    day_today = datetime.date.today().day
+    month_today = datetime.date.today().month
+    date_day = datetime.date(year, month_today, day_today)
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    time_now = function.datetime_convert(date_auto_nows).time()
+
     departures = DepartureModel.query().order(
         DepartureModel.departure_date,
         DepartureModel.schedule,

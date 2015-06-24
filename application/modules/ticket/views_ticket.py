@@ -21,7 +21,9 @@ def Ticket_Index():
     submenu = 'ticket'
 
     # Utiliser pour afficher la liste des agences avec leur ticket
-    ticket_list = AgencyModel.query()
+    ticket_list = AgencyModel.query(
+        AgencyModel.status == True
+    )
 
     return render_template('ticket/index.html', **locals())
 

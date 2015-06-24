@@ -25,6 +25,15 @@ indexes:
 
 - kind: DepartureModel
   properties:
+  - name: departure_date
+    direction: desc
+  - name: schedule
+    direction: desc
+  - name: time_delay
+    direction: desc
+
+- kind: DepartureModel
+  properties:
   - name: schedule
   - name: time_delay
 
