@@ -52,9 +52,9 @@
                                             {% endif %}
                                             {% if current_user.key != user.user_id %}
                                                 {% if user.user_id.get().is_enabled %}
-                                                    <a href="#" class="btn btn-danger btn-xs">Disabled</a>
+                                                    <a href="{{url_for('activate_user_admin', user_id=user.user_id.get().key.id())}}" class="btn btn-danger btn-xs">Disabled</a>
                                                 {% else %}
-                                                    <a href="#" class="btn btn-success bt-xs">Activate</a>
+                                                    <a href="{{url_for('activate_user_admin', user_id=user.user_id.get().key.id())}}" class="btn btn-success btn-xs">Activate</a>
                                                 {% endif %}
                                             {% endif %}
                                         </td>

@@ -198,6 +198,23 @@ def User_Admin_Edit(user_id=None):
             flash('Create before profil admin with role "Admin" for this user or you have two profil have a role "Admin"', 'danger')
 
     return render_template('/user/edit.html', **locals())
+    
+#-------------------------------------------------------------------------------
+# activation et desactivation du compte admin
+#-------------------------------------------------------------------------------
+@login_required
+@roles_required(('super_admin', 'admin'))
+@app.route('/setting/user/status/<int:user_id>', methods=['GET', 'POST'])
+def activate_user_admin(user_id=None):
+    user_status = UserModel.get_by_id(user_id)
+
+    if user_status.is_enabled:
+        user_status.is_enabled = False
+    else:
+        user_status.is_enabled = True
+    user_status.put()
+    flash(u'Admin is activated!', 'success')
+    return redirect(url_for("User_Admin_Index"))
 
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
@@ -344,5 +361,5 @@ def Activate_User(user_id=None):
     else:
         user_status.is_enabled = True
     user_status.put()
-    flash(u' User is activated!. ', 'success')
+    flash(u'User is activated!', 'success')
     return redirect(url_for("User_Index"))
