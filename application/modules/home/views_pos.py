@@ -1,11 +1,14 @@
 __author__ = 'wilrona'
 
+
 from ...modules import *
 
 from ..customer.models_customer import CustomerModel
 from ..ticket.models_ticket import TicketModel, TicketTypeNameModel, JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion
 
 from ..customer.forms_customer import FormCustomerPOS
+
+
 cache = Cache(app)
 
 
@@ -18,9 +21,27 @@ def search_customer_pos():
         current_departure = DepartureModel.get_by_id(int(request.form['current_departure']))
 
     birtday = request.form['birthday']
+    full_name = request.form['full_name']
+
     customer = CustomerModel.query(
         CustomerModel.birthday == function.date_convert(birtday)
     )
+
+    customer_count = CustomerModel.query(
+        CustomerModel.birthday == function.date_convert(birtday)
+    ).count()
+
+    birth_and_full = False
+    if full_name:
+        birth_and_full = True
+        list_customer_ids = []
+        customer_count = 0
+        for cust in customer:
+            full_name_db = cust.last_name+" "+cust.first_name
+            find_full_name = function.find(full_name_db, full_name)
+            if find_full_name:
+                list_customer_ids.append(cust.key.id())
+                customer_count += 1
 
     return render_template('/pos/search_customer.html', **locals())
 
@@ -29,8 +50,28 @@ def search_customer_pos():
 @app.route('/search_ticket_pos', methods=['GET', 'POST'])
 def search_ticket_pos():
     number_ticket = request.form['number_ticket']
-    ticket = TicketModel.get_by_id(int(number_ticket))
-    return render_template('/pos/search_ticket.html', **locals())
+
+    number_ticket = ''.join(number_ticket.split('*'))
+
+    if len(number_ticket) < 16:
+        ticket_sold = TicketModel.query(
+            TicketModel.selling == True
+        )
+        list_ticket_sold = []
+        for ticket in ticket_sold:
+            find_ticket_sold = function.find(str(ticket.key.id())+" ", str(number_ticket))
+            if find_ticket_sold:
+                list_ticket_sold.append(ticket.key.id())
+        return render_template('/pos/search_ticket.html', **locals())
+    else:
+        ticket = TicketModel.get_by_id(int(number_ticket))
+        return render_template('/pos/ticket_found.html', **locals())
+
+
+@app.route('/Ticket_found/<int:ticket_id>', methods=['GET', 'POST'])
+def Ticket_found(ticket_id):
+    ticket = TicketModel.get_by_id(ticket_id)
+    return render_template('/pos/ticket_found.html', **locals())
 
 
 

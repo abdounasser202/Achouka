@@ -77,15 +77,19 @@
                                                   <form action="#" class="form-inline clearfix" id="SearchCustomer">
                                                       <fieldset>
                                                           <legend>SELL A TICKET</legend>
-                                                          <div class="form-group" style=" width: 40%;">
+                                                          <div class="form-group birth" style=" width: 40%;">
                                                             <label>Date of birth :</label>
-                                                            <input type="text" class="form-control datepickerbirth" name="birthday" id="datepickerbirth" autofocus >
+                                                            <input type="text" class="form-control datepickerbirth" name="birthday" id="datepickerbirth" autofocus autocomplete="false" >
                                                             <input type="hidden" name="current_departure" value="{% if current_departure %} {{ current_departure.key.id() }} {% endif %}" id="CurrentDeparture"/>
                                                           </div>
-                                                          <button type="submit" class="btn" id="SubmitCustomer"><i class="fa fa-search"></i></button>
+                                                          <div class="form-group" style=" width: 40%;">
+                                                            <label>Full Name :</label>
+                                                            <input type="text" class="form-control" name="full_name" style=" width: 68%;" autocomplete="false">
+                                                          </div>
+                                                          <button type="submit" class="btn" id="SubmitCustomer"><i class="fa fa-search"></i>  Find customer</button>
 
 
-                                                          <div class="pull-right">
+                                                          <div class="pull-right" style="margin-top: 24px;">
                                                               <a href="{{ url_for('create_customer_and_ticket_pos') }}" class="btn btn-primary btn-sm" id="CreateCustomer" >Create customer</a>
                                                           </div>
                                                       </fieldset>
@@ -249,13 +253,13 @@
                         data: $('#SearchCustomer').serialize(),
                         type: 'POST',
                         success: function(data) {
-                            $('#SearchCustomer .form-group').removeClass('has-error');
+                            $('#SearchCustomer .form-group.birth').removeClass('has-error');
                             $('#Error_no_select_departure').addClass('hidden');
                             $('#result_search_customer').show().html(data);
 
                         }
                     }).fail(function(){
-                        $('#SearchCustomer .form-group').addClass('has-error')
+                        $('#SearchCustomer .form-group.birth').addClass('has-error')
                     });
              }else{
                 $('#Error_no_select_departure').removeClass('hidden');

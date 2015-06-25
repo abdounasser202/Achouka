@@ -1,122 +1,68 @@
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <div class="panel panel-primary">
-                                              <div class="panel-body">
-                                                  <div class="page-header clearfix" style="margin: 0 !important;">
-                                                      <div class="col-lg-9 text-left"><h3 style="margin: 0;">TICKET ID : <b>{{ ticket.key.id() }}</b> </h3></div>
-                                                      <div class="col-lg-3 text-right"><a class="btn" id="CloseSearchTicket">close</a></div>
-                                                  </div>
-                                                  <br/>
-                                                  <div class="row">
-                                                      <div class="col-lg-6">
-                                                          <div class="panel panel-default">
-                                                              <div class="panel-body">
-                                                                  <table class="table">
-                                                                      <tr>
-                                                                          <td><strong>Reservation Date</strong></td>
-                                                                          <td>{{ ticket.date_reservation|format_date("%d-%m-%Y") }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Seller ID</strong></td>
-                                                                          <td>{{ ticket.ticket_seller.get().key.id() }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Kind</strong></td>
-                                                                          <td>
-                                                                              {% if ticket.is_ticket %}
-                                                                                    Ticket
-                                                                              {% else %}
-                                                                                    E-ticket
-                                                                              {% endif %}
-                                                                          </td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Status</strong></td>
-                                                                          <td>
-                                                                              {% if ticket.statusValid %}
-                                                                                    Valid
-                                                                              {% else %}
-                                                                                    Not valid
-                                                                              {% endif %}
-                                                                          </td>
-                                                                      </tr>
-                                                                  </table>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                      <div class="col-lg-6">
-                                                          <div class="panel panel-default">
-                                                              <div class="panel-body">
-                                                                  <table class="table">
-                                                                      <tr>
-                                                                          <td><strong>Type</strong></td>
-                                                                          <td>{{ ticket.type_name.get().name }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>journey</strong></td>
-                                                                          <td>{{ ticket.journey_name.get().name }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Class</strong></td>
-                                                                          <td>
-                                                                              {{ ticket.class_name.get().name }}
-                                                                          </td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Price</strong></td>
-                                                                          <td>
-                                                                              {{ ticket.get_price_sell(current_user) }}
-                                                                          </td>
-                                                                      </tr>
-                                                                  </table>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                  <div class="row">
-                                                      <div class="col-lg-12">
-                                                          <div class="panel panel-default">
-                                                              <div class="panel-body">
-                                                                  <table class="table">
-                                                                      <tr>
-                                                                          <td><strong>Journey</strong></td>
-                                                                          <td>
-                                                                                {{ ticket.departure.get().destination.get().destination_start.get().name }}
-                                                                                -
-                                                                                {{ ticket.departure.get().destination.get().destination_check.get().name }}
-                                                                          </td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Date</strong></td>
-                                                                          <td>{{ ticket.departure.get().departure_date|format_date("%A %d %B  %Y") }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Time</strong></td>
-                                                                          <td>{{ ticket.departure.get().schedule|add_time(ticket.departure.get().time_delay)|format_date("%H:%M") }}</td>
-                                                                      </tr>
-                                                                      <tr>
-                                                                          <td><strong>Customer</strong></td>
-                                                                          <td>
 
-                                                                              {{ ticket.customer.get().first_name }} {{ ticket.customer.get().last_name }}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+              <div class="page-header clearfix" style="margin: 0 !important;">
+                  <div class="col-lg-9 text-left"><h3 style="margin: 0;">Ticket Found</h3></div>
+                  <div class="col-lg-3 text-right"><a class="btn" id="CloseSearchTicket">close</a></div>
+              </div>
+              <br/>
+              <table class="table table-hover">
+                  <thead>
+                  <tr>
+                      <th>Number</th>
+                      <th>Customer</th>
+                      <th>Destination</th>
+                      <th>Date reservation</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% if list_ticket_sold %}
+                      {% for ticket in ticket_sold %}
+                          {% if ticket.key.id() in list_ticket_sold %}
+                              <tr>
+                                  <td><a href="{{ url_for('Ticket_found', ticket_id=ticket.key.id()) }}" class="link_ticket">{{ ticket.key.id() }}</a></td>
+                                  <td>{{ ticket.customer.get().first_name }} {{ ticket.customer.get().last_name }}</td>
+                                  <td>
+                                      {{ ticket.departure.get().destination.get().destination_start.get().name }}
+                                                    -
+                                      {{ ticket.departure.get().destination.get().destination_check.get().name }}
+                                  </td>
+                                  <td>{{ ticket.date_reservation|format_date("%d-%m-%Y") }}</td>
+                              </tr>
+                          {% endif %}
+                      {% endfor %}
+                  {% else %}
+                      <tr>
+                          <td colspan="4"><h4 class="text-center">Ticket not found</h4></td>
+                      </tr>
+                  {% endif %}
+                  </tbody>
+              </table>
+          </div>
+        </div>
+    </div>
+</div>
 
-                                                                          </td>
-                                                                      </tr>
-                                                                  </table>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </div>
 
-                                              </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        $('#CloseSearchTicket').on('click', function(e){
-                                            e.preventDefault();
-                                            $('#list_all_departure').show();
-                                            $('#info_ticket').addClass('hidden').html('');
-                                        })
-                                    </script>
+<script>
+    $('#CloseSearchTicket').on('click', function(e){
+        e.preventDefault();
+        $('#list_all_departure').show();
+        $('#info_ticket').addClass('hidden').html('');
+    })
+    $('.link_ticket').on('click', function(e){
+        e.preventDefault();
+        url = $(this).attr('href');
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(data) {
+                $('#info_ticket').html('');
+                $('#info_ticket').html(data);
+            }
+        });
+    })
+</script>
 

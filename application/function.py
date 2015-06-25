@@ -115,6 +115,31 @@ def add_time(time, retard):
 def format_price(price):
     return '{:,}'.format(price).replace(',', ' ')
 
+
+def find(word, search):
+    news = word.split(" ")
+    tab = []
+    tabs = []
+    letter = ""
+
+    for new in news:
+        count = 0
+
+        for n in new:
+           letter += n
+           tab.append(letter)
+           count += 1
+           if count == len(new):
+               tabs.append(tab)
+               count = 0
+               letter = ""
+               tab = []
+    w = False
+    for tab in tabs:
+        if search in tab:
+            w = True
+    return w
+
 app.jinja_env.filters['format_date'] = format_date
 app.jinja_env.filters['add_time'] = add_time
 app.jinja_env.filters['format_price'] = format_price
