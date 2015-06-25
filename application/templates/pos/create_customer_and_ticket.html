@@ -27,6 +27,23 @@
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
                 </div>
+                
+                <div class="form-group {% if form.passport_number.errors %} has-error {% endif %} has-feedback">
+                    <label>{{ form.passport_number.label }} :</label>
+                    {{ form.passport_number(class_='form-control', id="passport")|safe }}
+                    {% for message in form.passport_number.errors %}
+                        <span class="help-block text-danger">{{ message }}</span>
+                      {% endfor %}
+                </div>
+                
+                <div class="form-group {% if form.nic_number.errors %} has-error {% endif %} has-feedback">
+                    <label>{{ form.nic_number.label }} :</label>
+                    {{ form.nic_number(class_='form-control', id="nic")|safe }}
+                    {% for message in form.nic_number.errors %}
+                        <span class="help-block text-danger">{{ message }}</span>
+                      {% endfor %}
+                </div>
+                
                 <div class="form-group {% if form.email.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.email.label }} :</label>
                     {{ form.email(class_='form-control')|safe }}
