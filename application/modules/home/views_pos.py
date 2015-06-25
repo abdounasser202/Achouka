@@ -101,7 +101,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         QuestionModel.active == True
     )
 
-    # information du depart pour le ticket
+    # information du depart pour le ticket a afficher sur le template
     if departure_id:
         print_depature = DepartureModel.get_by_id(int(departure_id))
     else:
@@ -126,23 +126,24 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         QuestionModel.is_obligate == True
     )
 
-    # # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definient
-    # if number_obligated_question >= 1 and not question_request and request.method == 'POST':
-    #     obligated = True
-    #     quest_obligated = [question.key.id() for question in obligated_question]
-    # else:
-    #     if question_request:
-    #         count = 0
-    #
-    #         #boucle la liste des questions envoyees et verifie si c'est dans la liste des questions obligatoires
-    #         for quest in question_request:
-    #             if quest in [question.key.id() for question in obligated_question]:
-    #                 count += 1
-    #                 quest_obligated.append(quest)
-    #
-    #         # verifie que le quota de question obligatoire est atteint dans le questionnaire
-    #         if count <= number_obligated_question:
-    #             obligated = True
+    # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definient
+    if number_obligated_question >= 1 and question_request is None and request.method == 'POST':
+        obligated = True
+        quest_obligated = [question.key.id() for question in obligated_question]
+    else:
+        if question_request:
+            count = 0
+
+            #boucle la liste des questions envoyees et verifie si c'est dans la liste des questions obligatoires
+            for quest in question_request:
+                ks = QuestionModel.get_by_id(int(quest))
+                if ks.is_obligate:
+                    count += 1
+                    quest_obligated.append(int(quest))
+
+            # verifie que le quota de question obligatoire est atteint dans le questionnaire
+            if count < number_obligated_question:
+                obligated = True
 
 
     if customer_id:
@@ -201,11 +202,17 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             TicketModel.selling == False
         ).order(TicketModel.datecreate).get()
 
-        for question in question_request:
+        for kest in questions:
             Answers = TicketQuestion()
-            quest = QuestionModel.get_by_id(int(question))
             Answers.ticket_id = Ticket_To_Sell.key
-            Answers.question_id = quest.key
+            Answers.question_id = kest.key
+            if kest.is_obligate:
+                Answers.response = True
+            else:
+                if str(kest.key.id()) in question_request:
+                    Answers.response = True
+                else:
+                    Answers.response = False
             Answers.put()
 
         Ticket_To_Sell.selling = True
