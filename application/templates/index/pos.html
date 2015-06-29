@@ -32,6 +32,8 @@
                                       <div id="current_departure">
                                         <br/><br/>
                                         {% if current_departure %}
+                                            <span id="current_departure_start" class="hidden">{{ current_departure.destination.get().destination_start.get().key.id() }}</span>
+                                            <span id="current_departure_check" class="hidden">{{ current_departure.destination.get().destination_check.get().key.id() }}</span>
                                             <table class="table text-center">
                                                 <tbody>
                                                     <tr>
@@ -77,16 +79,16 @@
                                                   <form action="#" class="form-inline clearfix" id="SearchCustomer">
                                                       <fieldset>
                                                           <legend>SELL A TICKET</legend>
-                                                          <div class="form-group birth" style=" width: 40%;">
+                                                          <div class="form-group birth" style=" width: 45%;">
                                                             <label>Date of birth :</label>
                                                             <input type="text" class="form-control datepickerbirth" name="birthday" id="datepickerbirth" autofocus autocomplete="false" >
-                                                            <input type="hidden" name="current_departure" value="{% if current_departure %} {{ current_departure.key.id() }} {% endif %}" id="CurrentDeparture"/>
+                                                            <input type="hidden" name="current_departure" value="{% if current_departure %}{{ current_departure.key.id() }}{% endif %}" id="CurrentDeparture"/>
                                                           </div>
                                                           <div class="form-group" style=" width: 40%;">
                                                             <label>Full Name :</label>
                                                             <input type="text" class="form-control" name="full_name" style=" width: 68%;" autocomplete="false">
                                                           </div>
-                                                          <button type="submit" class="btn" id="SubmitCustomer"><i class="fa fa-search"></i>  Find customer</button>
+                                                          <button type="submit" class="btn" id="SubmitCustomer"><i class="fa fa-search"></i>  Find</button>
 
 
                                                           <div class="pull-right" style="margin-top: 24px;">
@@ -180,7 +182,9 @@
                     $('#current_departure').parent().children('.panel-heading').text('CALENDAR DEPARTURE');
                     $('#change_current_departure.btn-info').removeClass('btn-info');
                     $('#change_current_departure').addClass('btn-danger');
-                    $('#change_current_departure.btn-danger').text('Click here to reset')
+                    $('#change_current_departure.btn-danger').text('Click here to reset');
+                    $('#info_ticket').addClass('hidden');
+                    $('#list_all_departure').show();
 
                     $('#list_all_departure').html('');
                     $('#list_all_departure').html(rq2[0]);

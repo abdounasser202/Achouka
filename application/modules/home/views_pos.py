@@ -4,7 +4,7 @@ __author__ = 'wilrona'
 from ...modules import *
 
 from ..customer.models_customer import CustomerModel
-from ..ticket.models_ticket import TicketModel, TicketTypeNameModel, JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion
+from ..ticket.models_ticket import TicketPoly, TicketModel, TicketParent, TicketTypeNameModel, JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion
 
 from ..customer.forms_customer import FormCustomerPOS
 
@@ -71,8 +71,141 @@ def search_ticket_pos():
 @app.route('/Ticket_found/<int:ticket_id>', methods=['GET', 'POST'])
 def Ticket_found(ticket_id):
     ticket = TicketModel.get_by_id(ticket_id)
+
+    #information de l'agence de l'utilisateur
+    agency_current_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+
     return render_template('/pos/ticket_found.html', **locals())
 
+@app.route('/create_customer_and_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/create_customer_and_ticket_return/<int:ticket_id>', methods=['GET', 'POST'])
+def create_customer_and_ticket_return(ticket_id, departure_id=None):
+
+    from ..ticket_type.models_ticket_type import TicketTypeModel
+    from ..departure.models_departure import DepartureModel
+    from ..user.models_user import UserModel
+
+    Ticket_Return = TicketModel.get_by_id(ticket_id)
+
+    #information de l'agence de l'utilisateur
+    agency_current_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    number_list = global_dial_code_custom
+    nationalList = global_nationality_contry
+
+    #Verifier que les questions obligatoires ont ete selectionne
+    question_request = None
+    if request.method == 'POST':
+        question_request = request.form.getlist('questions')
+
+    #liste des questions
+    questions = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True
+    )
+
+    # information du depart pour le ticket a afficher sur le template
+    print_depature = DepartureModel.get_by_id(Ticket_Return.departure.get().key.id())
+
+    #Traitement des questions obligatoires
+    quest_obligated = []
+    obligated = False
+    number_obligated_question = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True,
+        QuestionModel.is_obligate == True
+    ).count()
+
+    obligated_question = QuestionModel.query(
+        QuestionModel.is_pos == True,
+        QuestionModel.active == True,
+        QuestionModel.is_obligate == True
+    )
+
+    # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definient
+    if number_obligated_question >= 1 and question_request is None and request.method == 'POST':
+        obligated = True
+        quest_obligated = [question.key.id() for question in obligated_question]
+    else:
+        if question_request:
+            count = 0
+
+            #boucle la liste des questions envoyees et verifie si c'est dans la liste des questions obligatoires
+            for quest in question_request:
+                ks = QuestionModel.get_by_id(int(quest))
+                if ks.is_obligate:
+                    count += 1
+                    quest_obligated.append(int(quest))
+
+            # verifie que le quota de question obligatoire est atteint dans le questionnaire
+            if count < number_obligated_question:
+                obligated = True
+
+    #information du client
+    customer = CustomerModel.get_by_id(Ticket_Return.customer.get().key.id())
+    form = FormCustomerPOS(obj=customer)
+
+    form.type_name.data = Ticket_Return.type_name.get().key.id()
+    form.class_name.data = Ticket_Return.class_name.get().key.id()
+    form.journey_name.data = Ticket_Return.journey_name.get().key.id()
+
+    departure_current = DepartureModel.get_by_id(departure_id)
+    form.current_departure.data = str(departure_current.key.id())
+
+    journey_ticket = JourneyTypeModel.query()
+    class_ticket = ClassTypeModel.query()
+    ticket_type_name = TicketTypeNameModel.query()
+
+
+    modal = 'false'
+    ticket_update = None
+
+    if form.validate_on_submit() and not obligated:
+        customer.first_name = form.first_name.data
+        customer.last_name = form.last_name.data
+        customer.birthday = function.date_convert(form.birthday.data)
+        customer.email = form.email.data
+        customer.nationality = form.nationality.data
+        customer.dial_code = form.dial_code.data
+        customer.phone = form.phone.data
+        customer.profession = form.profession.data
+        customer_save = customer.put()
+
+        new_ticket = TicketParent()
+
+        new_ticket.type_name = Ticket_Return.type_name
+        new_ticket.class_name = Ticket_Return.class_name
+
+        new_ticket.selling = True
+        new_ticket.is_ticket = True
+        new_ticket.date_reservation = function.datetime_convert(date_auto_nows)
+        new_ticket.datecreate = function.datetime_convert(date_auto_nows)
+
+        customer_ticket = CustomerModel.get_by_id(customer_save.id())
+        new_ticket.customer = customer_ticket.key
+
+        user = UserModel.get_by_id(int(session.get('user_id')))
+        new_ticket.ticket_seller = user.key
+
+        new_ticket.parent = Ticket_Return.key
+
+        #sauvegarde de l'agence de l'utilisateur courant
+        new_ticket.agency = agency_current_user.key
+
+        new_ticket.departure = departure_current.key
+
+        ticket_update = new_ticket.put()
+
+        Ticket_Return.statusValid = False
+        Ticket_Return.put()
+
+        modal = 'true'
+
+    return render_template('/pos/create_customer_and_ticket_return.html', **locals())
 
 
 @app.route('/create_customer_and_ticket_pos', methods=['GET', 'POST'])
@@ -90,7 +223,6 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     nationalList = global_nationality_contry
 
     #Verifier que les questions obligatoires ont ete selectionne
-
     question_request = None
     if request.method == 'POST':
         question_request = request.form.getlist('questions')
@@ -249,7 +381,7 @@ def modal_generate_pdf_ticket(ticket_id=None):
 @app.route('/generate_pdf_ticket/<int:ticket_id>')
 def generate_pdf_ticket(ticket_id):
 
-    Ticket_print = TicketModel.get_by_id(ticket_id)
+    Ticket_print = TicketPoly.get_by_id(ticket_id)
 
     import cStringIO
     output = cStringIO.StringIO()
@@ -271,7 +403,11 @@ def generate_pdf_ticket(ticket_id):
     #pdfmetrics.registerFont("Lato-Bold.ttf")
     string = '<font name="Times-Roman" size="14">%s</font>'
 
-    econo = string % Ticket_print.class_name.get().name+" - "+string % Ticket_print.type_name.get().name+" - "+string % Ticket_print.journey_name.get().name
+    journey = string % 'Return Ticket'
+    if Ticket_print.journey_name:
+        journey = string % Ticket_print.journey_name.get().name
+
+    econo = string % Ticket_print.class_name.get().name+" - "+string % Ticket_print.type_name.get().name+" - "+journey
     name = string % Ticket_print.customer.get().first_name+" "+string % Ticket_print.customer.get().last_name
     froms = string % Ticket_print.departure.get().destination.get().destination_start.get().name
     destination = string % Ticket_print.departure.get().destination.get().destination_check.get().name
@@ -372,6 +508,7 @@ def Search_Ticket_Type():
             TicketModel.type_name == typeticket.key,
             TicketModel.journey_name == journeyticket.key,
             TicketModel.agency == agency_user.key,
+            TicketModel.travel_ticket == departure.destination.get().key,
             TicketModel.selling == False
         ).count()
 

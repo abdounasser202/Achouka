@@ -20,12 +20,68 @@ def Ticket_Index():
     menu = 'recording'
     submenu = 'ticket'
 
+    if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+        return redirect(url_for('Stat_View', agency_id=agency_user.key.id()))
+
     # Utiliser pour afficher la liste des agences avec leur ticket
     ticket_list = AgencyModel.query(
         AgencyModel.status == True
     )
 
     return render_template('ticket/index.html', **locals())
+
+
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
+@app.route('/recoding/ticket/statistics/<int:agency_id>')
+def Stat_View(agency_id):
+    menu = 'recording'
+    submenu = 'ticket'
+    current_agency = AgencyModel.get_by_id(agency_id)
+
+    # Traitement pour l'affichage du nombre
+    purchases_query = TicketModel.query(
+        TicketModel.agency == current_agency.key,
+        projection=[TicketModel.datecreate, TicketModel.type_name, TicketModel.journey_name, TicketModel.class_name],
+        distinct=True
+    )
+
+    counts = {}
+    for purchase in purchases_query:
+        counts[purchase.datecreate] = {
+            "number": TicketModel.query(
+                TicketModel.agency == current_agency.key,
+                TicketModel.datecreate == purchase.datecreate
+            ).count_async().get_result(),
+            "type_name": purchase.type_name.get().name,
+            "class_name": purchase.class_name.get().name,
+            "journey_name": purchase.journey_name.get().name
+        }
+
+    Ticket_type = TicketTypeModel.query(
+        TicketTypeModel.active == True,
+        projection=[TicketTypeModel.name, TicketTypeModel.class_name, TicketTypeModel.type_name, TicketTypeModel.journey_name, TicketTypeModel.travel],
+        distinct=True
+    )
+
+    counts_ticket = {}
+    for type in Ticket_type:
+        counts_ticket[type.name] = {
+            "number": TicketModel.query(
+                TicketModel.travel_ticket == type.travel,
+                TicketModel.class_name == type.class_name,
+                TicketModel.journey_name == type.journey_name,
+                TicketModel.type_name == type.type_name,
+                TicketModel.agency == current_agency.key
+            ).count_async().get_result(),
+            "class": type.class_name,
+            "journey": type.journey_name,
+            "type": type.type_name,
+            "travel": type.travel
+        }
+
+    return render_template('ticket/stat-view.html', **locals())
 
 
 @login_required
@@ -42,6 +98,19 @@ def Select_Travel(agency_id):
     return render_template('ticket/select-travel.html', **locals())
 
 
+@login_required
+@roles_required(('super_admin', 'admin'))
+@app.route('/Select_Foreign_Travel/<int:agency_id>')
+def Select_Foreign_Travel(agency_id):
+    foreign_view = 'True'
+    title = "Foreign"
+    current_agency = AgencyModel.get_by_id(agency_id)
+
+    travellist = TravelModel.query(
+        TravelModel.destination_start != current_agency.destination.get().key
+    )
+
+    return render_template('ticket/select-travel.html', **locals())
 
 
 @login_required
@@ -50,6 +119,8 @@ def Select_Travel(agency_id):
 def Select_TicketType(travel_id, agency_id):
 
     travel_select = TravelModel.get_by_id(travel_id)
+
+    title = request.args.get('title')
 
     ticket_type = TicketTypeModel.query(
         TicketTypeModel.travel == travel_select.key,
@@ -109,9 +180,12 @@ def Ticket_Edit(agency_id, tickettype):
                 ticket.class_name = TicketType.class_name
                 ticket.is_prepayment = False
                 ticket.agency = info_agency.key
+                ticket.travel_ticket = TicketType.travel
                 ticket.sellpriceAg = TicketType.price
                 ticket.sellpriceAgCurrency = TicketType.currency
                 ticket.datecreate = function.datetime_convert(date_auto_nows)
+                if TicketType.journey_name.get().returned:
+                    ticket.is_return = True
 
                 ticket_create = ticket.put()
 

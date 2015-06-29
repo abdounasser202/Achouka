@@ -40,6 +40,12 @@ def TicketType_Edit(tickettype_id=None):
 
     #liste des journey
     listJourneyTicket = JourneyTypeModel.query().order(JourneyTypeModel.name)
+    #Compter le nombre de journey avec la function retour active
+    returnjourney = JourneyTypeModel.query(
+        JourneyTypeModel.returned == True
+    ).count()
+
+
 
     if tickettype_id:
         tickettype = TicketTypeModel.get_by_id(tickettype_id)
@@ -91,36 +97,26 @@ def Active_tickettype(tickettype_id):
 
     tickettype_active = TicketTypeModel.get_by_id(tickettype_id)
 
-    tickettype_exit = TicketTypeModel.query(
-        TicketTypeModel.type_name == tickettype_active.type_name,
-        TicketTypeModel.class_name == tickettype_active.class_name,
-        TicketTypeModel.journey_name == tickettype_active.journey_name,
-        TicketTypeModel.travel == tickettype_active.travel,
-        TicketTypeModel.active == True
-    ).count()
+    if not tickettype_active.active:
+        tickettype_exit = TicketTypeModel.query(
+            TicketTypeModel.type_name == tickettype_active.type_name,
+            TicketTypeModel.class_name == tickettype_active.class_name,
+            TicketTypeModel.journey_name == tickettype_active.journey_name,
+            TicketTypeModel.travel == tickettype_active.travel,
+            TicketTypeModel.active == True
+        ).count()
 
-    if tickettype_exit >= 1:
-        if tickettype_active.active is False:
+        if tickettype_exit >= 1:
             flash(' Other ticket type have Class = '+str(tickettype_active.class_name)
                   +', Type  = '+str(tickettype_active.type_name)+' and Journey = '
                   +str(tickettype_active.journey_name)+'from '+str(tickettype_active.travel.get().destination_start.get().name)+" to "+str(tickettype_active.travel.get().destination_check.get().name)+" is activated", 'danger')
-            return redirect(url_for('TicketType_Index'))
-        else:
-            if tickettype_active.active:
-                tickettype_active.active = False
-            else:
-                tickettype_active.active = True
-
-            tickettype_active.put()
-            return redirect(url_for('TicketType_Index'))
-    else:
-        if tickettype_active.active:
-            tickettype_active.active = False
         else:
             tickettype_active.active = True
+    else:
+        tickettype_active.active = False
 
-        tickettype_active.put()
-        return redirect(url_for('TicketType_Index'))
+    tickettype_active.put()
+    return redirect(url_for('TicketType_Index'))
 
 @login_required
 @roles_required(('admin', 'super_admin'))
@@ -154,6 +150,39 @@ def Currency_Travel(travel_id=None):
         }, sort_keys=True)
 
     return data
+
+@app.route('/Verified_Disabled/<int:tickettype_id>')
+def Verified_Disabled(tickettype_id):
+    from ..ticket.models_ticket import TicketModel
+    TicketType_delete = TicketTypeModel.get_by_id(tickettype_id)
+
+    Agency_ticket_type = AgencyModel.query(
+        AgencyModel.destination == TicketType_delete.travel.get().destination_start
+    )
+
+    count = 0
+    for agency in Agency_ticket_type:
+        count_ticket_created = TicketModel.query(
+            TicketModel.type_name == TicketType_delete.type_name,
+            TicketModel.class_name == TicketType_delete.class_name,
+            TicketModel.journey_name == TicketType_delete.journey_name,
+            TicketModel.agency == agency.key,
+            TicketModel.selling == False
+        ).count()
+        if count_ticket_created >= 1:
+            count += 1
+
+    if count >= 1:
+        data = json.dumps({
+            'statut': 'OK'
+        }, sort_keys=True)
+    else:
+        data = json.dumps({
+            'statut': 'error'
+        }, sort_keys=True)
+
+    return data
+
 
 #-------------------------------------------------------------------------------
 #
@@ -265,17 +294,22 @@ def JourneyType_Index(journey_type_id=None):
     if form.validate_on_submit():
         journey_exist = JourneyTypeModel.query(JourneyTypeModel.name == form.name.data).count()
 
-        if journey_exist >= 1:
-            form.name.errors.append('This name '+str(form.name.data)+' exist')
-        else:
-            journey_type.name = form.name.data
-            journey_type.put()
-            if journey_type_id:
-                flash(u"Journey Updated!", "success")
-            else:
-                flash(u"Journey Saved!", "success")
+        number_journey_type = JourneyTypeModel.query().count()
 
-            return redirect(url_for('JourneyType_Index'))
+        if number_journey_type <= 2:
+            if journey_exist >= 1:
+                form.name.errors.append('This name '+str(form.name.data)+' exist')
+            else:
+                journey_type.name = form.name.data
+                journey_type.put()
+                if journey_type_id:
+                    flash(u"Journey Updated!", "success")
+                else:
+                    flash(u"Journey Saved!", "success")
+
+                return redirect(url_for('JourneyType_Index'))
+        else:
+            flash(u"You can not create more than two journey!", "danger")
 
     journey_type_list = JourneyTypeModel.query()
 
@@ -319,22 +353,29 @@ def JourneyType_retuned(journey_type_id):
             JourneyTypeModel.returned == True
         ).count()
 
+        if journey_returned_exist >= 1:
+            flash(u"you can not define two type of ticket as a criterion 'Used to return the tickets'!", "danger")
+        else:
+            flash(u"Journey Updated!", "success")
+            journey_type.returned = True
+    else:
+
+        journey_used_ticket_type = TicketTypeModel.query(
+            TicketTypeModel.journey_name == journey_type.key
+        ).count()
+
         from ..ticket.models_ticket import TicketModel
         journey_used_ticket = TicketModel.query(
             TicketModel.journey_name == journey_type.key
         ).count()
 
-        if journey_returned_exist >= 1 or journey_used_ticket >= 1:
-            if journey_used_ticket:
-                flash(u"this type journey is already used in ticket for One Way Trip ", "danger")
-            else:
-                flash(u"you can not define two type of ticket as a criterion 'Used to return the tickets'!", "danger")
+        if journey_used_ticket >= 1 or journey_used_ticket_type >= 1:
+
+            flash(u"you can not disabled the return function for this journey", "danger")
+
         else:
             flash(u"Journey Updated!", "success")
-            journey_type.returned = True
-    else:
-        flash(u"Journey Updated!", "success")
-        journey_type.returned = False
+            journey_type.returned = False
 
     journey_type.put()
 
@@ -390,10 +431,18 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
     if form.validate_on_submit():
         ticket_exist = TicketTypeNameModel.query(TicketTypeNameModel.name == form.name.data).count()
 
+        number_ticket_normal = TicketTypeNameModel.query(
+            TicketTypeNameModel.special == False
+        ).count()
+
         if ticket_exist >= 1:
             form.name.errors.append('This name '+str(form.name.data)+' exist')
         else:
             tickets.name = form.name.data
+
+            if number_ticket_normal >= 2:
+                tickets.special = True
+
             tickets.put()
             if ticket_type_name_id:
                 flash(u"Ticket Type Name Updated!", "success")
@@ -443,12 +492,13 @@ def Ticket_Type_Name_Default(ticket_type_name_id):
         if is_default_exist >= 1:
             flash(u"you can not define two type of ticket as a criterion 'is default'!", "danger")
         else:
+            flash(u"Ticket Type Name Updated!", "success")
             ticket.default = True
     else:
+        flash(u"Ticket Type Name Updated!", "success")
         ticket.default = False
 
     ticket.put()
-    flash(u"Ticket Type Name Updated!", "success")
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 
@@ -459,13 +509,20 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
 
-    if ticket.special == False:
-        ticket.special = True
+    if ticket.special:
+        number_ticket_normal = TicketTypeNameModel.query(
+            TicketTypeNameModel.special == False
+        ).count()
+        if number_ticket_normal >= 2:
+            flash(u"You can not activate more than two normal ticket type", "danger")
+        else:
+            flash(u"Ticket Type Name Updated!", "success")
+            ticket.special = False
     else:
-        ticket.special = False
-    ticket.put()
+        flash(u"Ticket Type Name Updated!", "success")
+        ticket.special = True
 
-    flash(u"Ticket Type Name Updated!", "success")
+    ticket.put()
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 

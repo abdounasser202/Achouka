@@ -1,6 +1,6 @@
-<div class="modal-header bg-warning">
+<div class="modal-header {% if title %} bg-info {% else %} bg-warning {% endif %}">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h4 class="modal-title" id="myModalLabel">Select Travel</h4>
+    <h4 class="modal-title" id="myModalLabel">Select {{ title }} Travel</h4>
 </div>
 
 <form class="form-horizontal" id="formulaire">
@@ -17,7 +17,7 @@
                    <tr>
                        <td>{{ travel.destination_start.get().name }} - {{ travel.destination_check.get().name }}</td>
                        <td>
-                           <a class="btn btn-xs btn-success unselect select" href="{{ url_for('Select_TicketType', travel_id=travel.key.id(), agency_id=agency_id) }}" data-loading-text="Loading...">selected</a>
+                           <a class="btn btn-xs btn-success unselect select" href="{{ url_for('Select_TicketType', travel_id=travel.key.id(), agency_id=agency_id, title=title) }}" data-loading-text="Loading...">selected</a>
                        </td>
                    </tr>
                {% endfor %}
@@ -26,6 +26,12 @@
 
     </div>
     <div class="modal-footer">
+        {% if current_user.has_roles(('super_admin','admin')) and not foreign_view %}
+            <a href="{{ url_for('Select_Foreign_Travel', agency_id=agency_id) }}" class="btn btn-info" id="Foreign">Foreign Ticket</a>
+        {% endif %}
+        {% if foreign_view %}
+            <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+        {% endif %}
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     </div>
 </form>
@@ -47,6 +53,30 @@
                 $('.modal-content').html(data);
             }
         });
+    });
+
+    $('#Foreign').click(function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var url = $(this).attr('href');
+        btn.button('loading');
+        $('.btn.unselect').addClass('disabled');
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(data) {
+                $('.modal-content').html(data);
+            }
+        });
+    });
+
+
+    $('a#return').click(function(e) {
+      e.preventDefault();
+      var url = $(this).attr('href');
+      $.get(url, function(data) {
+          $('.modal-content').html(data);
+      });
     });
 
     $('#dataTables').dataTable({

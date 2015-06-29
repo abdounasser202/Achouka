@@ -1,4 +1,4 @@
-<div class="modal-header bg-warning">
+<div class="modal-header {% if title %} bg-info {% else %} bg-warning {% endif %}">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h4 class="modal-title" id="myModalLabel">Select Ticket Type for your ticket</h4>
 </div>
@@ -27,7 +27,11 @@
            </table>
     </div>
     <div class="modal-footer">
-        <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+        {% if title %}
+            <a href="{{ url_for('Select_Foreign_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+        {% else %}
+            <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+        {% endif %}
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" data-href="" class="btn btn-success hidden" id="submit">Continued</button>
 

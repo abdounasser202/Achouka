@@ -78,7 +78,9 @@
             url: url,
             type: 'GET',
             success: function(data) {
+                $('#info_ticket').addClass('hidden');
                 $('#list_all_departure').html(data);
+                $('#list_all_departure').show();
             }
         });
 

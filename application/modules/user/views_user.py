@@ -73,9 +73,11 @@ def User_Admin_Index():
         RoleModel.name == 'admin'
     ).get()
 
-    user_admin = UserRoleModel.query(
-            UserRoleModel.role_id == admin_role.key
-    )
+    user_admin = []
+    if admin_role:
+        user_admin = UserRoleModel.query(
+                UserRoleModel.role_id == admin_role.key
+        )
 
     if current_user.has_roles('super_admin'):
         super_admin_role = RoleModel.query(
@@ -87,12 +89,13 @@ def User_Admin_Index():
         )
         super_admin_id = [users.user_id for users in super_admin_role_id]
 
-        user_admin = UserRoleModel.query(
-            ndb.OR(
-                UserRoleModel.role_id == super_admin_role.key,
-                UserRoleModel.role_id == admin_role.key
+        if admin_role:
+            user_admin = UserRoleModel.query(
+                ndb.OR(
+                    UserRoleModel.role_id == super_admin_role.key,
+                    UserRoleModel.role_id == admin_role.key
+                )
             )
-        )
 
     user_admins = [users.user_id for users in user_admin]
 

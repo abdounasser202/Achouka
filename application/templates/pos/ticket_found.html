@@ -5,8 +5,15 @@
         <div class="panel panel-primary">
           <div class="panel-body">
               <div class="page-header clearfix" style="margin: 0 !important;">
-                  <div class="col-lg-9 text-left"><h3 style="margin: 0;">TICKET ID : <b>{{ ticket.key.id() }}</b> </h3></div>
-                  <div class="col-lg-3 text-right"><a class="btn" id="CloseSearchTicket">close</a></div>
+                  <div class="col-lg-7 text-left"><h3 style="margin: 0;">TICKET ID : <b>{{ ticket.key.id() }}</b> </h3></div>
+                  <div class="col-lg-5 text-right">
+                  <div class="btn-group">
+                      {% if ticket.is_return and ticket.statusValid and ticket.departure.get().destination.get().destination_check == agency_current_user.destination %}
+                            <a href="{{ url_for('create_customer_and_ticket_return', ticket_id=ticket.key.id()) }}" class="btn btn-info" id="CreateReturnTicket" disabled="disabled">Print return ticket</a>
+                      {% endif %}
+                      <a class="btn" id="CloseSearchTicket">close</a>
+                  </div>
+                  </div>
               </div>
               <br/>
               <div class="row">
@@ -119,5 +126,31 @@
         e.preventDefault();
         $('#list_all_departure').show();
         $('#info_ticket').addClass('hidden').html('');
+    });
+
+    console.log($('#permanent_current_departure').text());
+
+    if($('#current_departure_start').text() != '' && $('#current_departure_start').text() != ''){
+        if ($('#current_departure_start').text() == {{ ticket.departure.get().destination.get().destination_check.get().key.id() }}  && $('#current_departure_check').text() == {{ ticket.departure.get().destination.get().destination_start.get().key.id() }}){
+           $('#CreateReturnTicket').removeAttr('disabled')
+        }
+    }
+
+    var val_id = $('#CurrentDeparture').val();
+    $('#CreateReturnTicket').attr({'href': "{{url_for('create_customer_and_ticket_return', ticket_id=ticket.key.id())}}"+"/"+val_id});
+
+    $('#CreateReturnTicket').on('click', function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    $('#info_ticket').addClass('hidden').html('');
+                    $('#ScreenIndexPos').hide();
+                    $('#ScreenCreateTicket').removeClass('hidden').html(data);
+                }
+        });
+
     })
 </script>

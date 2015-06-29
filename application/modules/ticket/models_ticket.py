@@ -1,6 +1,7 @@
 __author__ = 'wilrona'
 
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb import polymodel
 
 from ..user.models_user import UserModel
 from ..agency.models_agency import AgencyModel
@@ -10,7 +11,8 @@ from ..departure.models_departure import DepartureModel, TravelModel
 from ..ticket_type.models_ticket_type import ClassTypeModel, TicketTypeNameModel, JourneyTypeModel
 from ..question.models_question import QuestionModel
 
-class TicketModel(ndb.Model):
+
+class TicketPoly(polymodel.PolyModel):
 
     sellpriceAg = ndb.FloatProperty()
     sellpriceAgCurrency = ndb.KeyProperty(kind=CurrencyModel)
@@ -18,11 +20,12 @@ class TicketModel(ndb.Model):
     type_name = ndb.KeyProperty(kind=TicketTypeNameModel)
     class_name = ndb.KeyProperty(kind=ClassTypeModel)
     journey_name = ndb.KeyProperty(kind=JourneyTypeModel)
-    travel_type_ticket = ndb.KeyProperty(kind=TravelModel)
+    travel_ticket = ndb.KeyProperty(kind=TravelModel)
 
     agency = ndb.KeyProperty(kind=AgencyModel)
     is_prepayment = ndb.BooleanProperty(default=True)
     statusValid = ndb.BooleanProperty(default=True)
+    is_return = ndb.BooleanProperty(default=False)
 
     selling = ndb.BooleanProperty(default=False)
     is_ticket = ndb.BooleanProperty()
@@ -38,12 +41,13 @@ class TicketModel(ndb.Model):
 
     datecreate = ndb.DateTimeProperty()
 
-    def get_price_sell(self, current_user):
 
+class TicketModel(TicketPoly):
+
+    def get_price_sell(self, current_user):
         #Traitement des prix en fonction de la devise.
         db_currency = CurrencyModel.get_by_id(self.sellpriceCurrency.id())
         us_currency = current_user.get_currency_info()
-
 
         custom_equi = EquivalenceModel.query(
             EquivalenceModel.currencyRate == db_currency.key,
@@ -60,6 +64,10 @@ class TicketModel(ndb.Model):
         new_price = str(price)+" "+currency
 
         return new_price
+
+
+class TicketParent(TicketPoly):
+    parent = ndb.KeyProperty(kind=TicketModel)
 
 
 class TicketQuestion(ndb.Model):
