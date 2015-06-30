@@ -27,6 +27,8 @@ def Destination_Edit(destination_id=None):
     menu = 'settings'
     submenu = 'destination'
 
+
+
     #liste des devises
     listcurency = CurrencyModel.query()
 
@@ -34,6 +36,29 @@ def Destination_Edit(destination_id=None):
         # formulaire et information de la devise a editer
         destination = DestinationModel.get_by_id(destination_id)
         form = FormDestination(obj=destination)
+
+        from ..agency.models_agency import AgencyModel
+        from ..travel.models_travel import TravelModel
+        from ..transaction.models_transaction import TransactionModel
+
+        agency_destination_exist = AgencyModel.query(
+            AgencyModel.destination == destination.key
+        ).count()
+
+        travel_destination_start_exist = TravelModel.query(
+            TravelModel.destination_start == destination.key
+        ).count()
+
+        travel_destination_check_exist = TravelModel.query(
+            TravelModel.destination_check == destination.key
+        ).count()
+
+        transaction_destination_exist = TransactionModel.query(
+            TransactionModel.destination == destination.key
+        ).count()
+
+        currency_destination_id = destination.currency.get().key.id()
+
     else:
         form = FormDestination()
         destination = DestinationModel()
@@ -83,6 +108,7 @@ def Destination_Delete(destination_id=None):
 
     from ..agency.models_agency import AgencyModel
     from ..travel.models_travel import TravelModel
+    from ..transaction.models_transaction import TransactionModel
 
     agency_destination_exist = AgencyModel.query(
         AgencyModel.destination == delete_destination.key
@@ -96,7 +122,11 @@ def Destination_Delete(destination_id=None):
         TravelModel.destination_check == delete_destination.key
     ).count()
 
-    if agency_destination_exist >= 1 or travel_destination_start_exist >= 1 or travel_destination_check_exist >= 1:
+    transaction_destination_exist = TransactionModel.query(
+        TransactionModel.destination == delete_destination.key
+    ).count()
+
+    if agency_destination_exist >= 1 or travel_destination_start_exist >= 1 or travel_destination_check_exist >= 1 or transaction_destination_exist >= 1:
         flash(u'You can\'t delete this destination', 'danger')
         return redirect(url_for("Destination_Index"))
     else:

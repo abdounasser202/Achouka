@@ -16,7 +16,7 @@
                           <div class="container-fluid">
                             <div class="btn-toolbar" role="toolbar">
                                <div class="btn-group pull-left">
-                                   <a href="#" class="btn btn-danger btn-lg">Create entry</a>
+                                   {#<a href="#" class="btn btn-danger btn-lg">Create a payment</a>#}
                                </div>
                             </div>
                           </div>
@@ -32,14 +32,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for transaction in transactions %}
-                                <tr {% if transaction.transaction_type == 1 %} class="success" {% endif %}>
-                                    <td>{{ transaction.transaction_date|format_date("%d-%m-%Y %H:%M") }}</td>
-                                    <td>{{ transaction.reason }}</td>
-                                    <td>{{ transaction.amount|format_price() }} {{ transaction.currency.get().code }}</td>
-                                    <td>{{ transaction.agency.get().name }}</td>
+                            {% for agency in List_agency %}
+                                <tr>
+                                    <td><a href="{{ url_for('Transaction_Agency', agency_id=agency.key.id()) }}">{{ agency.name }}</a></td>
+                                    <td></td>
                                     <td>
-                                        <a href="#" class="btn btn-link btn-xs">view</a>
+                                        <a href="#" class="btn btn-info btn-xs">Create a payment</a>
                                     </td>
                                 </tr>
                             {% endfor %}

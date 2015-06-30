@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-recording.html' %}
+            </div>
+            <div class="col-lg-10">
+                <section>
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('Transaction_Index') }}">Transaction</a></li>
+                          <li class="active">Statistics</li>
+                        </ol>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3>{{ current_agency.name }}</h3>
+                                <hr/>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading"><span class="lead">Transaction List</span></div>
+                                      <div class="panel-body">
+                                        <table class="table table-hover" id="dataTableStat1">
+                                            <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Amout</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for transaction in transaction_agency_query %}
+                                                    <tr {% if not transaction.is_payment %} class="danger" {% else %} class="success" {% endif %}>
+                                                        <td>{{ transaction.transaction_date }}</td>
+                                                        <td>{{ transaction.amount|format_price() }} {{ transaction.destination.get().currency.get().code }} </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                      </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+
+                                <div class="well text-center">
+                                    POS <small>Escrow Amount </small>
+                                    <h3>{{ current_agency.escrow_amount_employee()|format_price() }} {{ current_agency.destination.get().currency.get().code }}</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+
+        </div>
+      </div>
+    </div>
+{% endblock %}
+{% block footer_script %}
+    <script>
+        $('#dataTableStat1').dataTable({
+            "paging": true,
+            "sPaginationType":"full_numbers",
+            "iDisplayLength": 25,
+            "bFilter": false,
+            'aoColumnDefs': [
+                {'bSortable': false, 'aTargets': ['nosort']},
+                {'bSearchable': false, "aTargets": ['nosort']}
+            ],
+             "order": [[ 0, "desc" ]]
+        });
+
+        $('#dataTableStat2').dataTable({
+            "paging": true,
+            "bFilter": true,
+            'aoColumnDefs': [
+                {'bSortable': false, 'aTargets': ['nosort']},
+                {'bSearchable': false, "aTargets": ['nosort']}
+            ],
+             "order": [[ 0, "asc" ]]
+        });
+         $('#dataTableStat3').dataTable({
+            "paging": true,
+            "bFilter": true,
+            'aoColumnDefs': [
+                {'bSortable': false, 'aTargets': ['nosort']},
+                {'bSearchable': false, "aTargets": ['nosort']}
+            ],
+             "order": [[ 0, "asc" ]]
+        });
+
+
+    </script>
+{% endblock %}

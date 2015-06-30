@@ -81,7 +81,7 @@ $(document).ready(function() {
     	    {'bSortable': false, 'aTargets': ['nosort']},
     	    {'bSearchable': false, "aTargets": ['nosort']}
 		]
-		});
+	});
 		
 	$('#posTable').dataTable({
 	    "paging": true,

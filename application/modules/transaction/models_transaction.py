@@ -1,9 +1,9 @@
 __author__ = 'wilrona'
 
 from google.appengine.ext import ndb
-from ..agency.models_agency import AgencyModel
+from ..agency.models_agency import AgencyModel, DestinationModel
 from ..currency.models_currency import CurrencyModel
-from ..ticket.models_ticket import TicketModel
+from ..ticket.models_ticket import TicketModel, UserModel
 
 
 class TransactionModel(ndb.Model):
@@ -11,8 +11,10 @@ class TransactionModel(ndb.Model):
     amount = ndb.FloatProperty()
     is_payment = ndb.BooleanProperty()
     agency = ndb.KeyProperty(kind=AgencyModel)
-    currency = ndb.KeyProperty(kind=CurrencyModel)
+    destination = ndb.KeyProperty(kind=DestinationModel)
+    transaction_admin = ndb.BooleanProperty(default=False)
     transaction_date = ndb.DateTimeProperty()
+    user = ndb.KeyProperty(kind=UserModel)
 
 
 class DetailsTransactionModel(ndb.Model):

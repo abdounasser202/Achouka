@@ -33,7 +33,7 @@ def Ticket_Index():
 
 
 @login_required
-@roles_required(('super_admin', 'manager_agency'))
+@roles_required(('super_admin', 'employee_POS'))
 @app.route('/recoding/ticket/statistics/<int:agency_id>')
 def Stat_View(agency_id):
     menu = 'recording'
@@ -164,8 +164,12 @@ def Ticket_Edit(agency_id, tickettype):
         insert_transaction.agency = info_agency.key
         insert_transaction.reason = 'Expense'
         insert_transaction.is_payment = False
-        insert_transaction.currency = TicketType.currency
+        insert_transaction.destination = TicketType.travel.get().destination_start
         insert_transaction.transaction_date = function.datetime_convert(date_auto_nows)
+
+        from ..user.models_user import UserModel
+        user_id = UserModel.get_by_id(int(session.get('user_id')))
+        insert_transaction.user = user_id.key
 
         key_transaction = insert_transaction.put()
 

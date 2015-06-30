@@ -163,25 +163,25 @@
                         <div class="col-lg-6">
                               <div class="form-group">
                                 <label for="exampleInputEmail1">FROM/DE</label>
-                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.destination.get().destination_check.get().name }}">
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ departure_current.destination.get().destination_start.get().name }}">
                               </div>
                           </div>
                           <div class="col-lg-6">
                               <div class="form-group">
                                 <label for="exampleInputEmail1">DESTINATION/A</label>
-                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.destination.get().destination_start.get().name }}">
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ departure_current.destination.get().destination_check.get().name }}">
                               </div>
                           </div>
                          <div class="col-lg-6">
                               <div class="form-group">
                                 <label for="exampleInputEmail1">DATE/DE</label>
-                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.departure_date|format_date("%d-%m-%Y") }}">
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ departure_current.departure_date|format_date("%d-%m-%Y") }}">
                               </div>
                           </div>
                           <div class="col-lg-6">
                               <div class="form-group">
                                 <label for="exampleInputEmail1">TIME/HEURE</label>
-                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ print_depature.schedule|add_time(print_depature.time_delay)|format_date("%H:%M") }}">
+                                <input type="text" class="form-control disabled" disabled="disabled" value="{{ departure_current.schedule|add_time(departure_current.time_delay)|format_date("%H:%M") }}">
                               </div>
                           </div>
                          <div class="col-lg-6">

@@ -108,9 +108,6 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         QuestionModel.active == True
     )
 
-    # information du depart pour le ticket a afficher sur le template
-    print_depature = DepartureModel.get_by_id(Ticket_Return.departure.get().key.id())
-
     #Traitement des questions obligatoires
     quest_obligated = []
     obligated = False

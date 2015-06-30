@@ -60,3 +60,32 @@ class AgencyModel(ndb.Model):
             date = None
 
         return date
+
+    def escrow_amount_employee(self):
+        from ..transaction.models_transaction import TransactionModel
+
+        entry_query = TransactionModel.query(
+            TransactionModel.is_payment == True,
+            TransactionModel.agency == self.key,
+            TransactionModel.transaction_admin == False
+        )
+
+        entry_amount = 0
+        for entry in entry_query:
+            if self.destination == entry.destination:
+                entry_amount += entry.amount
+
+        expense_query = TransactionModel.query(
+            TransactionModel.is_payment == False,
+            TransactionModel.agency == self.key,
+            TransactionModel.transaction_admin == False
+        )
+
+        expense_amount = 0
+        for expense in expense_query:
+            if self.destination == expense.destination:
+                expense_amount += expense.amount
+
+        escrow = entry_amount - expense_amount
+
+        return escrow

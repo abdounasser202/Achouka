@@ -47,8 +47,11 @@
                                       <div class="form-group {% if form.currency.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.currency.label }}</label>
                                             <div class="col-sm-9">
-
-                                                <select name="currency" id="" class="form-control g-select">
+                                                {% if agency_destination_exist >= 1 or travel_destination_start_exist >= 1 or travel_destination_check_exist >= 1 or transaction_destination_exist >= 1 %}
+                                                    {% set currency_disabled = True %}
+                                                    <input type="hidden" name="currency" value="{{ currency_destination_id }}"/>
+                                                {% endif %}
+                                                <select name="currency" id="" class="form-control g-select" {% if currency_disabled %} disabled="disabled" {% endif %}>
                                                     <option value="">Choices currency</option>
                                                     {% for cur in listcurency %}
                                                         <option value="{{ cur.key.id() }}" {% if form.currency.data == cur.key %} selected {% endif %}>{{ cur.code }}</option>
