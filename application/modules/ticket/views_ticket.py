@@ -4,7 +4,7 @@ from ...modules import *
 
 from models_ticket import AgencyModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel
 from ..ticket_type.models_ticket_type import TicketTypeModel, TravelModel
-from ..transaction.models_transaction import TransactionModel, TicketModel, ExpensePaymentTransactionModel
+from ..transaction.models_transaction import TransactionModel, DetailsTransactionModel, TicketModel, ExpensePaymentTransactionModel
 
 from ..ticket_type.forms_ticket_type import FormSelectTicketType
 from forms_ticket import FormTicket
@@ -178,6 +178,19 @@ def Ticket_Edit(agency_id, tickettype):
             last_transaction = TransactionModel.get_by_id(key_transaction.id())
             i = 1
             while i <= number:
+                detail_transaction = DetailsTransactionModel()
+                detail_transaction.amount = TicketType.price
+                detail_transaction.agency = info_agency.key
+                detail_transaction.reason = 'Expense detail'
+                detail_transaction.is_payment = False
+                detail_transaction.destination = TicketType.travel.get().destination_start
+                detail_transaction.transaction_date = function.datetime_convert(date_auto_nows)
+                detail_transaction.transaction_parent = last_transaction.key
+                detail_transaction.user = user_id.key
+
+                save_detail_transaction = detail_transaction.put()
+                detail_transaction_create = DetailsTransactionModel.get_by_id(save_detail_transaction.id())
+
                 ticket = TicketModel()
                 ticket.type_name = TicketType.type_name
                 ticket.journey_name = TicketType.journey_name
@@ -197,7 +210,7 @@ def Ticket_Edit(agency_id, tickettype):
 
                 # creation du type de transaction entre la transaction et le ticket
                 ticket_transaction = ExpensePaymentTransactionModel()
-                ticket_transaction.transaction = last_transaction.key
+                ticket_transaction.transaction = detail_transaction_create.key
                 ticket_transaction.ticket = ticket_create.key
                 ticket_transaction.is_difference = False
                 ticket_transaction.put()

@@ -61,31 +61,76 @@ class AgencyModel(ndb.Model):
 
         return date
 
-    def escrow_amount_employee(self):
+    def escrow_amount(self, value=False):
         from ..transaction.models_transaction import TransactionModel
 
         entry_query = TransactionModel.query(
             TransactionModel.is_payment == True,
             TransactionModel.agency == self.key,
-            TransactionModel.transaction_admin == False
+            TransactionModel.transaction_admin == value,
+            TransactionModel.destination == self.destination
         )
 
         entry_amount = 0
         for entry in entry_query:
-            if self.destination == entry.destination:
-                entry_amount += entry.amount
+            entry_amount += entry.amount
 
         expense_query = TransactionModel.query(
             TransactionModel.is_payment == False,
             TransactionModel.agency == self.key,
-            TransactionModel.transaction_admin == False
+            TransactionModel.transaction_admin == False,
+            TransactionModel.destination == self.destination
         )
 
         expense_amount = 0
         for expense in expense_query:
-            if self.destination == expense.destination:
-                expense_amount += expense.amount
+            expense_amount += expense.amount
 
         escrow = entry_amount - expense_amount
 
         return escrow
+
+    # Montant des tickets etrangers (defaut POS, True = Agency)
+    def escrow_amount_foreign(self, current_value, value=False):
+        from ..transaction.models_transaction import TransactionModel
+
+        destination_transaction_query = TransactionModel.query(
+            TransactionModel.agency == self.key,
+            projection=[TransactionModel.destination],
+            distinct=True
+        )
+
+        destinations_table = {}
+
+        for destination in destination_transaction_query:
+
+            entry_query = TransactionModel.query(
+                TransactionModel.is_payment == True,
+                TransactionModel.agency == self.key,
+                TransactionModel.transaction_admin == value,
+                TransactionModel.destination == destination.destination
+            )
+    
+            entry_amount = 0
+            for entry in entry_query:
+                entry_amount += entry.amount
+
+            expense_query = TransactionModel.query(
+                TransactionModel.is_payment == False,
+                TransactionModel.agency == self.key,
+                TransactionModel.transaction_admin == False,
+                TransactionModel.destination == destination.destination
+            )
+
+            expense_amount = 0
+            for expense in expense_query:
+                expense_amount += expense.amount
+
+            destinations_table[destination.destination] = {
+                'amount': entry_amount - expense_amount,
+                'currency': destination.destination.get().currency.get().code
+            }
+
+        return destinations_table[current_value]
+
+

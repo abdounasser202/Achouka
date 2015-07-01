@@ -37,7 +37,7 @@
                             <tbody>
                                 {% for departure in departures %}
                                     <tr>
-                                        <td>{{ departure.departure_date|format_date("%d-%m-%Y") }}</td>
+                                        <td>{{ departure.departure_date|format_date("%Y-%m-%d") }}</td>
                                         <td>{{ departure.schedule|add_time(departure.time_delay)|format_date("%H:%M") }}</td>
                                         <td>
                                             {{ departure.destination.get().destination_start.get().name }}

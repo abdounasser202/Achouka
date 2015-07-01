@@ -123,3 +123,14 @@ indexes:
   - name: journey_name
   - name: travel
   - name: type_name
+
+- kind: TransactionModel
+  properties:
+  - name: agency
+  - name: destination
+
+- kind: TransactionPoly
+  properties:
+  - name: agency
+  - name: class
+  - name: destination
