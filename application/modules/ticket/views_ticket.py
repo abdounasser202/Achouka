@@ -43,7 +43,7 @@ def Stat_View(agency_id):
     # Traitement pour l'affichage du nombre
     purchases_query = TicketModel.query(
         TicketModel.agency == current_agency.key,
-        projection=[TicketModel.datecreate, TicketModel.type_name, TicketModel.journey_name, TicketModel.class_name],
+        projection=[TicketModel.datecreate, TicketModel.type_name, TicketModel.journey_name, TicketModel.class_name, TicketModel.travel_ticket],
         distinct=True
     )
 
@@ -56,7 +56,9 @@ def Stat_View(agency_id):
             ).count_async().get_result(),
             "type_name": purchase.type_name.get().name,
             "class_name": purchase.class_name.get().name,
-            "journey_name": purchase.journey_name.get().name
+            "journey_name": purchase.journey_name.get().name,
+            "destination_start": purchase.travel_ticket.get().destination_start.get().name,
+            "destination_check": purchase.travel_ticket.get().destination_check.get().name
         }
 
     Ticket_type = TicketTypeModel.query(

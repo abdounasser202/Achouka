@@ -25,6 +25,7 @@
                                             <thead>
                                             <tr>
                                                 <th>Date</th>
+                                                <th>Travel</th>
                                                 <th>Number</th>
                                                 <th class="nosort">Type</th>
                                             </tr>
@@ -33,6 +34,7 @@
                                             {% for purchase in counts %}
                                                 <tr>
                                                     <td>{{ purchase }}</td>
+                                                    <td>{{ counts[purchase]["destination_start"] }} - {{ counts[purchase]["destination_check"] }}</td>
                                                     <td>{{ counts[purchase]["number"] }}</td>
                                                     <td>{{ counts[purchase]["type_name"] }} - {{ counts[purchase]["class_name"] }} - {{ counts[purchase]["journey_name"] }}</td>
                                                 </tr>

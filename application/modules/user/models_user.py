@@ -5,6 +5,8 @@ from ..currency.models_currency import CurrencyModel
 from ..agency.models_agency import AgencyModel
 from ..profil.models_profil import ProfilModel
 
+from itertools import groupby
+from operator import itemgetter
 
 class UserModel(ndb.Model):
 
@@ -106,18 +108,32 @@ class UserModel(ndb.Model):
             number = 'No Ticket'
         return number+' Available'
 
-    def ticket_number_selling(self):
+
+    def ticket_number_selling(self, user_ticket_query=None, local_agency=True):
         from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
 
-        user_ticket_query = TicketModel.query(
-            TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
-        )
+        if not user_ticket_query:
+            user_ticket_query = TicketModel.query(
+                TicketModel.ticket_seller == self.key,
+                TicketModel.selling == True
+            )
 
         # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
         ticket_number = 0
         for ticket in user_ticket_query:
-            if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+            if local_agency:
+                if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    for expense in expensepayment_query:
+                        if expense.transaction.get().is_payment is True and expense.transaction.get().destination == self.agency.get().destination:
+                            number += 1
+
+                    if number == 0:
+                        ticket_number+=1
+            else:
                 expensepayment_query = ExpensePaymentTransactionModel.query(
                     ExpensePaymentTransactionModel.ticket == ticket.key
                 )
@@ -131,45 +147,27 @@ class UserModel(ndb.Model):
 
         return ticket_number
 
-    def foreign_ticket_number_selling(self):
-        from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
+    #Montant des tickets qui n'ont pas encore de transaction de paiement
+    def ticket_no_transaction_amount(self, list_ticket_travel_query, local_agency=True):
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel
 
-        user_ticket_query = TicketModel.query(
-            TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
-        )
-
-        # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
-        ticket_number = 0
-        for ticket in user_ticket_query:
-            if ticket.travel_ticket.get().destination_start != self.agency.get().destination:
-                expensepayment_query = ExpensePaymentTransactionModel.query(
-                    ExpensePaymentTransactionModel.ticket == ticket.key
-                )
-                number = 0
-                for expense in expensepayment_query:
-                    if expense.transaction.get().is_payment is True :
-                        number += 1
-
-                if number == 0:
-                    ticket_number+=1
-
-        return ticket_number
-
-    def escrow_amount(self):
-        from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
-
-        user_ticket_query = TicketModel.query(
-            TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
-        )
-
-        # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
         ticket_no_transaction_amount = 0
-        for ticket in user_ticket_query:
-            if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+        for ticket in list_ticket_travel_query:
+            if local_agency:
+                if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                            number += 1
+
+                    if number == 0:
+                       ticket_no_transaction_amount+= ticket.sellprice
+            else:
                 expensepayment_query = ExpensePaymentTransactionModel.query(
-                    ExpensePaymentTransactionModel.ticket == ticket.key
+                        ExpensePaymentTransactionModel.ticket == ticket.key
                 )
                 number = 0
                 for transaction_line in expensepayment_query:
@@ -179,10 +177,29 @@ class UserModel(ndb.Model):
                 if number == 0:
                    ticket_no_transaction_amount+= ticket.sellprice
 
-        # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
+        return ticket_no_transaction_amount
+
+    # Montant des tickets qui ont des transactions et qui sont deficitaire
+    def ticket_transaction_amount(self, list_ticket_travel_query, local_agency=True):
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel
+
         ticket_transaction_amount = 0
-        for ticket in user_ticket_query:
-            if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+        for ticket in list_ticket_travel_query:
+            if local_agency:
+                if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    transaction_amount = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                            number += 1
+                            transaction_amount+=transaction_line.transaction.get().amount
+
+                    if number >= 1 and ticket.sellprice > transaction_amount:
+                        ticket_transaction_amount += ticket.sellprice-transaction_amount
+            else:
                 expensepayment_query = ExpensePaymentTransactionModel.query(
                     ExpensePaymentTransactionModel.ticket == ticket.key
                 )
@@ -196,61 +213,154 @@ class UserModel(ndb.Model):
                 if number >= 1 and ticket.sellprice > transaction_amount:
                     ticket_transaction_amount += ticket.sellprice-transaction_amount
 
+        return ticket_transaction_amount
+
+    # Montant des tickets etranger et le nombre de ticket
+    def foreign_escrow_and_number_ticket(self, current_travel, projection):
+        from ..ticket.models_ticket import TicketModel
+
+        ticket_travel_query = projection
+
+        destination = {}
+
+        for travel in ticket_travel_query:
+
+            if travel.travel_ticket.get().destination_start != self.agency.get().destination:
+
+                list_ticket_travel_query = TicketModel.query(
+                    TicketModel.travel_ticket == travel.travel_ticket,
+                    TicketModel.ticket_seller == self.key,
+                    TicketModel.selling == True
+                )
+
+                #Nombre de ticket
+                ticket_number = self.ticket_number_selling(list_ticket_travel_query, False)
+
+                # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
+                ticket_no_transaction_amount = self.ticket_no_transaction_amount(list_ticket_travel_query, False)
+
+
+                # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
+                ticket_transaction_amount = self.ticket_transaction_amount(list_ticket_travel_query, False)
+
+                # sommes des montants retournes
+                escrow = ticket_no_transaction_amount + ticket_transaction_amount
+
+                destination[travel.travel_ticket] = {
+                    'number': ticket_number,
+                    'escrow': escrow,
+                    'currency': travel.travel_ticket.get().destination_start.get().currency.get().code
+                }
+
+        return destination[current_travel]
+
+    # Montant des tickets vendus et des restes a payer de l'utilisateur
+    def escrow_amount(self):
+        from ..ticket.models_ticket import TicketModel
+
+        user_ticket_query = TicketModel.query(
+            TicketModel.ticket_seller == self.key,
+            TicketModel.selling == True
+        )
+
+        # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
+        ticket_no_transaction_amount = self.ticket_no_transaction_amount(user_ticket_query, True)
+
+        # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
+        ticket_transaction_amount = self.ticket_transaction_amount(user_ticket_query)
 
         # sommes des montants retournes
         escrow = ticket_no_transaction_amount + ticket_transaction_amount
 
-        return str(escrow)+" "+self.agency.get().destination.get().currency.get().code
+        if escrow != 0:
+            escrow = '{:,}'.format(escrow).replace(',', ' ')
+            return str(escrow)+" "+self.agency.get().destination.get().currency.get().code
+        else:
+            return None
 
-    def foreign_escrow_amount(self):
-            from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
+    #Liste des Tickets a solder par l'utilisateur
+    def ticket_user_no_transaction_payment(self):
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
 
-            user_ticket_query = TicketModel.query(
-                TicketModel.ticket_seller == self.key,
-                TicketModel.selling == True
-            )
+        user_ticket_query = TicketModel.query(
+            TicketModel.ticket_seller == self.key,
+            TicketModel.selling == True
+        )
 
-            # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
-            ticket_no_transaction_amount = 0
-            for ticket in user_ticket_query:
-                if ticket.travel_ticket.get().destination_start != self.agency.get().destination:
-                    expensepayment_query = ExpensePaymentTransactionModel.query(
-                        ExpensePaymentTransactionModel.ticket == ticket.key
-                    )
-                    number = 0
-                    for transaction_line in expensepayment_query:
-                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination != self.agency.get().destination:
-                            number += 1
+        user_tickets_tab = []
 
-                    if number == 0:
-                       ticket_no_transaction_amount+= ticket.sellprice
+        for ticket in user_ticket_query:
+            if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+                expensepayment_query = ExpensePaymentTransactionModel.query(
+                    ExpensePaymentTransactionModel.ticket == ticket.key
+                )
+                number = 0
+                for transaction_line in expensepayment_query:
+                    if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                        number += 1
 
-            # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
-            ticket_transaction_amount = 0
-            for ticket in user_ticket_query:
-                if ticket.travel_ticket.get().destination_start != self.agency.get().destination:
-                    expensepayment_query = ExpensePaymentTransactionModel.query(
-                        ExpensePaymentTransactionModel.ticket == ticket.key
-                    )
-                    number = 0
-                    transaction_amount = 0
-                    for transaction_line in expensepayment_query:
-                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination != self.agency.get().destination:
-                            number += 1
-                            transaction_amount+=transaction_line.transaction.get().amount
+                tickets = {}
+                if number == 0:
+                    tickets['type'] = ticket.type_name
+                    tickets['class'] = ticket.class_name
+                    tickets['travel'] = ticket.travel_ticket
+                    tickets['journey'] = ticket.journey_name
+                    tickets['number'] = 1
+                    tickets['amount'] = ticket.sellprice
+                    tickets['currency'] = ticket.sellpriceCurrency
+                    user_tickets_tab.append(tickets)
 
-                    if number >= 1 and ticket.sellprice > transaction_amount:
-                        ticket_transaction_amount += ticket.sellprice-transaction_amount
+        grouper = itemgetter("travel", "type", "class", "journey", "currency")
 
+        user_tickets = []
+        for key, grp in groupby(sorted(user_tickets_tab, key=grouper), grouper):
+            temp_dict = dict(zip(["travel", "type", "class", "journey", "currency"], key))
+            temp_dict['number'] = 0
+            temp_dict['amount'] = 0
+            for item in grp:
+                temp_dict['number'] += item['number']
+                temp_dict['amount'] += item['amount']
+            user_tickets.append(temp_dict)
 
-            # sommes des montants retournes
-            escrow = ticket_no_transaction_amount + ticket_transaction_amount
+        return user_tickets
 
-            return escrow
+    #liste des tickets dont le solde n'est pas encore fini
+    def ticket_user_transaction_payment_no_solved(self):
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
 
+        user_ticket_query = TicketModel.query(
+            TicketModel.ticket_seller == self.key,
+            TicketModel.selling == True
+        )
 
+        user_tickets_tab = []
 
+        for ticket in user_ticket_query:
+            if ticket.travel_ticket.get().destination_start == self.agency.get().destination:
+                expensepayment_query = ExpensePaymentTransactionModel.query(
+                    ExpensePaymentTransactionModel.ticket == ticket.key
+                )
 
+                number = 0
+                transaction_amount = 0
+                for transaction_line in expensepayment_query:
+                    if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                        number += 1
+                        transaction_amount+=transaction_line.transaction.get().amount
+
+                tickets = {}
+                if number >= 1 and ticket.sellprice > transaction_amount:
+                    tickets['type'] = ticket.type_name
+                    tickets['class'] = ticket.class_name
+                    tickets['travel'] = ticket.travel_ticket
+                    tickets['journey'] = ticket.journey_name
+                    tickets['number'] = 1
+                    tickets['amount'] = ticket.sellprice
+                    tickets['balance'] = ticket.sellprice - transaction_amount
+                    tickets['currency'] = ticket.sellpriceCurrency
+                    user_tickets_tab.append(tickets)
+
+        return user_tickets_tab
 
 
 class RoleModel(ndb.Model):

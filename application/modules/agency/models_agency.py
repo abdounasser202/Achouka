@@ -91,14 +91,10 @@ class AgencyModel(ndb.Model):
         return escrow
 
     # Montant des tickets etrangers (defaut POS, True = Agency)
-    def escrow_amount_foreign(self, current_value, value=False):
+    def escrow_amount_foreign(self, current_value, projection, value=False):
         from ..transaction.models_transaction import TransactionModel
 
-        destination_transaction_query = TransactionModel.query(
-            TransactionModel.agency == self.key,
-            projection=[TransactionModel.destination],
-            distinct=True
-        )
+        destination_transaction_query = projection
 
         destinations_table = {}
 
@@ -132,5 +128,3 @@ class AgencyModel(ndb.Model):
             }
 
         return destinations_table[current_value]
-
-

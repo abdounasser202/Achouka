@@ -64,6 +64,16 @@ indexes:
   - name: class_name
   - name: datecreate
   - name: journey_name
+  - name: travel_ticket
+  - name: type_name
+
+- kind: TicketPoly
+  properties:
+  - name: agency
+  - name: class
+  - name: class_name
+  - name: datecreate
+  - name: journey_name
   - name: type_name
 
 - kind: TicketPoly
@@ -106,6 +116,40 @@ indexes:
   - name: class
   - name: datecreate
     direction: desc
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: selling
+  - name: ticket_seller
+  - name: class_name
+  - name: journey_name
+  - name: sellprice
+  - name: travel_ticket
+  - name: type_name
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: selling
+  - name: ticket_seller
+  - name: class_name
+  - name: journey_name
+  - name: travel_ticket
+  - name: type_name
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: selling
+  - name: ticket_seller
+  - name: travel_ticket
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: selling
+  - name: travel_ticket
 
 - kind: TicketTypeModel
   properties:

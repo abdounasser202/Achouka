@@ -41,6 +41,8 @@ from application import function
 # variable pour la gestion automatique des dates en fonction des zones
 from lib.pytz.gae import pytz
 
+from itertools import groupby
+from operator import itemgetter
 
 global_role = {
     'admin': False,
