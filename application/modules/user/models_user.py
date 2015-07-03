@@ -132,7 +132,7 @@ class UserModel(ndb.Model):
                             number += 1
 
                     if number == 0:
-                        ticket_number+=1
+                        ticket_number += 1
             else:
                 expensepayment_query = ExpensePaymentTransactionModel.query(
                     ExpensePaymentTransactionModel.ticket == ticket.key
@@ -143,7 +143,7 @@ class UserModel(ndb.Model):
                         number += 1
 
                 if number == 0:
-                    ticket_number+=1
+                    ticket_number += 1
 
         return ticket_number
 
@@ -160,22 +160,22 @@ class UserModel(ndb.Model):
                     )
                     number = 0
                     for transaction_line in expensepayment_query:
-                        if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination and transaction_line.is_difference is False:
                             number += 1
 
                     if number == 0:
-                       ticket_no_transaction_amount+= ticket.sellprice
+                       ticket_no_transaction_amount += ticket.sellprice
             else:
                 expensepayment_query = ExpensePaymentTransactionModel.query(
-                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    ExpensePaymentTransactionModel.ticket == ticket.key
                 )
                 number = 0
                 for transaction_line in expensepayment_query:
-                    if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination:
+                    if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination and transaction_line.is_difference is False:
                         number += 1
 
                 if number == 0:
-                   ticket_no_transaction_amount+= ticket.sellprice
+                   ticket_no_transaction_amount += ticket.sellprice
 
         return ticket_no_transaction_amount
 
@@ -193,9 +193,9 @@ class UserModel(ndb.Model):
                     number = 0
                     transaction_amount = 0
                     for transaction_line in expensepayment_query:
-                        if transaction_line.transaction.get().is_payment is True and transaction_line.is_difference is False:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination and transaction_line.is_difference is False:
                             number += 1
-                            transaction_amount+=transaction_line.transaction.get().amount
+                            transaction_amount += transaction_line.transaction.get().amount
 
                     if number >= 1 and ticket.sellprice > transaction_amount:
                         ticket_transaction_amount += ticket.sellprice-transaction_amount
@@ -206,9 +206,9 @@ class UserModel(ndb.Model):
                 number = 0
                 transaction_amount = 0
                 for transaction_line in expensepayment_query:
-                    if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination:
+                    if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.agency.get().destination and transaction_line.is_difference is False:
                         number += 1
-                        transaction_amount+=transaction_line.transaction.get().amount
+                        transaction_amount += transaction_line.transaction.get().amount
 
                 if number >= 1 and ticket.sellprice > transaction_amount:
                     ticket_transaction_amount += ticket.sellprice-transaction_amount
@@ -264,7 +264,7 @@ class UserModel(ndb.Model):
         )
 
         # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
-        ticket_no_transaction_amount = self.ticket_no_transaction_amount(user_ticket_query, True)
+        ticket_no_transaction_amount = self.ticket_no_transaction_amount(user_ticket_query)
 
         # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
         ticket_transaction_amount = self.ticket_transaction_amount(user_ticket_query)
@@ -324,7 +324,7 @@ class UserModel(ndb.Model):
 
         return user_tickets
 
-    #liste des tickets dont le solde n'est pas encore fini
+    # liste des tickets dont le solde n'est pas encore fini
     def ticket_user_transaction_payment_no_solved(self):
         from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
 

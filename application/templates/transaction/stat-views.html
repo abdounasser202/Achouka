@@ -217,10 +217,11 @@
           e.preventDefault()
           $(this).tab('show')
         })
-
-        $('.dblClickEmpLocal').mousedown(function(e){
-            e.preventDefault();
-            $(this).on('click',function(e){
+        {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') %}
+            $('.dblClickEmpLocal').mousedown(function(e){
+                e.preventDefault();
+            })
+            $('.dblClickEmpLocal').on('click',function(e){
                 e.preventDefault();
                 var id = $(this).attr('id');
                 var url_modal = "{{ url_for('Transaction_user') }}"+"/"+id;
@@ -232,8 +233,10 @@
                   $('.modal-content').empty().html(data);
                 });
             });
+        {% endif %}
 
-        })
+
+
 
     </script>
 {% endblock %}
