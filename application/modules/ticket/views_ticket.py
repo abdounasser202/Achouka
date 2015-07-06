@@ -4,7 +4,7 @@ from ...modules import *
 
 from models_ticket import AgencyModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel
 from ..ticket_type.models_ticket_type import TicketTypeModel, TravelModel
-from ..transaction.models_transaction import TransactionModel, DetailsTransactionModel, TicketModel, ExpensePaymentTransactionModel
+from ..transaction.models_transaction import TransactionModel, TicketModel, ExpensePaymentTransactionModel
 
 from ..ticket_type.forms_ticket_type import FormSelectTicketType
 from forms_ticket import FormTicket
@@ -38,50 +38,67 @@ def Ticket_Index():
 def Stat_View(agency_id):
     menu = 'recording'
     submenu = 'ticket'
+
     current_agency = AgencyModel.get_by_id(agency_id)
 
-    # Traitement pour l'affichage du nombre
+    # Traitement pour l'affichage du nombre de dernier ticket achete
     purchases_query = TicketModel.query(
-        TicketModel.agency == current_agency.key,
-        projection=[TicketModel.datecreate, TicketModel.type_name, TicketModel.journey_name, TicketModel.class_name, TicketModel.travel_ticket],
-        distinct=True
+        TicketModel.agency == current_agency.key
     )
 
-    counts = {}
-    for purchase in purchases_query:
-        counts[purchase.datecreate] = {
-            "number": TicketModel.query(
-                TicketModel.agency == current_agency.key,
-                TicketModel.datecreate == purchase.datecreate
-            ).count_async().get_result(),
-            "type_name": purchase.type_name.get().name,
-            "class_name": purchase.class_name.get().name,
-            "journey_name": purchase.journey_name.get().name,
-            "destination_start": purchase.travel_ticket.get().destination_start.get().name,
-            "destination_check": purchase.travel_ticket.get().destination_check.get().name
-        }
+    ticket_purchase_tab = []
+    for ticket in purchases_query:
+        tickets = {}
+        tickets['date'] = ticket.datecreate
+        tickets['type'] = ticket.type_name
+        tickets['class'] = ticket.class_name
+        tickets['journey'] = ticket.journey_name
+        tickets['number'] = 1
+        tickets['travel'] = ticket.travel_ticket
+        ticket_purchase_tab.append(tickets)
 
-    Ticket_type = TicketTypeModel.query(
-        TicketTypeModel.active == True,
-        projection=[TicketTypeModel.name, TicketTypeModel.class_name, TicketTypeModel.type_name, TicketTypeModel.journey_name, TicketTypeModel.travel],
-        distinct=True
+    grouper = itemgetter("date", "type", "class", "journey", "travel")
+
+    ticket_purchase = []
+    for key, grp in groupby(sorted(ticket_purchase_tab, key=grouper), grouper):
+        temp_dict = dict(zip(["date", "type", "class", "journey", "travel"], key))
+        temp_dict['number'] = 0
+        for item in grp:
+            temp_dict['number'] += item['number']
+        ticket_purchase.append(temp_dict)
+
+    # TYPE DE TICKET EN POSSESSION PAR L'AGENCE (etranger ou local)
+    ticket_type_query = TicketTypeModel.query(
+        TicketTypeModel.active == True
     )
 
-    counts_ticket = {}
-    for type in Ticket_type:
-        counts_ticket[type.name] = {
-            "number": TicketModel.query(
-                TicketModel.travel_ticket == type.travel,
-                TicketModel.class_name == type.class_name,
-                TicketModel.journey_name == type.journey_name,
-                TicketModel.type_name == type.type_name,
+    ticket_type_purchase_tab = []
+    for ticket_type in ticket_type_query:
+            tickets_type = {}
+            tickets_type['name_ticket'] = ticket_type.name
+            tickets_type['type'] = ticket_type.type_name
+            tickets_type['class'] = ticket_type.class_name
+            tickets_type['journey'] = ticket_type.journey_name
+            tickets_type['number'] = TicketModel.query(
+                TicketModel.travel_ticket == ticket_type.travel,
+                TicketModel.class_name == ticket_type.class_name,
+                TicketModel.journey_name == ticket_type.journey_name,
+                TicketModel.type_name == ticket_type.type_name,
+                TicketModel.selling == False,
                 TicketModel.agency == current_agency.key
-            ).count_async().get_result(),
-            "class": type.class_name,
-            "journey": type.journey_name,
-            "type": type.type_name,
-            "travel": type.travel
-        }
+            ).count_async().get_result()
+            tickets_type['travel'] = ticket_type.travel
+            ticket_type_purchase_tab.append(tickets_type)
+
+    grouper = itemgetter("name_ticket", "type", "class", "journey", "travel")
+
+    ticket_type_purchase = []
+    for key, grp in groupby(sorted(ticket_type_purchase_tab, key=grouper), grouper):
+        temp_dict = dict(zip(["name_ticket", "type", "class", "journey", "travel"], key))
+        temp_dict['number'] = 0
+        for item in grp:
+            temp_dict['number'] += item['number']
+        ticket_type_purchase.append(temp_dict)
 
     return render_template('ticket/stat-view.html', **locals())
 
@@ -117,8 +134,9 @@ def Select_Foreign_Travel(agency_id):
 
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/Select_TicketType/<int:travel_id>/<int:agency_id>', methods=['GET', 'POST'])
-def Select_TicketType(travel_id, agency_id):
+@app.route('/Select_TicketType/<int:agency_id>/<int:travel_id>', methods=['GET', 'POST'])
+@app.route('/Select_TicketType/<int:agency_id>', methods=['GET', 'POST'])
+def Select_TicketType(agency_id, travel_id=None):
 
     travel_select = TravelModel.get_by_id(travel_id)
 
@@ -180,18 +198,18 @@ def Ticket_Edit(agency_id, tickettype):
             last_transaction = TransactionModel.get_by_id(key_transaction.id())
             i = 1
             while i <= number:
-                detail_transaction = DetailsTransactionModel()
-                detail_transaction.amount = TicketType.price
-                detail_transaction.agency = info_agency.key
-                detail_transaction.reason = 'Expense detail'
-                detail_transaction.is_payment = False
-                detail_transaction.destination = TicketType.travel.get().destination_start
-                detail_transaction.transaction_date = function.datetime_convert(date_auto_nows)
-                detail_transaction.transaction_parent = last_transaction.key
-                detail_transaction.user = user_id.key
+                # detail_transaction = DetailsTransactionModel()
+                # detail_transaction.amount = TicketType.price
+                # detail_transaction.agency = info_agency.key
+                # detail_transaction.reason = 'Expense detail'
+                # detail_transaction.is_payment = False
+                # detail_transaction.destination = TicketType.travel.get().destination_start
+                # detail_transaction.transaction_date = function.datetime_convert(date_auto_nows)
+                # detail_transaction.transaction_parent = last_transaction.key
+                # detail_transaction.user = user_id.key
 
-                save_detail_transaction = detail_transaction.put()
-                detail_transaction_create = DetailsTransactionModel.get_by_id(save_detail_transaction.id())
+                # save_detail_transaction = detail_transaction.put()
+                # detail_transaction_create = DetailsTransactionModel.get_by_id(save_detail_transaction.id())
 
                 ticket = TicketModel()
                 ticket.type_name = TicketType.type_name
@@ -212,9 +230,9 @@ def Ticket_Edit(agency_id, tickettype):
 
                 # creation du type de transaction entre la transaction et le ticket
                 ticket_transaction = ExpensePaymentTransactionModel()
-                ticket_transaction.transaction = detail_transaction_create.key
+                ticket_transaction.transaction = last_transaction.key
                 ticket_transaction.ticket = ticket_create.key
-                ticket_transaction.is_difference = False
+                ticket_transaction.amount = TicketType.price
                 ticket_transaction.put()
 
                 i += 1

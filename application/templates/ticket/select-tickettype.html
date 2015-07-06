@@ -33,7 +33,7 @@
             <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
         {% endif %}
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" data-href="" class="btn btn-success hidden" id="submit">Continued</button>
+        <button type="button" data-href="" class="btn btn-success disabled" id="submit">Continued</button>
 
     </div>
 </form>
@@ -57,7 +57,7 @@
 
         $(this).addClass('info');
         $(this).addClass('pred');
-        $('#submit').removeClass('hidden');
+        $('#submit').removeClass('disabled');
         $('#submit').attr({'data-href': url});
     });
 

@@ -19,11 +19,11 @@
                                 <h3>{{ current_agency.name }}</h3>
                                 <hr/>
                                 <ul id="myTab" class="nav nav-tabs nav-tabs-google">
-                                  <li ><a href="#transaction" data-toggle="tab">Transaction information</a></li>
                                   <li class="active"><a href="#employee" data-toggle="tab">Employee transaction</a></li>
+                                  <li ><a href="#transaction" data-toggle="tab">Transaction information</a></li>
                                 </ul>
                                 <br/>
-                            <div id="myTabContent" class="tab-content">
+                                <div id="myTabContent" class="tab-content">
                                 <div class="tab-pane fade " id="transaction">
                                     <div class="panel panel-info">
                                         <div class="panel-heading"><span class="lead">Transaction List</span></div>
@@ -32,13 +32,15 @@
                                                 <thead>
                                                 <tr>
                                                     <th>Date</th>
-                                                    <th>Amout</th>
+                                                    <th>Reason</th>
+                                                    <th>Amount</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for transaction in transaction_agency_query %}
-                                                        <tr {% if not transaction.is_payment %} class="danger" {% else %} class="success" {% endif %}>
+                                                        <tr class="{% if not transaction.is_payment %} danger {% else %} success {% endif %} transaction_details" id="{{ transaction.key.id() }}">
                                                             <td>{{ transaction.transaction_date }}</td>
+                                                            <td>{{ transaction.reason }}</td>
                                                             <td>{{ transaction.amount|format_price() }} {{ transaction.destination.get().currency.get().code }} </td>
                                                         </tr>
                                                     {% endfor %}
@@ -82,19 +84,19 @@
                                                 <tr>
                                                     <th>Employee</th>
                                                     <th>Travel</th>
-                                                    <th>Selling Ticket </th>
+                                                    <th>Selling Ticket</th>
                                                     <th>Escrow Amount</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for travel in ticket_travel_query %}
-                                                        {% for user in user_agency %}
-                                                            {% if travel.travel_ticket.get().destination_start != user.agency.get().destination and travel.ticket_seller == user.key %}
-                                                                <tr>
+                                                    {% for user in user_agency %}
+                                                        {% for ticket in user.foreign_escrow_and_number_ticket() %}
+                                                            {% if ticket['travel'].get().destination_start != user.agency.get().destination and ticket['ticket_seller'] == user.key and ticket['escrow'] > 0 %}
+                                                                <tr id="{{ user.key.id() }}_{{ ticket['travel'].get().key.id() }}" class="dblClickEmpForeign">
                                                                     <td><strong>{{ user.last_name }} {{ user.first_name }}</strong></td>
-                                                                    <td>{{ travel.travel_ticket.get().destination_start.get().name }} - {{ travel.travel_ticket.get().destination_check.get().name }}</td>
-                                                                    <td>{{ user.foreign_escrow_and_number_ticket(travel.travel_ticket, ticket_travel_query)['number'] }} </td>
-                                                                    <td>{{ user.foreign_escrow_and_number_ticket(travel.travel_ticket, ticket_travel_query)['escrow']|format_price() }} {{ user.foreign_escrow_and_number_ticket(travel.travel_ticket, ticket_travel_query)['currency'] }}</td>
+                                                                    <td>{{ ticket['travel'].get().destination_start.get().name }} - {{ ticket['travel'].get().destination_check.get().name }}</td>
+                                                                    <td>{{ ticket['number'] }}</td>
+                                                                    <td>{{ ticket['escrow']|format_price() }} {{ ticket['travel'].get().destination_start.get().currency.get().code }}</td>
                                                                 </tr>
                                                             {% endif %}
                                                         {% endfor %}
@@ -121,14 +123,14 @@
                                                 <td>LOCAL</td>
                                                 <td>{{ current_agency.escrow_amount()|format_price() }} {{ current_agency.destination.get().currency.get().code }}</td>
                                             </tr>
-                                            {% for destination in destination_transaction_query %}
-                                                {% if current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query)['currency'] != 0  %}
+                                            {% for destination in current_agency.escrow_amount_foreign() %}
+                                                {% if destination['amount'] != 0  %}
                                                     <tr>
-                                                        <td>{{ destination.destination.get().name }}</td>
+                                                        <td>{{ destination['destination'].get().name }}</td>
                                                         <td>
-                                                            {{ current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query)['amount']|format_price() }}
+                                                            {{ destination['amount']|format_price() }}
 
-                                                            {{ current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query)['currency'] }}
+                                                            {{ destination['destination'].get().currency.get().code }}
                                                         </td>
                                                     </tr>
                                                 {% endif %}
@@ -137,6 +139,13 @@
                                     </table>
                                 </div>
                                 <hr/>
+                                {% if current_user.has_roles(('admin','super_admin'))  %}
+                                        {% include 'includes/flash_message.html' %}
+                                        <a href="{{ url_for('Payment_admin_local', agency_id=current_agency.key.id()) }}" class="btn btn-danger btn-block"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Payment for local ticket</a>
+                                        <br/>
+                                        <a href="{{ url_for('Payment_admin_foreign', agency_id=current_agency.key.id()) }}" class="btn btn-danger btn-block"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Payment for foreign ticket</a>
+                                        <br/>
+                                {% endif %}
                                 <div class="well text-center">
                                     Agency <small>Escrow Amount </small>
                                     <br/><br/>
@@ -146,14 +155,14 @@
                                                 <td>LOCAL</td>
                                                 <td>{{ current_agency.escrow_amount(True)|format_price() }} {{ current_agency.destination.get().currency.get().code }}</td>
                                             </tr>
-                                            {% for destination in destination_transaction_query %}
-                                                {% if current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query)['currency'] != 0  %}
+                                            {% for destination in current_agency.escrow_amount_foreign(true) %}
+                                                {% if destination['amount'] != 0  %}
                                                     <tr>
-                                                        <td>{{ destination.destination.get().name }}</td>
+                                                        <td>{{ destination['destination'].get().name }}</td>
                                                         <td>
-                                                            {{ current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query, True)['amount']|format_price() }}
+                                                            {{ destination['amount']|format_price() }}
 
-                                                            {{ current_agency.escrow_amount_foreign(destination.destination, destination_transaction_query, True)['currency'] }}
+                                                            {{ destination['destination'].get().currency.get().code }}
                                                         </td>
                                                     </tr>
                                                 {% endif %}
@@ -213,14 +222,17 @@
             ],
              "order": [[ 0, "asc" ]]
         });
+
         $('#myTab a').click(function (e) {
-          e.preventDefault()
+          e.preventDefault();
           $(this).tab('show')
-        })
-        {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') %}
-            $('.dblClickEmpLocal').mousedown(function(e){
+        });
+
+
+            $('.dblClickEmpLocal, .dblClickEmpForeign').mousedown(function(e){
                 e.preventDefault();
-            })
+            });
+
             $('.dblClickEmpLocal').on('click',function(e){
                 e.preventDefault();
                 var id = $(this).attr('id');
@@ -233,9 +245,33 @@
                   $('.modal-content').empty().html(data);
                 });
             });
-        {% endif %}
 
+            $('.dblClickEmpForeign').on('click',function(e){
+                e.preventDefault();
+                var id = $(this).attr('id');
+                var data = id.split('_');
+                var url_modal = "{{ url_for('Transaction_foreign_user') }}"+"/"+data[0]+"/"+data[1];
+                $('#myModal').modal( {
+                    backdrop: 'static',
+                    show: true
+                });
+                $.get(url_modal, function(data) {
+                  $('.modal-content').empty().html(data);
+                });
+            });
 
+        $('.transaction_details').on('click', function(e){
+            e.preventDefault();
+            var id = $(this).attr('id');
+            var url_modal = "{{ url_for('Transaction_detail') }}"+"/"+id;
+            $('#myModal').modal( {
+                backdrop: 'static',
+                show: true
+            });
+            $.get(url_modal, function(data) {
+              $('.modal-content').empty().html(data);
+            });
+        })
 
 
     </script>

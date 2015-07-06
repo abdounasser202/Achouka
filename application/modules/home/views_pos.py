@@ -319,6 +319,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             TicketTypeModel.type_name == ticket_type_name_car.key,
             TicketTypeModel.class_name == class_ticket_car.key,
             TicketTypeModel.journey_name == journey_ticket_car.key,
+            TicketTypeModel.travel == departure_id.destination,
             TicketTypeModel.active == True
         ).get()
         agency_current_user = AgencyModel.get_by_id(int(session.get('agence_id')))
@@ -328,6 +329,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             TicketModel.class_name == class_ticket_car.key,
             TicketModel.journey_name == journey_ticket_car.key,
             TicketModel.agency == agency_current_user.key,
+            TicketModel.travel_ticket == departure_id.destination,
             TicketModel.selling == False
         ).order(TicketModel.datecreate).get()
 
@@ -358,6 +360,46 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
         user_ticket = UserModel.get_by_id(int(session.get('user_id')))
         Ticket_To_Sell.ticket_seller = user_ticket.key
+
+        from ..transaction.models_transaction import TransactionModel, ExpensePaymentTransactionModel
+
+        last_transaction = None
+        amount_different = 0
+        if priceticket.price > Ticket_To_Sell.sellpriceAg:
+            amount_different = priceticket.price - Ticket_To_Sell.sellpriceAg
+            transaction = TransactionModel()
+            transaction.agency = user_ticket.agency
+            transaction.amount = amount_different
+            transaction.destination = Ticket_To_Sell.travel_ticket.get().destination_start
+            transaction.is_payment = False
+            transaction.user = user_ticket.key
+            transaction.transaction_date = function.datetime_convert(date_auto_nows)
+            transaction.reason = " Additional cost to the ticket price difference"
+            last_transaction = transaction.put()
+
+            last_transaction = TransactionModel.get_by_id(last_transaction.id())
+
+        if priceticket.price < Ticket_To_Sell.sellpriceAg:
+            amount_different = Ticket_To_Sell.sellpriceAg - priceticket.price
+            transaction = TransactionModel()
+            transaction.agency = user_ticket.agency
+            transaction.amount = amount_different
+            transaction.destination = Ticket_To_Sell.travel_ticket.get().destination_start
+            transaction.is_payment = True
+            transaction.user = user_ticket.key
+            transaction.transaction_date = function.datetime_convert(date_auto_nows)
+            transaction.reason = " Additional cost to the ticket price difference"
+            last_transaction = transaction.put()
+
+            last_transaction = TransactionModel.get_by_id(last_transaction.id())
+
+        if last_transaction:
+            link_transaction = ExpensePaymentTransactionModel()
+            link_transaction.amount = amount_different
+            link_transaction = last_transaction.key
+            link_transaction.ticket = Ticket_To_Sell.key
+            link_transaction.is_difference = True
+            link_transaction.put()
 
         ticket_update = Ticket_To_Sell.put()
         modal = 'true'

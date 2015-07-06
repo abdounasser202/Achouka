@@ -173,6 +173,19 @@ indexes:
   - name: agency
   - name: destination
 
+- kind: TransactionModel
+  properties:
+  - name: agency
+  - name: destination
+  - name: transaction_admin
+  - name: transaction_date
+
+- kind: TransactionModel
+  properties:
+  - name: agency
+  - name: transaction_admin
+  - name: transaction_date
+
 - kind: TransactionPoly
   properties:
   - name: agency

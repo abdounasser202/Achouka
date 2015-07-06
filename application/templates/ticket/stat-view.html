@@ -31,12 +31,12 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% for purchase in counts %}
+                                            {% for purchase in ticket_purchase %}
                                                 <tr>
-                                                    <td>{{ purchase }}</td>
-                                                    <td>{{ counts[purchase]["destination_start"] }} - {{ counts[purchase]["destination_check"] }}</td>
-                                                    <td>{{ counts[purchase]["number"] }}</td>
-                                                    <td>{{ counts[purchase]["type_name"] }} - {{ counts[purchase]["class_name"] }} - {{ counts[purchase]["journey_name"] }}</td>
+                                                    <td>{{ purchase['date'] }}</td>
+                                                    <td>{{ purchase["travel"].get().destination_start.get().name }} - {{ purchase["travel"].get().destination_check.get().name }}</td>
+                                                    <td>{{ purchase["number"] }}</td>
+                                                    <td>{{ purchase["class"].get().name }} - {{ purchase["type"].get().name }} - {{ purchase["journey"].get().name }}</td>
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
@@ -56,16 +56,16 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                               {% for type in counts_ticket %}
-                                                   {% if counts_ticket[type]['travel'].get().destination_start == current_agency.destination and counts_ticket[type]['number'] >= 1 %}
-                                                    <tr>
-                                                        <td>
-                                                            <strong>{{ type }}</strong>  ({{ counts_ticket[type]['travel'].get().destination_start.get().name }} - {{ counts_ticket[type]['travel'].get().destination_check.get().name }})<br/>
-                                                            <small>{{ counts_ticket[type]['class'].get().name }} - {{ counts_ticket[type]['type'].get().name }} - {{ counts_ticket[type]['journey'].get().name }}</small>
+                                               {% for type in ticket_type_purchase %}
+                                                   {% if type['travel'].get().destination_start == current_agency.destination and type['number'] >= 1 %}
+                                                        <tr>
+                                                            <td>
+                                                                <strong>{{ type['name_ticket'] }}</strong>  ({{ type['travel'].get().destination_start.get().name }} - {{ type['travel'].get().destination_check.get().name }})<br/>
+                                                                <small>{{ type['class'].get().name }} - {{ type['type'].get().name }} - {{ type['journey'].get().name }}</small>
 
-                                                        </td>
-                                                        <td class="text-center">{{ counts_ticket[type]['number'] }}</td>
-                                                    </tr>
+                                                            </td>
+                                                            <td class="text-center">{{ type['number'] }}</td>
+                                                        </tr>
                                                    {% endif %}
                                                {% endfor %}
                                             </tbody>
@@ -84,16 +84,16 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                               {% for type in counts_ticket %}
-                                                   {% if counts_ticket[type]['travel'].get().destination_start != current_agency.destination and counts_ticket[type]['number'] >= 1  %}
-                                                    <tr>
-                                                        <td>
-                                                            <strong>{{ type }}</strong>  ({{ counts_ticket[type]['travel'].get().destination_start.get().name }} - {{ counts_ticket[type]['travel'].get().destination_check.get().name }})<br/>
-                                                            <small>{{ counts_ticket[type]['class'].get().name }} - {{ counts_ticket[type]['type'].get().name }} - {{ counts_ticket[type]['journey'].get().name }}</small>
+                                                {% for type in ticket_type_purchase %}
+                                                   {% if type['travel'].get().destination_start != current_agency.destination and type['number'] >= 1 %}
+                                                        <tr>
+                                                            <td>
+                                                                <strong>{{ type['name_ticket'] }}</strong>  ({{ type['travel'].get().destination_start.get().name }} - {{ type['travel'].get().destination_check.get().name }})<br/>
+                                                                <small>{{ type['class'].get().name }} - {{ type['type'].get().name }} - {{ type['journey'].get().name }}</small>
 
-                                                        </td>
-                                                        <td class="text-center">{{ counts_ticket[type]['number'] }}</td>
-                                                    </tr>
+                                                            </td>
+                                                            <td class="text-center">{{ type['number'] }}</td>
+                                                        </tr>
                                                    {% endif %}
                                                {% endfor %}
                                             </tbody>

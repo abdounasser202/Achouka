@@ -4,6 +4,11 @@ from google.appengine.ext import ndb
 from ..destination.models_destination import DestinationModel
 from ..currency.models_currency import CurrencyModel
 
+
+from itertools import groupby
+from operator import itemgetter
+
+
 class AgencyModel(ndb.Model):
     name = ndb.StringProperty()
     country = ndb.StringProperty()
@@ -91,22 +96,25 @@ class AgencyModel(ndb.Model):
         return escrow
 
     # Montant des tickets etrangers (defaut POS, True = Agency)
-    def escrow_amount_foreign(self, current_value, projection, value=False):
+    def escrow_amount_foreign(self, value=False):
         from ..transaction.models_transaction import TransactionModel
 
-        destination_transaction_query = projection
+        destination_transaction_query = TransactionModel.query(
+            TransactionModel.agency == self.key,
+            TransactionModel.destination != self.destination
+        )
 
-        destinations_table = {}
-
-        for destination in destination_transaction_query:
+        destinations_table = []
+        for transaction in destination_transaction_query:
 
             entry_query = TransactionModel.query(
                 TransactionModel.is_payment == True,
                 TransactionModel.agency == self.key,
                 TransactionModel.transaction_admin == value,
-                TransactionModel.destination == destination.destination
+                TransactionModel.destination == transaction.destination
             )
-    
+
+            # SOMMES DES ENTRES
             entry_amount = 0
             for entry in entry_query:
                 entry_amount += entry.amount
@@ -115,16 +123,33 @@ class AgencyModel(ndb.Model):
                 TransactionModel.is_payment == False,
                 TransactionModel.agency == self.key,
                 TransactionModel.transaction_admin == False,
-                TransactionModel.destination == destination.destination
+                TransactionModel.destination == transaction.destination
             )
 
+            # SOMMES DES SORTIES
             expense_amount = 0
             for expense in expense_query:
                 expense_amount += expense.amount
 
-            destinations_table[destination.destination] = {
-                'amount': entry_amount - expense_amount,
-                'currency': destination.destination.get().currency.get().code
-            }
+            # TOTAL RETENU
+            amount = entry_amount - expense_amount
 
-        return destinations_table[current_value]
+            trans_init = {}
+            trans_init['amount'] = amount
+            trans_init['destination'] = transaction.destination
+            trans_init['agency'] = transaction.agency
+
+            destinations_table.append(trans_init)
+
+        grouper = itemgetter("destination", "agency")
+
+        # REGROUPEMENT DES MONTANTS PAR DESTINATION
+        escrow_amount_foreigns = []
+        for key, grp in groupby(sorted(destinations_table, key=grouper), grouper):
+            temp_dict = dict(zip(["destination", "agency"], key))
+            temp_dict['amount'] = 0
+            for item in grp:
+                temp_dict['amount'] = item['amount']
+            escrow_amount_foreigns.append(temp_dict)
+
+        return escrow_amount_foreigns

@@ -28,16 +28,23 @@
                                 <tr>
                                     <th>Name Agency</th>
                                     <th>Escrow Amount</th>
-                                    <th class="nosort"></th>
+                                    <th class="nosort">Foreign Escrow Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for agency in List_agency %}
                                 <tr>
                                     <td><a href="{{ url_for('Transaction_Agency', agency_id=agency.key.id()) }}">{{ agency.name }}</a></td>
-                                    <td></td>
+                                    <td>{{ agency.escrow_amount(true)|format_price() }} {{ agency.destination.get().currency.get().code }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-info btn-xs">Create a payment</a>
+
+                                        {% for foreign in agency.escrow_amount_foreign(true) %}
+
+                                            <strong>{{ foreign['destination'].get().name }} : </strong> <span class="text-primary">{{ foreign['amount']|format_price() }} {{ foreign['destination'].get().currency.get().code }}</span>
+                                            {% if loop.index > 1 %} | {% endif %}
+                                        {% else %}
+                                            Not Found
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endfor %}
