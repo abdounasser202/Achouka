@@ -12,6 +12,50 @@ from ..customer.forms_customer import FormCustomerPOS
 cache = Cache(app)
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
+@app.route('/point-of-sale/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/point-of-sale', methods=['GET', 'POST'])
+def Pos(departure_id=None):
+    menu = 'pos'
+    from ..agency.models_agency import AgencyModel
+    from ..departure.models_departure import DepartureModel
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    heure = function.datetime_convert(date_auto_nows).time()
+
+    departure = DepartureModel.query(
+        DepartureModel.departure_date == datetime.date.today(),
+        DepartureModel.schedule >= heure
+    ).order(
+        -DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    if not departure_id:
+
+        if current_user.have_agency():
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
+
+            for dep in departure:
+                if dep.destination.get().destination_start == user_agence.destination:
+                    current_departure = dep
+                    break
+        else:
+            current_departure = departure.get()
+    else:
+        current_departure = DepartureModel.get_by_id(departure_id)
+
+    return render_template('/index/pos.html', **locals())
+
+
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/search_customer_pos', methods=['GET', 'POST'])
 def search_customer_pos():
     from ..departure.models_departure import DepartureModel
@@ -46,7 +90,8 @@ def search_customer_pos():
     return render_template('/pos/search_customer.html', **locals())
 
 
-
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/search_ticket_pos', methods=['GET', 'POST'])
 def search_ticket_pos():
     number_ticket = request.form['number_ticket']
@@ -68,6 +113,8 @@ def search_ticket_pos():
         return render_template('/pos/ticket_found.html', **locals())
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/Ticket_found/<int:ticket_id>', methods=['GET', 'POST'])
 def Ticket_found(ticket_id):
     ticket = TicketModel.get_by_id(ticket_id)
@@ -77,6 +124,9 @@ def Ticket_found(ticket_id):
 
     return render_template('/pos/ticket_found.html', **locals())
 
+
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['GET', 'POST'])
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>', methods=['GET', 'POST'])
 def create_customer_and_ticket_return(ticket_id, departure_id=None):
@@ -205,6 +255,8 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     return render_template('/pos/create_customer_and_ticket_return.html', **locals())
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/create_customer_and_ticket_pos', methods=['GET', 'POST'])
 @app.route('/create_customer_and_ticket_pos/<int:customer_id>/<int:departure_id>', methods=['GET', 'POST'])
 def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
@@ -319,7 +371,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             TicketTypeModel.type_name == ticket_type_name_car.key,
             TicketTypeModel.class_name == class_ticket_car.key,
             TicketTypeModel.journey_name == journey_ticket_car.key,
-            TicketTypeModel.travel == departure_id.destination,
+            TicketTypeModel.travel == print_depature.destination,
             TicketTypeModel.active == True
         ).get()
         agency_current_user = AgencyModel.get_by_id(int(session.get('agence_id')))
@@ -329,7 +381,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             TicketModel.class_name == class_ticket_car.key,
             TicketModel.journey_name == journey_ticket_car.key,
             TicketModel.agency == agency_current_user.key,
-            TicketModel.travel_ticket == departure_id.destination,
+            TicketModel.travel_ticket == print_depature.destination,
             TicketModel.selling == False
         ).order(TicketModel.datecreate).get()
 
@@ -407,16 +459,16 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     return render_template('/pos/create_customer_and_ticket.html', **locals())
 
 
-
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/modal_generate_pdf_ticket')
 @app.route('/modal_generate_pdf_ticket/<int:ticket_id>')
 def modal_generate_pdf_ticket(ticket_id=None):
-
     return render_template('/pos/view-pdf.html', **locals())
 
 
-
-
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/generate_pdf_ticket/<int:ticket_id>')
 def generate_pdf_ticket(ticket_id):
 
@@ -513,6 +565,8 @@ def generate_pdf_ticket(ticket_id):
     return response
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/Search_Ticket_Type', methods=['GET','POST'])
 def Search_Ticket_Type():
 
@@ -579,6 +633,8 @@ def Search_Ticket_Type():
     return data
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/remaining_ticket')
 def remaining_ticket():
     number = current_user.remaining_ticket()
@@ -589,6 +645,8 @@ def remaining_ticket():
     return data
 
 
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/Calendrier')
 def Calendrier(current_month_active=None, current_day_active=None):
 
@@ -607,7 +665,8 @@ def Calendrier(current_month_active=None, current_day_active=None):
     return render_template('/pos/calendrier.html', **locals())
 
 
-
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 @app.route('/List_All_Departure/<int:current_month_active>/<int:current_day_active>')
 @app.route('/List_All_Departure')
 def List_All_Departure(current_month_active=None, current_day_active=None):

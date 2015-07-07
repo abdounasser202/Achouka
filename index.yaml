@@ -83,6 +83,17 @@ indexes:
   - name: class_name
   - name: journey_name
   - name: selling
+  - name: travel_ticket
+  - name: type_name
+  - name: datecreate
+
+- kind: TicketPoly
+  properties:
+  - name: agency
+  - name: class
+  - name: class_name
+  - name: journey_name
+  - name: selling
   - name: type_name
   - name: datecreate
 

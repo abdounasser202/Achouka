@@ -86,52 +86,6 @@ def Dashboard():
         return redirect(url_for('Pos'))
 
 
-
-
-@app.route('/point-of-sale/<int:departure_id>', methods=['GET', 'POST'])
-@app.route('/point-of-sale', methods=['GET', 'POST'])
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
-def Pos(departure_id=None):
-    menu = 'pos'
-    from ..agency.models_agency import AgencyModel
-    from ..departure.models_departure import DepartureModel
-
-    #implementation de l'heure local
-    time_zones = pytz.timezone('Africa/Douala')
-    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
-
-    heure = function.datetime_convert(date_auto_nows).time()
-
-    departure = DepartureModel.query(
-        DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= heure
-    ).order(
-        -DepartureModel.departure_date,
-        DepartureModel.schedule,
-        DepartureModel.time_delay
-    )
-
-    if not departure_id:
-
-        if current_user.have_agency():
-            agence_id = session.get('agence_id')
-            user_agence = AgencyModel.get_by_id(int(agence_id))
-
-            for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination:
-                    current_departure = dep
-                    break
-        else:
-            current_departure = departure.get()
-    else:
-        current_departure = DepartureModel.get_by_id(departure_id)
-
-    return render_template('/index/pos.html', **locals())
-
-
-
-
 @app.route('/settings')
 @login_required
 @roles_required(('admin', 'super_admin'))

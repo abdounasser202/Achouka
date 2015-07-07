@@ -38,6 +38,7 @@ class TicketPoly(polymodel.PolyModel):
 
     ticket_seller = ndb.KeyProperty(kind=UserModel)
     e_ticket_seller = ndb.KeyProperty(kind=UserModel)
+    is_boarding = ndb.BooleanProperty(default=False)
 
     datecreate = ndb.DateTimeProperty()
 
@@ -66,7 +67,7 @@ class TicketModel(TicketPoly):
         return new_price
 
 
-class TicketParent(TicketPoly):
+class TicketParent(TicketPoly): #TICKET VIRTUEL GENERE PAR UN TICKET ALLE ET RETOUR. IL N'EST PAS COMPTABILISE
     parent = ndb.KeyProperty(kind=TicketModel)
 
 

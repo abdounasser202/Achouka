@@ -231,11 +231,16 @@ select.input-sm {
     color: #1370b6;
 }
 
+.formulaire_big_border .ticket_background{
+    border: 30px solid #1370b6 !important;
+}
+
 #formulaire .ticket_background > .info_left{
     text-align: center;
     font-weight: bold;
     font-size: 18px;
     padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #formulaire .ticket_background > .info_left i{
