@@ -19,12 +19,11 @@
     <link href='http://fonts.googleapis.com/css?family=Kreon:400,700|Roboto:900,900italic,400italic,700italic,700,400' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="/static/js/jquery-1.11.2.js"></script>
 
-    {% block style_block %}{# page-specific CSS #}{% endblock %}
+    {% block style_block %}{# page-specific CSS #}    {% endblock %}
 
-    {% block head_script %}{# defer-incapable JS block #}{% endblock %}
+    {% block head_script %}{# defer-incapable JS block #}   {% endblock %}
 </head>
 <body>
-
     {% block layout_body %}
 
         {% block layout_before_content %}
@@ -33,11 +32,86 @@
 
         {% block layout_content %}           {% endblock %}
 
-        {% block layout_after_content %}     {% endblock %}
+        {% block layout_after_content %}
+            <!-- Modal -->
+            <div class="modal fade" id="modal_expire" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <h4>Your session will expire in <span id="middle_close"></span> seconds</h4>
+                  </div>
+                   <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hidden" id="myCount"></div>
+
+            <script>
+                    counter = {
+                            $element : null,
+                            count : 0,
+                            maxCount : 300,
+                            middleCount: 270,
+                            minCount: 30,
+                            interval : null,
+                            //Initialize
+                            init : function(compteur){
+                                this.$element = compteur;
+                                this.run();
+                                this.interval = window.setInterval("counter.run();", 1000);
+                            },
+                            // Run
+                            run : function(){
+
+                                if (this.count === this.middleCount){
+            {#                        window.clearInterval(this.interval);#}
+                                    $('#modal_expire').modal({
+                                        show:true,
+                                        backdrop:'static'
+                                    });
+
+                                }
+                                if (this.count >= this.middleCount){
+                                    $('#middle_close').text(this.minCount);
+                                    this.minCount--;
+                                }
+
+                                if(this.count === this.maxCount){
+                                    window.clearInterval(this.interval);
+                                    window.location.replace(window.location.origin+"{{ url_for('Home') }}?url="+window.location.href)
+                                }
+
+                                this.$element.html(this.count);
+                                this.count++;
+                            }
+                        };
+
+                        $.fn.counter = function(){
+                            counter.init(this);
+                        };
+
+                        $('body').on('click', function(){
+                            var url_resset = "{{ url_for('set_session') }}";
+                             $.ajax({
+                                url: url_resset,
+                                contentType: 'application/json;charset=UTF-8',
+                                dataType: "json",
+                                success: function(data) {
+                                    counter.count = 0
+                                }
+                            });
+                        });
+                        $('#myCount').counter();
+
+                </script>
+
+        {% endblock %}
 
     {% endblock %}
-
-
 
     <script type="text/javascript" src="/static/js/moment.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.js"></script>
@@ -51,6 +125,7 @@
     <script type="text/javascript" src="/static/js/jquery.inputmask.bundle.min.js"></script>
     <script type="text/javascript" src="/static/js/app.js"></script>
     {% block footer_script %}{# defer-capable JS block #}{% endblock %}
+
     {{ profiler_includes|safe }}
 </body>
 </html>

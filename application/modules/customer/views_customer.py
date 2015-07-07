@@ -8,9 +8,10 @@ from forms_customer import FormCustomer
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+
+@app.route('/recording/customer')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/customer')
 def Customer_Index():
     menu = 'recording'
     submenu = 'customer'
@@ -20,10 +21,10 @@ def Customer_Index():
     return render_template('customer/index.html', **locals())
 
 
-@login_required
-@roles_required(('super_admin', 'manager_agency'))
 @app.route('/recording/customer/edit', methods=['GET', 'POST'])
 @app.route('/recording/customer/edit/<int:customer_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Customer_Edit(customer_id=None):
     menu = 'recording'
     submenu = 'customer'
@@ -71,9 +72,9 @@ def Customer_Edit(customer_id=None):
     return render_template('customer/edit.html', **locals())
 
 
+@app.route('/Active_Customer/<int:customer_id>')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/Active_Customer/<int:customer_id>')
 def Active_Customer(customer_id):
     custom = CustomerModel.get_by_id(customer_id)
     if custom.status is False:

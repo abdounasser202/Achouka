@@ -20,10 +20,10 @@ def Travel_Index():
     return render_template('/travel/index.html', **locals())
 
 
-@login_required
-@roles_required(('super_admin', 'admin'))
 @app.route('/recording/travel/edit', methods=['GET', 'POST'])
 @app.route('/recording/travel/edit/<int:travel_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'admin'))
 def Travel_Edit(travel_id=None):
     menu = 'recording'
     submenu = 'travel'

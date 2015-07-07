@@ -7,9 +7,9 @@ from models_vessel import VesselModel
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+@app.route('/settings/vessel')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/vessel')
 def Vessel_Index():
     menu = 'settings'
     submenu = 'vessel'
@@ -18,10 +18,11 @@ def Vessel_Index():
 
     return render_template('/vessel/index.html', **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/vessel/edit/', methods=['GET', 'POST'])
 @app.route('/settings/vessel/edit/<int:vessel_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Vessel_Edit(vessel_id=None):
     menu = 'settings'
     submenu = 'vessel'
@@ -66,10 +67,11 @@ def Vessel_Edit(vessel_id=None):
 
     return render_template('/vessel/edit.html', **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/vessel/delete/', methods=['GET', 'POST'])
 @app.route('/settings/vessel/delete/<int:vessel_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Vessel_Delete(vessel_id=None):
     menu = 'settings'
     submenu = 'vessel'

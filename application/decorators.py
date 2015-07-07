@@ -6,7 +6,7 @@ Decorators for URL handlers
 """
 
 from functools import wraps
-from flask import redirect, request, abort, url_for
+from flask import redirect, request, abort, url_for, flash
 from flask import current_app, session
 from flask.ext.login import current_user
 
@@ -17,6 +17,7 @@ def login_required(func):
     def decorated_view(*args, **kwargs):
         if not current_user.is_authenticated() or not session.get('user_id'):
             return redirect(url_for('Home'))
+
         return func(*args, **kwargs)
     return decorated_view
 
@@ -26,8 +27,7 @@ def roles_required(*required_roles):
     def wrapper(func):
         @wraps(func)
         def decorated_view(*args, **kwargs):
-
-            if not current_user.is_authenticated():
+            if not current_user.is_authenticated() or not session.get('user_id'):
                 return redirect(url_for('Home'))
 
             # User must have the required roles

@@ -51,6 +51,9 @@
     </div>
   </li>
 
+{% endif %}
+
+{% if current_user.has_roles(('super_admin','manager_agency')) %}
   <li class="list-group-item {% if submenu == 'departure' %} active {% endif %}">
     <div class="list-group-item-wrapper">
       <div class="dropdown pull-right">
@@ -66,8 +69,6 @@
       </a>
     </div>
   </li>
-{% endif %}
-{% if current_user.has_roles(('super_admin','manager_agency')) %}
  <li class="list-group-item {% if submenu == 'customer' %} active {% endif %}">
     <div class="list-group-item-wrapper">
       <div class="dropdown pull-right">

@@ -12,9 +12,10 @@ from forms_currency import FormCurrency
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-@login_required
+
 @roles_required(('admin', 'super_admin'))
 @app.route('/settings/currency')
+@login_required
 def Currency_Index():
     menu = 'settings'
     submenu = 'currency'
@@ -23,10 +24,11 @@ def Currency_Index():
 
     return render_template('/currency/index.html', **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/currency/edit', methods=['POST', 'GET'])
 @app.route('/settings/currency/edit/<int:currency_id>', methods=['POST', 'GET'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Currency_Edit(currency_id=None):
     menu = 'settings'
     submenu = 'currency'
@@ -81,9 +83,10 @@ def Currency_Edit(currency_id=None):
 
     return render_template('/currency/edit.html', **locals())
 
-@login_required
+
 @roles_required(('admin', 'super_admin'))
 @app.route("/settings/currency/equiv", methods=["POST", "GET"])
+@login_required
 def Currency_Equiv():
     currency = CurrencyModel().query()
     currency_equi = CurrencyModel().query()
@@ -131,10 +134,11 @@ def Currency_Equiv():
     flash('Conversion successfully completed', 'success')
     return redirect(url_for("Currency_Index"))
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/currency/delete/', methods=['GET', 'POST'])
 @app.route('/settings/currency/delete/<int:currency_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Currency_Delete(currency_id=None):
 
     from ..ticket.models_ticket import TicketModel, UserModel
@@ -175,9 +179,10 @@ def Currency_Delete(currency_id=None):
         flash(u'Currency has been deleted successfully', 'success')
         return redirect(url_for("Currency_Index"))
 
+
+@app.route('/delete_currency_equivalence/<int:equivalence_id>', methods=['POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/delete_currency_equivalence/<int:equivalence_id>', methods=['POST'])
 def delete_currency_equivalence(equivalence_id):
 
     Equivalence = EquivalenceModel.get_by_id(equivalence_id)

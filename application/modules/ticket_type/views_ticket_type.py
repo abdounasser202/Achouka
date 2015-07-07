@@ -10,9 +10,9 @@ from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, Fo
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+@app.route('/settings/tickettype')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/tickettype')
 def TicketType_Index():
     menu = 'settings'
     submenu = 'tickettype'
@@ -21,10 +21,11 @@ def TicketType_Index():
 
     return render_template('/tickettype/index.html', **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/tickettype/edit/<int:tickettype_id>', methods=['POST', 'GET'])
 @app.route('/settings/tickettype/edit', methods=['POST', 'GET'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def TicketType_Edit(tickettype_id=None):
     menu = 'settings'
     submenu = 'tickettype'
@@ -90,9 +91,9 @@ def TicketType_Edit(tickettype_id=None):
     return render_template('/tickettype/edit.html', **locals())
 
 
+@app.route('/Active_tickettype/<int:tickettype_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/Active_tickettype/<int:tickettype_id>')
 def Active_tickettype(tickettype_id):
 
     tickettype_active = TicketTypeModel.get_by_id(tickettype_id)
@@ -118,9 +119,9 @@ def Active_tickettype(tickettype_id):
     tickettype_active.put()
     return redirect(url_for('TicketType_Index'))
 
+@app.route('/delete_tickettype/<int:tickettype_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/delete_tickettype/<int:tickettype_id>')
 def delete_tickettype(tickettype_id):
     #recuperer la cle de la devise equivalence
     TicketType_delete = TicketTypeModel.get_by_id(tickettype_id)
@@ -129,8 +130,11 @@ def delete_tickettype(tickettype_id):
     return redirect(url_for('TicketType_Index'))
 
 
+
 @app.route('/Currency_Travel')
 @app.route('/Currency_Travel/<int:travel_id>')
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Currency_Travel(travel_id=None):
 
     travel = None
@@ -152,6 +156,8 @@ def Currency_Travel(travel_id=None):
     return data
 
 @app.route('/Verified_Disabled/<int:tickettype_id>')
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Verified_Disabled(tickettype_id):
     from ..ticket.models_ticket import TicketModel
     TicketType_delete = TicketTypeModel.get_by_id(tickettype_id)
@@ -189,10 +195,11 @@ def Verified_Disabled(tickettype_id):
 # Class Type Controller
 #
 #-------------------------------------------------------------------------------
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/tickettype/classtype', methods=['GET', 'POST'])
 @app.route('/settings/tickettype/classtype/<int:class_type_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def ClassType_Index(class_type_id=None):
     menu = 'settings'
     submenu = 'tickettype'
@@ -223,9 +230,9 @@ def ClassType_Index(class_type_id=None):
 
     return render_template("/tickettype/index-class-type.html", **locals())
 
+@app.route('/ClassType_Default/<int:class_type_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/ClassType_Default/<int:class_type_id>')
 def ClassType_Default(class_type_id):
 
     class_type = ClassTypeModel.get_by_id(class_type_id)
@@ -246,9 +253,9 @@ def ClassType_Default(class_type_id):
     return redirect(url_for('ClassType_Index'))
 
 
+@app.route('/ClassType_Delete/<int:class_type_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/ClassType_Delete/<int:class_type_id>')
 def ClassType_Delete(class_type_id):
 
     class_delete = ClassTypeModel.get_by_id(class_type_id)
@@ -276,10 +283,11 @@ def ClassType_Delete(class_type_id):
 # Journey Type Controller
 #
 #-------------------------------------------------------------------------------
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/tickettype/journettype', methods=['GET', 'POST'])
 @app.route('/settings/tickettype/journettype/<int:journey_type_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def JourneyType_Index(journey_type_id=None):
     menu = 'settings'
     submenu = 'tickettype'
@@ -316,9 +324,9 @@ def JourneyType_Index(journey_type_id=None):
     return render_template("/tickettype/index-journey-type.html", **locals())
 
 
+@app.route('/JourneyType_Default/<int:journey_type_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/JourneyType_Default/<int:journey_type_id>')
 def JourneyType_Default(journey_type_id):
 
     journey_type = JourneyTypeModel.get_by_id(journey_type_id)
@@ -341,9 +349,9 @@ def JourneyType_Default(journey_type_id):
 
 
 
+@app.route('/JourneyType_retuned/<int:journey_type_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/JourneyType_retuned/<int:journey_type_id>')
 def JourneyType_retuned(journey_type_id):
 
     journey_type = JourneyTypeModel.get_by_id(journey_type_id)
@@ -382,9 +390,9 @@ def JourneyType_retuned(journey_type_id):
     return redirect(url_for('JourneyType_Index'))
 
 
+@app.route('/JourneyType_Delete/<int:journey_type_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/JourneyType_Delete/<int:journey_type_id>')
 def JourneyType_Delete(journey_type_id):
 
     journey_delete = JourneyTypeModel.get_by_id(journey_type_id)
@@ -412,10 +420,11 @@ def JourneyType_Delete(journey_type_id):
 # Ticket Type Name Controller
 #
 #-------------------------------------------------------------------------------
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route("/settings/tickettype/tickettypename", methods=['GET', 'POST'])
 @app.route('/settings/tickettype/tickettypename/<int:ticket_type_name_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Ticket_Type_Name_Index(ticket_type_name_id=None):
     menu = 'settings'
     submenu = 'tickettype'
@@ -455,9 +464,10 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
 
     return render_template("/tickettype/index-ticket-type-name.html", **locals())
 
+
+@app.route("/Ticket_Type_Name_Child/<int:ticket_type_name_id>", methods=["GET", "POST"])
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route("/Ticket_Type_Name_Child/<int:ticket_type_name_id>", methods=["GET", "POST"])
 def Ticket_Type_Name_Child(ticket_type_name_id):
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
 
@@ -477,9 +487,9 @@ def Ticket_Type_Name_Child(ticket_type_name_id):
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 
+@app.route("/Ticket_Type_Name_Default/<int:ticket_type_name_id>")
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route("/Ticket_Type_Name_Default/<int:ticket_type_name_id>")
 def Ticket_Type_Name_Default(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
@@ -502,9 +512,9 @@ def Ticket_Type_Name_Default(ticket_type_name_id):
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 
+@app.route("/Ticket_Type_Name_Special/<int:ticket_type_name_id>")
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route("/Ticket_Type_Name_Special/<int:ticket_type_name_id>")
 def Ticket_Type_Name_Special(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
@@ -526,9 +536,9 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 
+@app.route("/Delete_Ticket_Type_Name/<int:ticket_type_name_id>")
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route("/Delete_Ticket_Type_Name/<int:ticket_type_name_id>")
 def Delete_Ticket_Type_Name(ticket_type_name_id):
     delete_ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
     # On verifiera si le TicketTypeName est utilisee

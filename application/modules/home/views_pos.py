@@ -4,7 +4,8 @@ __author__ = 'wilrona'
 from ...modules import *
 
 from ..customer.models_customer import CustomerModel
-from ..ticket.models_ticket import TicketPoly, TicketModel, TicketParent, TicketTypeNameModel, JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion
+from ..ticket.models_ticket import (TicketPoly, TicketModel, TicketParent, TicketTypeNameModel,
+                                    JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion)
 
 from ..customer.forms_customer import FormCustomerPOS
 
@@ -12,10 +13,11 @@ from ..customer.forms_customer import FormCustomerPOS
 cache = Cache(app)
 
 
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
+
 @app.route('/point-of-sale/<int:departure_id>', methods=['GET', 'POST'])
 @app.route('/point-of-sale', methods=['GET', 'POST'])
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 def Pos(departure_id=None):
     menu = 'pos'
     from ..agency.models_agency import AgencyModel
@@ -54,9 +56,9 @@ def Pos(departure_id=None):
     return render_template('/index/pos.html', **locals())
 
 
+@app.route('/search_customer_pos', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/search_customer_pos', methods=['GET', 'POST'])
 def search_customer_pos():
     from ..departure.models_departure import DepartureModel
 
@@ -90,9 +92,10 @@ def search_customer_pos():
     return render_template('/pos/search_customer.html', **locals())
 
 
+
+@app.route('/search_ticket_pos', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/search_ticket_pos', methods=['GET', 'POST'])
 def search_ticket_pos():
     number_ticket = request.form['number_ticket']
 
@@ -113,9 +116,9 @@ def search_ticket_pos():
         return render_template('/pos/ticket_found.html', **locals())
 
 
+@app.route('/Ticket_found/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/Ticket_found/<int:ticket_id>', methods=['GET', 'POST'])
 def Ticket_found(ticket_id):
     ticket = TicketModel.get_by_id(ticket_id)
 
@@ -125,10 +128,11 @@ def Ticket_found(ticket_id):
     return render_template('/pos/ticket_found.html', **locals())
 
 
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
+
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['GET', 'POST'])
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 def create_customer_and_ticket_return(ticket_id, departure_id=None):
 
     from ..ticket_type.models_ticket_type import TicketTypeModel
@@ -255,10 +259,11 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     return render_template('/pos/create_customer_and_ticket_return.html', **locals())
 
 
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
+
 @app.route('/create_customer_and_ticket_pos', methods=['GET', 'POST'])
 @app.route('/create_customer_and_ticket_pos/<int:customer_id>/<int:departure_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     from ..ticket_type.models_ticket_type import TicketTypeModel
     from ..departure.models_departure import DepartureModel
@@ -459,17 +464,18 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     return render_template('/pos/create_customer_and_ticket.html', **locals())
 
 
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
+
 @app.route('/modal_generate_pdf_ticket')
 @app.route('/modal_generate_pdf_ticket/<int:ticket_id>')
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 def modal_generate_pdf_ticket(ticket_id=None):
     return render_template('/pos/view-pdf.html', **locals())
 
 
+@app.route('/generate_pdf_ticket/<int:ticket_id>')
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/generate_pdf_ticket/<int:ticket_id>')
 def generate_pdf_ticket(ticket_id):
 
     Ticket_print = TicketPoly.get_by_id(ticket_id)
@@ -565,9 +571,9 @@ def generate_pdf_ticket(ticket_id):
     return response
 
 
+@app.route('/Search_Ticket_Type', methods=['GET','POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/Search_Ticket_Type', methods=['GET','POST'])
 def Search_Ticket_Type():
 
     from ..ticket_type.models_ticket_type import TicketTypeModel
@@ -633,9 +639,9 @@ def Search_Ticket_Type():
     return data
 
 
+@app.route('/remaining_ticket')
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/remaining_ticket')
 def remaining_ticket():
     number = current_user.remaining_ticket()
     data = json.dumps({
@@ -645,9 +651,10 @@ def remaining_ticket():
     return data
 
 
+
+@app.route('/Calendrier')
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
-@app.route('/Calendrier')
 def Calendrier(current_month_active=None, current_day_active=None):
 
     cal = calendar.Calendar(0)
@@ -665,10 +672,11 @@ def Calendrier(current_month_active=None, current_day_active=None):
     return render_template('/pos/calendrier.html', **locals())
 
 
-@login_required
-@roles_required(('employee_POS', 'super_admin'))
+
 @app.route('/List_All_Departure/<int:current_month_active>/<int:current_day_active>')
 @app.route('/List_All_Departure')
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
 def List_All_Departure(current_month_active=None, current_day_active=None):
     from ..departure.models_departure import DepartureModel
 
@@ -699,3 +707,49 @@ def List_All_Departure(current_month_active=None, current_day_active=None):
     time_now = function.datetime_convert(date_auto_nows).time()
 
     return render_template('/pos/list_all_departure.html', **locals())
+
+
+@app.route('/point-of-sale/ticket-available')
+@login_required
+@roles_required(('employee_POS', 'super_admin'))
+def Ticket_POS():
+    menu = "ticket_available"
+    from ..ticket_type.models_ticket_type import TicketTypeModel
+
+    #information de l'agence de l'utilisateur
+    current_agency = AgencyModel.get_by_id(int(session.get('agence_id')))
+
+    # TYPE DE TICKET EN POSSESSION PAR L'AGENCE (etranger ou local)
+    ticket_type_query = TicketTypeModel.query(
+        TicketTypeModel.active == True
+    )
+
+    ticket_type_purchase_tab = []
+    for ticket_type in ticket_type_query:
+            tickets_type = {}
+            tickets_type['name_ticket'] = ticket_type.name
+            tickets_type['type'] = ticket_type.type_name
+            tickets_type['class'] = ticket_type.class_name
+            tickets_type['journey'] = ticket_type.journey_name
+            tickets_type['number'] = TicketModel.query(
+                TicketModel.travel_ticket == ticket_type.travel,
+                TicketModel.class_name == ticket_type.class_name,
+                TicketModel.journey_name == ticket_type.journey_name,
+                TicketModel.type_name == ticket_type.type_name,
+                TicketModel.selling == False,
+                TicketModel.agency == current_agency.key
+            ).count_async().get_result()
+            tickets_type['travel'] = ticket_type.travel
+            ticket_type_purchase_tab.append(tickets_type)
+
+    grouper = itemgetter("name_ticket", "type", "class", "journey", "travel")
+
+    ticket_type_purchase = []
+    for key, grp in groupby(sorted(ticket_type_purchase_tab, key=grouper), grouper):
+        temp_dict = dict(zip(["name_ticket", "type", "class", "journey", "travel"], key))
+        temp_dict['number'] = 0
+        for item in grp:
+            temp_dict['number'] += item['number']
+        ticket_type_purchase.append(temp_dict)
+
+    return render_template('/pos/ticket-available.html', **locals())

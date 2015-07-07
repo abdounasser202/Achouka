@@ -62,9 +62,10 @@ def Super_Admin_Create():
 
     return render_template('user/edit-super-admin.html', **locals())
 
+
+@app.route('/settings/user/admin')
 @login_required
 @roles_required(('super_admin', 'admin'))
-@app.route('/settings/user/admin')
 def User_Admin_Index():
     menu='settings'
     submenu ='user_admin'
@@ -109,10 +110,10 @@ def User_Admin_Index():
     return render_template('/user/index.html', **locals())
 
 
-@login_required
-@roles_required(('super_admin', 'admin'))
 @app.route('/settings/user/admin/edit', methods=['GET', 'POST'])
 @app.route('/settings/user/admin/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'admin'))
 def User_Admin_Edit(user_id=None):
     menu='settings'
     submenu ='user_admin'
@@ -208,9 +209,10 @@ def User_Admin_Edit(user_id=None):
 #-------------------------------------------------------------------------------
 # activation et desactivation du compte admin
 #-------------------------------------------------------------------------------
+
+@app.route('/setting/user/status/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'admin'))
-@app.route('/setting/user/status/<int:user_id>', methods=['GET', 'POST'])
 def activate_user_admin(user_id=None):
     user_status = UserModel.get_by_id(user_id)
 
@@ -222,9 +224,10 @@ def activate_user_admin(user_id=None):
     flash(u'Admin is activated!', 'success')
     return redirect(url_for("User_Admin_Index"))
 
+
+@app.route('/recording/user')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/user')
 def User_Index():
     menu='recording'
     submenu='user'
@@ -256,10 +259,10 @@ def User_Index():
 
 
 
-@login_required
-@roles_required(('super_admin', 'manager_agency'))
 @app.route('/recording/user/edit', methods=['GET', 'POST'])
 @app.route('/recording/user/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def User_Edit(user_id=None):
     menu = 'recording'
     submenu = 'user'
@@ -359,9 +362,9 @@ def User_Edit(user_id=None):
     return render_template('/user/edit-user.html', **locals())
 
 
+@app.route('/recording/user/status/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/user/status/<int:user_id>', methods=['GET', 'POST'])
 def Activate_User(user_id=None):
     user_status = UserModel.get_by_id(user_id)
 

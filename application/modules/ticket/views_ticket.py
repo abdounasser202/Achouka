@@ -13,9 +13,9 @@ from forms_ticket import FormTicket
 cache = Cache(app)
 
 
+@app.route('/recording/ticket')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/ticket')
 def Ticket_Index():
     menu = 'recording'
     submenu = 'ticket'
@@ -32,9 +32,9 @@ def Ticket_Index():
     return render_template('ticket/index.html', **locals())
 
 
+@app.route('/recoding/ticket/statistics/<int:agency_id>')
 @login_required
 @roles_required(('super_admin', 'employee_POS'))
-@app.route('/recoding/ticket/statistics/<int:agency_id>')
 def Stat_View(agency_id):
     menu = 'recording'
     submenu = 'ticket'
@@ -103,9 +103,9 @@ def Stat_View(agency_id):
     return render_template('ticket/stat-view.html', **locals())
 
 
+@app.route('/Select_Travel/<int:agency_id>')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/Select_Travel/<int:agency_id>')
 def Select_Travel(agency_id):
 
     current_agency = AgencyModel.get_by_id(agency_id)
@@ -117,9 +117,9 @@ def Select_Travel(agency_id):
     return render_template('ticket/select-travel.html', **locals())
 
 
+@app.route('/Select_Foreign_Travel/<int:agency_id>')
 @login_required
 @roles_required(('super_admin', 'admin'))
-@app.route('/Select_Foreign_Travel/<int:agency_id>')
 def Select_Foreign_Travel(agency_id):
     foreign_view = 'True'
     title = "Foreign"
@@ -132,10 +132,10 @@ def Select_Foreign_Travel(agency_id):
     return render_template('ticket/select-travel.html', **locals())
 
 
-@login_required
-@roles_required(('super_admin', 'manager_agency'))
 @app.route('/Select_TicketType/<int:agency_id>/<int:travel_id>', methods=['GET', 'POST'])
 @app.route('/Select_TicketType/<int:agency_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Select_TicketType(agency_id, travel_id=None):
 
     travel_select = TravelModel.get_by_id(travel_id)
@@ -150,10 +150,10 @@ def Select_TicketType(agency_id, travel_id=None):
     return render_template('ticket/select-tickettype.html', **locals())
 
 
-@login_required
-@roles_required(('super_admin', 'manager_agency'))
 @app.route('/recording/ticket/edit/<int:agency_id>/<int:tickettype>', methods=['GET', 'POST'])
 @app.route('/recording/ticket/edit/<int:agency_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Ticket_Edit(agency_id, tickettype):
     refresh = 'false'
 
@@ -198,18 +198,6 @@ def Ticket_Edit(agency_id, tickettype):
             last_transaction = TransactionModel.get_by_id(key_transaction.id())
             i = 1
             while i <= number:
-                # detail_transaction = DetailsTransactionModel()
-                # detail_transaction.amount = TicketType.price
-                # detail_transaction.agency = info_agency.key
-                # detail_transaction.reason = 'Expense detail'
-                # detail_transaction.is_payment = False
-                # detail_transaction.destination = TicketType.travel.get().destination_start
-                # detail_transaction.transaction_date = function.datetime_convert(date_auto_nows)
-                # detail_transaction.transaction_parent = last_transaction.key
-                # detail_transaction.user = user_id.key
-
-                # save_detail_transaction = detail_transaction.put()
-                # detail_transaction_create = DetailsTransactionModel.get_by_id(save_detail_transaction.id())
 
                 ticket = TicketModel()
                 ticket.type_name = TicketType.type_name

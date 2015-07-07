@@ -47,9 +47,9 @@
                                                 <a href="{{ url_for('User_Admin_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
                                             {% endif %}
 
-                                            {% if user.user_id in super_admin_id %}
-                                                <a href="#" class="btn btn-link btn-xs">Change currency </a>
-                                            {% endif %}
+{#                                            {% if user.user_id in super_admin_id %}#}
+{#                                                <a href="#" class="btn btn-link btn-xs">Change currency </a>#}
+{#                                            {% endif %}#}
                                             {% if current_user.key != user.user_id %}
                                                 {% if user.user_id.get().is_enabled %}
                                                     <a href="{{url_for('activate_user_admin', user_id=user.user_id.get().key.id())}}" class="btn btn-danger btn-xs">Disabled</a>

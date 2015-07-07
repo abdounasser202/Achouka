@@ -7,10 +7,9 @@ from ..transaction.models_transaction import TransactionModel, AgencyModel, User
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-
+@app.route('/recording/transaction')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-@app.route('/recording/transaction')
 def Transaction_Index():
     menu = 'recording'
     submenu = 'transaction'
@@ -23,8 +22,9 @@ def Transaction_Index():
 
     return render_template('/transaction/index.html', **locals())
 
-
 @app.route('/recording/transaction/stat/<int:agency_id>')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Transaction_Agency(agency_id):
     menu = 'recording'
     submenu = 'transaction'
@@ -47,6 +47,8 @@ def Transaction_Agency(agency_id):
 
 @app.route('/Transaction_detail')
 @app.route('/Transaction_detail/<int:transaction_id>')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Transaction_detail(transaction_id=None):
 
     current_transaction_get_id = TransactionModel.get_by_id(transaction_id)
@@ -56,6 +58,8 @@ def Transaction_detail(transaction_id=None):
 
 @app.route('/Transaction_user', methods=["GET", "POST"])
 @app.route('/Transaction_user/<int:user_id>', methods=["GET", "POST"])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Transaction_user(user_id=None):
 
     user_get_id = UserModel.get_by_id(user_id)
@@ -177,6 +181,8 @@ def Transaction_user(user_id=None):
 
 @app.route('/Transaction_foreign_user', methods=["GET", "POST"])
 @app.route('/Transaction_foreign_user/<int:user_id>/<int:travel_id>', methods=["GET", "POST"])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Transaction_foreign_user(user_id=None, travel_id=None):
 
     from ..travel.models_travel import TravelModel
@@ -320,6 +326,8 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
 
 
 @app.route('/Payment_admin_local/<int:agency_id>', methods=["GET", "POST"])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Payment_admin_local(agency_id):
 
     agency_get_id = AgencyModel.get_by_id(agency_id)
@@ -365,6 +373,8 @@ def Payment_admin_local(agency_id):
 
 
 @app.route('/Payment_admin_foreign/<int:agency_id>')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Payment_admin_foreign(agency_id):
     agency_get_id = AgencyModel.get_by_id(agency_id)
     return render_template('/transaction/payment_foreign_admin.html', **locals())
@@ -372,6 +382,8 @@ def Payment_admin_foreign(agency_id):
 
 @app.route('/Payment_admin_foreign_single/<int:agency_id>', methods=["GET", "POST"])
 @app.route('/Payment_admin_foreign_single/<int:agency_id>/<int:destination_id>', methods=["GET", "POST"])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
 def Payment_admin_foreign_single(agency_id, destination_id=None):
 
     from ..destination.models_destination import DestinationModel

@@ -537,7 +537,6 @@ class AnonymousUserMixin(object):
     def get_id(self):
         return
 
-
 def encode_cookie(payload):
     '''
     This will encode a ``unicode`` value into a cookie, and sign that cookie

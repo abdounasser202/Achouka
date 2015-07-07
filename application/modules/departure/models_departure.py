@@ -11,3 +11,17 @@ class DepartureModel(ndb.Model):
     time_delay = ndb.TimeProperty()
     destination = ndb.KeyProperty(kind=TravelModel)
     vessel = ndb.KeyProperty(kind=VesselModel)
+
+    def reserved(self):
+        from ..ticket.models_ticket import TicketModel
+
+        reserved_count = TicketModel.query(
+            TicketModel.departure == self.key,
+            TicketModel.travel_ticket == self.destination
+        ).count()
+
+        reserved = False
+        if reserved_count >= 1:
+            reserved = True
+
+        return reserved

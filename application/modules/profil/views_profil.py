@@ -8,9 +8,10 @@ from forms_profil import FormProfil
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+
+@app.route('/settings/profil')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/profil')
 def Profil_Index():
     menu = 'settings'
     submenu = 'profil'
@@ -19,9 +20,9 @@ def Profil_Index():
     return render_template('/profil/index.html', **locals())
 
 
+@app.route('/settings/profil/view/<int:profil_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/profil/view/<int:profil_id>', methods=['GET', 'POST'])
 def Profil_View(profil_id):
     menu = 'settings'
     submenu = 'profil'
@@ -36,10 +37,10 @@ def Profil_View(profil_id):
     return render_template('/profil/edit.html', **locals())
 
 
-@login_required
-@roles_required(('admin', 'super_admin'))
 @app.route('/settings/profil/edit', methods=['GET', 'POST'])
 @app.route('/settings/profil/edit/<int:profil_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Profil_Edit(profil_id=None):
     menu = 'settings'
     submenu = 'profil'
@@ -98,9 +99,9 @@ def Profil_Edit(profil_id=None):
     return render_template('/profil/edit.html', **locals())
 
 
+@app.route('/AddRoleProfil/<int:profil_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/AddRoleProfil/<int:profil_id>', methods=['GET', 'POST'])
 def Add_Role_Profil(profil_id):
     from ..user.models_user import ProfilRoleModel, RoleModel
 
@@ -142,10 +143,9 @@ def Add_Role_Profil(profil_id):
 
 
 
+@app.route('/DeleteRoleProfil/<int:profilrole_id>/<int:profil_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@roles_required(('super_admin', 'admin'))
-@app.route('/DeleteRoleProfil/<int:profilrole_id>/<int:profil_id>')
 def Delete_Role_Profil(profilrole_id, profil_id):
     from ..user.models_user import ProfilRoleModel
 
@@ -161,9 +161,9 @@ def Delete_Role_Profil(profilrole_id, profil_id):
     return redirect(url_for('Profil_Edit', profil_id=profil.key.id()))
 
 
+@app.route('/settings/profil/delete/<int:profil_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/profil/delete/<int:profil_id>', methods=['GET', 'POST'])
 def Profil_Delete(profil_id):
     from ..user.models_user import ProfilRoleModel, UserModel
     """ Suppression des profils """

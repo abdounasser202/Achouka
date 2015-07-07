@@ -4,6 +4,7 @@ Initialize Flask app
 """
 from flask import Flask
 import os
+from datetime import timedelta
 from lib.flask_debugtoolbar import DebugToolbarExtension
 from lib.werkzeug.debug import DebuggedApplication
 from flask.ext.login import LoginManager
@@ -38,6 +39,8 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
+
+app.permanent_session_lifetime = timedelta(seconds=30)
 
 login_manager = LoginManager()
 login_manager.init_app(app)

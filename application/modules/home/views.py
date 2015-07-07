@@ -8,10 +8,18 @@ from ..user.forms_user import FormLogin
 
 cache = Cache(app)
 
+
 @login_manager.user_loader
 def load_user(userid):
     return UserModel.get_by_id(userid)
 
+
+@app.route('/set_session')
+def set_session():
+    session.permanent = True
+    return json.dumps({
+        'statut': True
+    })
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -33,6 +41,10 @@ def Home():
     if exist_super_admin >= 1:
         exist = True
 
+    url = None
+    if request.args.get('url'):
+        url = request.args.get('url')
+
     form = FormLogin()
     if form.validate_on_submit():
         try:
@@ -45,9 +57,14 @@ def Home():
             UserModel.email == form.email.data,
             UserModel.password == password
         ).get()
+
         if user_login is None:
             flash('Username or Password is invalid', 'danger')
         else:
+            if not user_login.is_active():
+                flash('Your account is disabled. Contact Administrator', 'danger')
+                return redirect(url_for('Home', url=url))
+
             session['user_id'] = user_login.key.id()
             agency = 0
             if user_login.agency:
@@ -56,6 +73,15 @@ def Home():
             session['agence_id'] = agency
             user_login.logged = True
             user_login.put()
+
+            if url:
+                return redirect(url)
+
+            if not user_login.has_roles(('admin', 'manager_agency', 'super_admin')) and user_login.has_roles('employee_POS'):
+                return redirect(url_for('Pos'))
+
+            if not user_login.has_roles(('admin', 'manager_agency', 'super_admin')) and user_login.has_roles('employee_Boarding'):
+                return redirect(url_for('Boarding'))
 
             return redirect(url_for('Dashboard'))
 
@@ -71,6 +97,7 @@ def logout_user():
         change = UserLogout.put()
         if change:
             session.pop('user_id')
+            session.pop('agence_id')
     return redirect(url_for('Home'))
 
 
@@ -79,11 +106,7 @@ def logout_user():
 def Dashboard():
     menu = 'dashboard'
 
-    if current_user.has_roles(('manager_agency', 'super_admin')):
-        return render_template('/index/dashboard.html', **locals())
-
-    if current_user.has_roles('employee_POS'):
-        return redirect(url_for('Pos'))
+    return render_template('/index/dashboard.html', **locals())
 
 
 @app.route('/settings')

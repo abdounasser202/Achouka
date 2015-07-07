@@ -8,9 +8,9 @@ from forms_question import FormQuestion
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+@app.route('/settings/questions')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/settings/questions')
 def Question_Index():
     menu="settings"
     submenu="question"
@@ -18,10 +18,11 @@ def Question_Index():
     items = QuestionModel.query()
     return render_template("question/index.html", **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/settings/questions/edit', methods=['GET', 'POST'])
 @app.route('/settings/questions/edit/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Question_Edit(question_id=None):
     menu="settings"
     submenu="question"
@@ -53,10 +54,11 @@ def Question_Edit(question_id=None):
         return redirect(url_for("Question_Index"))
     return render_template('question/edit.html', **locals())
 
-@login_required
-@roles_required(('admin', 'super_admin'))
+
 @app.route('/questions/delete', methods=['GET', 'POST'])
 @app.route('/questions/delete/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required(('admin', 'super_admin'))
 def Question_Delete(question_id=None):
     items = QuestionModel.get_by_id(int(question_id))
     items.key.delete()
@@ -65,9 +67,9 @@ def Question_Delete(question_id=None):
     return redirect(url_for("Question_Index"))
 
 
+@app.route('/questions/active/<int:question_id>')
 @login_required
 @roles_required(('admin', 'super_admin'))
-@app.route('/questions/active/<int:question_id>')
 def Question_Active(question_id):
     items = QuestionModel.get_by_id(int(question_id))
 

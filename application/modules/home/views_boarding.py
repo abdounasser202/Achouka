@@ -6,9 +6,9 @@ from ..ticket.models_ticket import TicketPoly, TicketModel, AgencyModel, Departu
 cache = Cache(app)
 
 
+@app.route('/Boarding')
 @login_required
 @roles_required(('employee_Boarding', 'super_admin'))
-@app.route('/Boarding')
 def Boarding():
     menu = 'boarding'
 
@@ -41,10 +41,10 @@ def Boarding():
     return render_template('/index/boarding.html', **locals())
 
 
-@login_required
-@roles_required(('employee_Boarding', 'super_admin'))
 @app.route('/Search_Ticket_Boarding/<int:ticket_id>', methods=['GET', 'POST'])
 @app.route('/Search_Ticket_Boarding', methods=['GET', 'POST'])
+@login_required
+@roles_required(('employee_Boarding', 'super_admin'))
 def Search_Ticket_Boarding(ticket_id=None):
 
     if ticket_id:
@@ -92,6 +92,8 @@ def Search_Ticket_Boarding(ticket_id=None):
 
 
 @app.route('/Update_Ticket_For_Boarding/<int:ticket_id>', methods=['POST'])
+@login_required
+@roles_required(('employee_Boarding', 'super_admin'))
 def Update_Ticket_For_Boarding(ticket_id):
 
     ticket = TicketModel.get_by_id(ticket_id)
@@ -163,11 +165,15 @@ def Update_Ticket_For_Boarding(ticket_id):
 
 @app.route('/modal_generate_pdf_boarding')
 @app.route('/modal_generate_pdf_boarding/<int:ticket_id>')
+@login_required
+@roles_required(('employee_Boarding', 'super_admin'))
 def modal_generate_pdf_boarding(ticket_id=None):
     return render_template('/boarding/view-pdf.html', **locals())
 
 
 @app.route('/generate_pdf_boarding/<int:ticket_id>')
+@login_required
+@roles_required(('employee_Boarding', 'super_admin'))
 def generate_pdf_boarding(ticket_id):
     Ticket_print = TicketPoly.get_by_id(ticket_id)
 

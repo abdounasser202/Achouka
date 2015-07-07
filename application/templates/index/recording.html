@@ -39,6 +39,8 @@
                                             </div>
                                         </div>
                               </div>
+                        {% endif %}
+                        {% if current_user.has_roles(('super_admin','manager_agency')) %}
                               <div class="col-lg-4">
                                   <div class="well-custom well-small">
                                             <div class="caption">
@@ -47,8 +49,7 @@
                                             </div>
                                         </div>
                               </div>
-                        {% endif %}
-                        {% if current_user.has_roles(('super_admin','manager_agency')) %}
+
                           <div class="col-lg-4">
                               <div class="well-custom well-small">
                                         <div class="caption">
