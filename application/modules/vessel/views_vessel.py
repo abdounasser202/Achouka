@@ -36,31 +36,34 @@ def Vessel_Edit(vessel_id=None):
 
     if form.validate_on_submit():
 
-        Vessel_exist = VesselModel.query(
-                VesselModel.name == form.name.data
-        ).count()
+        Vessel_exist = VesselModel.query(VesselModel.name == form.name.data).count()
 
         if Vessel_exist >= 1:
-            if vessel.name == form.name.data and vessel_id:
+            if vessel.name == form.name.data:
                 vessel.name = form.name.data
                 vessel.capacity = form.capacity.data
                 vessel.immatricul = form.immatricul.data
-
-                vessel.put()
-                flash(u' Vessel Update. ', 'success')
-                return redirect(url_for('Vessel_Index'))
+                try:
+                    vessel.put()
+                    flash(u' Vessel Update. ', 'success')
+                    return redirect(url_for('Vessel_Index'))
+                except CapabilityDisabledError:
+                    flash(u' Error data base. ', 'danger')
+                    return redirect(url_for('Vessel_Edit'))
             else:
-              form.name.errors.append('Other Vessel use this name')
+                form.name.errors.append('Other Vessel use this name')
+
         else:
             vessel.name = form.name.data
             vessel.capacity = form.capacity.data
             vessel.immatricul = form.immatricul.data
-            vessel.put()
-            if vessel_id:
-                 flash(u' Vessel Update. ', 'success')
-            else:
+            try:
+                vessel.put()
                 flash(u' Vessel Save. ', 'success')
-            return redirect(url_for('Vessel_Index'))
+                return redirect(url_for('Vessel_Index'))
+            except CapabilityDisabledError:
+                flash(u' Error data base. ', 'danger')
+                return redirect(url_for('Vessel_Edit'))
 
     return render_template('/vessel/edit.html', **locals())
 
@@ -70,13 +73,13 @@ def Vessel_Edit(vessel_id=None):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def Vessel_Delete(vessel_id=None):
+    menu = 'settings'
+    submenu = 'vessel'
     from ..departure.models_departure import DepartureModel
 
-    delete_vessel = VesselModel.get_by_id(vessel_id)
+    delete_vessel = VesselModel.get_by_id(int(vessel_id))
 
-    departure_vessel_exist = DepartureModel.query(
-        DepartureModel.vessel == delete_vessel.key
-    ).count()
+    departure_vessel_exist = DepartureModel.query(DepartureModel.vessel == delete_vessel.key).count()
 
     if departure_vessel_exist >= 1:
         flash(u'You can\'t delete this vessel', 'danger')
@@ -86,4 +89,5 @@ def Vessel_Delete(vessel_id=None):
         flash(u'Vessel has been deleted successfully', 'success')
         return redirect(url_for("Vessel_Index"))
 
+    return render_template('/vessel/index.html', **locals())
 

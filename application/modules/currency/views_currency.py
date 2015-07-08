@@ -33,6 +33,10 @@ def Currency_Edit(currency_id=None):
     menu = 'settings'
     submenu = 'currency'
 
+    from ..activity.models_activity import ActivityModel
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     if currency_id:
         # formulaire et information de la devise a editer
         currency = CurrencyModel.get_by_id(currency_id)
@@ -59,6 +63,16 @@ def Currency_Edit(currency_id=None):
 
                 try:
                     devise = currency.put()
+
+                    # enregistrement de l'activite de modification du currency
+                    currency_activity_modification = ActivityModel()
+                    currency_activity_modification.user_modify = current_user.key
+                    currency_activity_modification.identity = devise.id()
+                    currency_activity_modification.nature = 4
+                    currency_activity_modification.object = "currency"
+                    currency_activity_modification.time = function.datetime_convert(date_auto_nows)
+                    currency_activity_modification.put()
+
                     flash(u' Currency Save. ', 'success')
                     return redirect(url_for('Currency_Index'))
 
@@ -74,6 +88,16 @@ def Currency_Edit(currency_id=None):
 
             try:
                 devise = currency.put()
+
+                # enregistrement de l'activite de creation du currency
+                currency_activity_creation = ActivityModel()
+                currency_activity_creation.user_modify = current_user.key
+                currency_activity_creation.identity = devise.id()
+                currency_activity_creation.nature = 1
+                currency_activity_creation.object = "currency"
+                currency_activity_creation.time = function.datetime_convert(date_auto_nows)
+                currency_activity_creation.put()
+
                 flash(u' Currency Save. ', 'success')
                 return redirect(url_for('Currency_Index'))
 
@@ -175,6 +199,15 @@ def Currency_Delete(currency_id=None):
         return redirect(url_for("Currency_Index"))
 
     else:
+        # enregistrement de l'activite de suppression du currency
+        currency_activity_deletion = ActivityModel()
+        currency_activity_deletion.user_modify = current_user.key
+        currency_activity_deletion.identity = delete_currency
+        currency_activity_deletion.nature = 3
+        currency_activity_deletion.object = "currency"
+        currency_activity_deletion.time = function.datetime_convert(date_auto_nows)
+        currency_activity_deletion.put()
+
         delete_currency.key.delete()
         flash(u'Currency has been deleted successfully', 'success')
         return redirect(url_for("Currency_Index"))
