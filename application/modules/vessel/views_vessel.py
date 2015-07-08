@@ -36,36 +36,31 @@ def Vessel_Edit(vessel_id=None):
 
     if form.validate_on_submit():
 
-        Vessel_exist = VesselModel.query(VesselModel.name == form.name.data).count()
-
-
+        Vessel_exist = VesselModel.query(
+                VesselModel.name == form.name.data
+        ).count()
 
         if Vessel_exist >= 1:
-            if vessel.name == form.name.data:
+            if vessel.name == form.name.data and vessel_id:
                 vessel.name = form.name.data
                 vessel.capacity = form.capacity.data
                 vessel.immatricul = form.immatricul.data
-                try:
-                    vessel.put()
-                    flash(u' Vessel Update. ', 'success')
-                    return redirect(url_for('Vessel_Index'))
-                except CapabilityDisabledError:
-                    flash(u' Error data base. ', 'danger')
-                    return redirect(url_for('Vessel_Edit'))
-            else:
-                form.name.errors.append('Other Vessel use this name')
 
+                vessel.put()
+                flash(u' Vessel Update. ', 'success')
+                return redirect(url_for('Vessel_Index'))
+            else:
+              form.name.errors.append('Other Vessel use this name')
         else:
             vessel.name = form.name.data
             vessel.capacity = form.capacity.data
             vessel.immatricul = form.immatricul.data
-            try:
-                vessel.put()
+            vessel.put()
+            if vessel_id:
+                 flash(u' Vessel Update. ', 'success')
+            else:
                 flash(u' Vessel Save. ', 'success')
-                return redirect(url_for('Vessel_Index'))
-            except CapabilityDisabledError:
-                flash(u' Error data base. ', 'danger')
-                return redirect(url_for('Vessel_Edit'))
+            return redirect(url_for('Vessel_Index'))
 
     return render_template('/vessel/edit.html', **locals())
 
