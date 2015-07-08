@@ -113,9 +113,11 @@ def Destination_Delete(destination_id=None):
     from ..travel.models_travel import TravelModel
     from ..transaction.models_transaction import TransactionModel
 
-    agency_destination_exist = AgencyModel.query(
-        AgencyModel.destination == delete_destination.key
-    ).count()
+    agency_destination_exist = 0
+    if destination_id:
+        agency_destination_exist = AgencyModel.query(
+            AgencyModel.destination == delete_destination.key
+        ).count()
 
     travel_destination_start_exist = TravelModel.query(
         TravelModel.destination_start == delete_destination.key
