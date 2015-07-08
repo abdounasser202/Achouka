@@ -21,13 +21,65 @@
 
     {% block style_block %}{# page-specific CSS #}    {% endblock %}
 
-    {% block head_script %}{# defer-incapable JS block #}   {% endblock %}
+    {% block head_script %}
+        <script>
+        $( document ).ready(function() {
+            counter2 = {
+                $element : null,
+                count : 0,
+                maxCount : 10,
+                object_count: 0,
+                interval : null,
+                //Initialize
+                init : function(compteur){
+                    this.$element = compteur;
+                    this.run();
+                    this.interval = window.setInterval("counter2.run();", 1000);
+                },
+                // Run
+                run : function(){
+                    if(this.count === this.maxCount){
+                        {% if session.get('agence_id') %}
+                            var url = "{{ url_for('reset_remaining_ticket') }}";
+                            $.get(url, function(data) {
+                                $('#remaining_ticket').text(data)
+                            });
+                        {% endif %}
+
+                        {% if menu == "pos" and menu == "boarding" %}
+                            var url = "{{ url_for('reset_current_departure') }}";
+                            $.get(url, function(data) {
+                                $('#current_departure').html(data);
+
+                            });
+                        {% endif %}
+                        this.count = 0
+                        this.object_count = 1
+                    }
+
+                    if(this.count == 0 && this.object_count == 1){
+                        $('#CurrentDeparture').val($('#current_departure_id').text());
+                        this.object_count = 0
+                    }
+                    this.$element.html(this.count);
+                    this.count++;
+                }
+            };
+            $.fn.counter_2 = function(){
+                counter2.init(this);
+            };
+            $('#refrech').counter_2();
+
+        });
+        </script>
+    {% endblock %}
 </head>
 <body>
     {% block layout_body %}
 
         {% block layout_before_content %}
             {% include 'includes/nav.html' %}
+            <div id="refrech" class="hidden"></div>
         {% endblock %}
 
         {% block layout_content %}           {% endblock %}

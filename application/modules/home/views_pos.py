@@ -56,6 +56,82 @@ def Pos(departure_id=None):
     return render_template('/index/pos.html', **locals())
 
 
+@app.route('/reset_remaining_ticket')
+def reset_remaining_ticket():
+
+    if session.get('agence_id'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+        number = agency_user.TicketUnsold()
+    else:
+        number = 'No Ticket'
+
+    return number+' Available'
+
+@app.route('/reset_current_departure')
+def reset_current_departure():
+    from ..agency.models_agency import AgencyModel
+    from ..departure.models_departure import DepartureModel
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    heure = function.datetime_convert(date_auto_nows).time()
+
+    departure = DepartureModel.query(
+        DepartureModel.departure_date == datetime.date.today(),
+        DepartureModel.schedule >= heure
+    ).order(
+        -DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+    current_departure = None
+    if current_user.have_agency():
+        agence_id = session.get('agence_id')
+        user_agence = AgencyModel.get_by_id(int(agence_id))
+
+        for dep in departure:
+            if dep.destination.get().destination_start == user_agence.destination:
+                current_departure = dep
+                break
+    else:
+        current_departure = departure.get()
+
+    if current_departure:
+
+        element = """<br/><br/>
+            <span id="current_departure_id" class="hidden">"""+ str(current_departure.key.id()) +""""</span>
+            <span id="current_departure_start" class="hidden"> """+str(current_departure.destination.get().destination_start.get().key.id()) +"""</span>
+            <span id="current_departure_check" class="hidden">"""+str(current_departure.destination.get().destination_check.get().key.id())+"""</span>
+            <table class="table text-center">
+                <tbody>
+                    <tr>
+                        <td><strong>Journey</strong></td>
+                        <td>"""+current_departure.destination.get().destination_start.get().name+""" - """+current_departure.destination.get().destination_check.get().name +"""
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date</strong></td>
+                        <td>"""+str(function.format_date(current_departure.departure_date,"%A %d %B  %Y")) +"""</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Time</strong></td>
+                        <td>"""+str(function.format_date(function.add_time(current_departure.schedule, current_departure.time_delay), "%H:%M")) +"""</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        """
+    else:
+        element = """<br/><br/>
+          <div class="panel-body text-center">
+            <h3>No up coming journey</h3>
+          </div>"""
+
+    return element
+
 @app.route('/search_customer_pos', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))

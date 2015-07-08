@@ -18,7 +18,7 @@
 
 
                 <ul class="nav navbar-nav navbar-left">
-                {% if current_user.has_roles(('super_admin','manager_POS')) %}
+                {% if current_user.has_roles(('super_admin','employee_POS')) %}
                     <li {% if menu == 'dashboard' %} class="active" {% endif %}><a href="{{ url_for('Dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li>
                    <!-- <li><a href="#">Boarding <span class="sr-only">(current)</span></a></li> -->
                 {% endif %}

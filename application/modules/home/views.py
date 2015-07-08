@@ -70,8 +70,14 @@ def Home():
             if user_login.agency:
                 agency = user_login.agency.get().key.id()
 
+            #implementation de l'heure local
+            time_zones = pytz.timezone('Africa/Douala')
+            date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+
             session['agence_id'] = agency
             user_login.logged = True
+            user_login.date_last_logged = function.datetime_convert(date_auto_nows)
             user_login.put()
 
             if url:
