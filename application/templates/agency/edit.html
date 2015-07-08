@@ -59,7 +59,12 @@
                                       <div class="form-group {% if form.country.errors %} has-error {% endif %} has-feedback">
                                         <label class="col-sm-3 control-label">{{ form.country.label }} :</label>
                                         <div class="col-sm-9">
-                                          {{ form.country(class_='form-control input-lg')|safe }}
+                                          <select name="country" id="" class="form-control g-select" {% if agency_id %} disabled="disabled" {% endif %}>
+                                                <option value="">Select country</option>
+                                                {% for key, val in country_agency.items() %}
+                                                    <option value="{{ key }}" {% if form.country.data == key %} selected {% endif %}>{{ val }}</option>
+                                                {% endfor %}
+                                          </select>
                                           {% for message in form.country.errors %}
                                             <span class="help-block text-danger">{{ message }}</span>
                                           {% endfor %}
@@ -70,7 +75,7 @@
                                       <div class="form-group {% if form.destination.errors %} has-error {% endif %} has-feedback">
                                         <label class="col-sm-3 control-label">{{ form.destination.label }} :</label>
                                         <div class="col-sm-9">
-                                            <select name="destination" id="" class="form-control g-select input-lg" {% if agency_id %} disabled="disabled" {% endif %}>
+                                            <select name="destination" id="" class="form-control g-select input-lg" {% if form.destination.data %} disabled="disabled" {% endif %}>
                                                 <option value="">{{ form.destination.label }}</option>
                                                 {% for dest in destagency %}
                                                     <option value="{{ dest.key.id() }}" {% if form.destination.data == dest.key or form.destination.data|int == dest.key.id() %} selected {% endif %}> {{ dest.name }}</option>

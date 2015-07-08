@@ -36,27 +36,30 @@ def Agency_Edit(agency_id=None):
 
     destagency = DestinationModel.query()
     currency = CurrencyModel.query()
+    country_agency = global_current_country
 
     if agency_id:
         agencymod = AgencyModel.get_by_id(agency_id)
         form = FormAgency(obj=agencymod)
+
+        form.country.data = agencymod.country
+        form.destination.data = agencymod.destination
     else:
         agencymod = AgencyModel()
         form = FormAgency()
 
     if form.validate_on_submit():
+
         if not agency_id:
             destsave = DestinationModel.get_by_id(int(form.destination.data))
 
         agency_exist = AgencyModel.query(
-            AgencyModel.name == form.name.data,
-            AgencyModel.is_achouka == True
+                AgencyModel.name == form.name.data,
+                AgencyModel.is_achouka == True
         ).count()
 
         if agency_exist >= 1:
-
-            if agencymod.name == form.name.data:
-
+            if agency_id and form.name.data == agencymod.name:
                 agencymod.name = form.name.data
                 agencymod.country = form.country.data
                 agencymod.phone = form.phone.data
@@ -65,14 +68,9 @@ def Agency_Edit(agency_id=None):
                 agencymod.reduction = form.reduction.data
                 if not agency_id:
                     agencymod.destination = destsave.key
-
-                try:
-                    agencymod.put()
-                    flash(u' Agency Update. ', 'success')
-                    return redirect(url_for('Agency_Index'))
-                except CapabilityDisabledError:
-                    flash(u' Error data base. ', 'danger')
-                    return redirect(url_for('Agency_Index'))
+                agencymod.put()
+                flash(u' Agency Update. ', 'success')
+                return redirect(url_for('Agency_Index'))
             else:
                 form.name.errors.append('Other Agency use this name')
         else:
@@ -85,13 +83,14 @@ def Agency_Edit(agency_id=None):
             agencymod.is_achouka = True
             if not agency_id:
                 agencymod.destination = destsave.key
-            try:
-                agencymod.put()
+
+            agencymod.put()
+            if agency_id:
+                flash(u' Agency Update. ', 'success')
+            else:
                 flash(u' Agency Save. ', 'success')
-                return redirect(url_for('Agency_Index'))
-            except CapabilityDisabledError:
-                flash(u' Error data base. ', 'danger')
-                return redirect(url_for('Agency_Index'))
+
+            return redirect(url_for('Agency_Index'))
 
     return render_template('agency/edit.html', **locals())
 

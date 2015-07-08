@@ -370,9 +370,12 @@ def Activate_User(user_id=None):
     user_status = UserModel.get_by_id(user_id)
 
     if user_status.is_enabled:
+        flash(u'User is disabled!', 'success')
         user_status.is_enabled = False
     else:
+        flash(u'User is activated!', 'success')
         user_status.is_enabled = True
+
     user_status.put()
-    flash(u'User is activated!', 'success')
+
     return redirect(url_for("User_Index"))

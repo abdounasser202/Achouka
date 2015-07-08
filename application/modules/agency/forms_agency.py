@@ -5,7 +5,7 @@ from lib.flaskext.wtf import validators
 
 class FormAgency(wtf.Form):
     name = wtf.StringField(label='Name Agency', validators=[validators.Required()])
-    country = wtf.StringField(label='Country')
+    country = wtf.StringField(label='Country', validators=[validators.Required()])
     phone = wtf.StringField(label='Phone')
     fax = wtf.StringField(label='Fax')
     address = wtf.StringField(label='Adresse')
