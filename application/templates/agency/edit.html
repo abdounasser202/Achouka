@@ -70,7 +70,7 @@
                                       <div class="form-group {% if form.destination.errors %} has-error {% endif %} has-feedback">
                                         <label class="col-sm-3 control-label">{{ form.destination.label }} :</label>
                                         <div class="col-sm-9">
-                                            <select name="destination" id="" class="form-control g-select input-lg">
+                                            <select name="destination" id="" class="form-control g-select input-lg" {% if agency_id %} disabled="disabled" {% endif %}>
                                                 <option value="">{{ form.destination.label }}</option>
                                                 {% for dest in destagency %}
                                                     <option value="{{ dest.key.id() }}" {% if form.destination.data == dest.key or form.destination.data|int == dest.key.id() %} selected {% endif %}> {{ dest.name }}</option>

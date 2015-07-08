@@ -232,7 +232,6 @@ def User_Index():
     menu='recording'
     submenu='user'
 
-
     admin_role = RoleModel.query(
         RoleModel.name == 'admin'
     ).get()
@@ -241,12 +240,14 @@ def User_Index():
         RoleModel.name == 'super_admin'
     ).get()
 
-    user_admin = UserRoleModel.query(
-        ndb.OR(
-            UserRoleModel.role_id == super_admin_role.key,
-            UserRoleModel.role_id == admin_role.key
+    user_admin = []
+    if admin_role:
+        user_admin = UserRoleModel.query(
+            ndb.OR(
+                UserRoleModel.role_id == super_admin_role.key,
+                UserRoleModel.role_id == admin_role.key
+            )
         )
-    )
 
     user_admins = [users.user_id for users in user_admin]
 

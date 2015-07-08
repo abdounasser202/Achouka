@@ -45,7 +45,8 @@ def Agency_Edit(agency_id=None):
         form = FormAgency()
 
     if form.validate_on_submit():
-        destsave = DestinationModel.get_by_id(int(form.destination.data))
+        if not agency_id:
+            destsave = DestinationModel.get_by_id(int(form.destination.data))
 
         agency_exist = AgencyModel.query(
             AgencyModel.name == form.name.data,
@@ -62,7 +63,8 @@ def Agency_Edit(agency_id=None):
                 agencymod.fax = form.fax.data
                 agencymod.address = form.address.data
                 agencymod.reduction = form.reduction.data
-                agencymod.destination = destsave.key
+                if not agency_id:
+                    agencymod.destination = destsave.key
 
                 try:
                     agencymod.put()
@@ -81,7 +83,8 @@ def Agency_Edit(agency_id=None):
             agencymod.address = form.address.data
             agencymod.reduction = form.reduction.data
             agencymod.is_achouka = True
-            agencymod.destination = destsave.key
+            if not agency_id:
+                agencymod.destination = destsave.key
             try:
                 agencymod.put()
                 flash(u' Agency Save. ', 'success')
@@ -99,21 +102,20 @@ def Agency_Edit(agency_id=None):
 def Active_Agency(agency_id):
     agencymod = AgencyModel.get_by_id(agency_id)
 
-    agency_exist = AgencyModel.query(
-        AgencyModel.is_achouka == agencymod.is_achouka,
-        AgencyModel.status == True,
-        AgencyModel.destination == agencymod.destination
-    ).count()
+    if not agencymod.status:
+        agency_exist = AgencyModel.query(
+            AgencyModel.is_achouka == agencymod.is_achouka,
+            AgencyModel.status == True,
+            AgencyModel.destination == agencymod.destination
+        ).count()
 
-    if agency_exist >= 1:
-        flash(u'you can activate agency with the same destination : '+agencymod.destination.get().name, 'danger')
-    else:
-        if not agencymod.status:
-            agencymod.status = True
+        if agency_exist >= 1:
+            flash(u'you can activate agency with the same destination : '+agencymod.destination.get().name, 'danger')
         else:
-            agencymod.status = False
+            agencymod.status = True
+    else:
+        agencymod.status = False
 
-        flash(u' Agency Update. ', 'success')
-        agencymod.put()
-
+    flash(u' Agency Update. ', 'success')
+    agencymod.put()
     return redirect(url_for('Agency_Index'))
