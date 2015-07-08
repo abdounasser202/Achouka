@@ -38,6 +38,8 @@ def Vessel_Edit(vessel_id=None):
 
         Vessel_exist = VesselModel.query(VesselModel.name == form.name.data).count()
 
+
+
         if Vessel_exist >= 1:
             if vessel.name == form.name.data:
                 vessel.name = form.name.data

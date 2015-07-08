@@ -58,6 +58,7 @@ def Agency_Edit(agency_id=None):
                 AgencyModel.is_achouka == True
         ).count()
 
+
         if agency_exist >= 1:
             if agency_id and form.name.data == agencymod.name:
                 agencymod.name = form.name.data
