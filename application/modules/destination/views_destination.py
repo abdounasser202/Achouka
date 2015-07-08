@@ -66,7 +66,7 @@ def Destination_Edit(destination_id=None):
         destination = DestinationModel()
         agency_destination_exist = 0
         travel_destination_check_exist = 0
-        travel_destination_check_exist = 0
+        travel_destination_start_exist = 0
         transaction_destination_exist = 0
 
     if form.validate_on_submit():
