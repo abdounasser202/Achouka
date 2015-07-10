@@ -22,7 +22,7 @@
 
                             },
                             toolTip:{
-                              shared:true,
+                              shared:true
                             },
                             theme: "theme2",
                             axisY: {
@@ -108,43 +108,124 @@
                       <h1  style='margin: 0;'>{{ current_user.first_name }} {{ current_user.last_name }}, welcome to your <small>DASHBOARD</small> </h1>
                     </div>
                     <br/>
-                           <div class="row">
-                               <div class="col-lg-12">
-                                    <div class="panel panel-default">
-                                      <div class="panel-body">
-                                        <div id="chartContainer_GB" style="height: 300px; width: 100%;"> </div>
-                                      </div>
-                                    </div>
-                               </div>
-                           </div>
                     <div class="row">
-                        <div class="col-lg-12">
-                            <table class="table table-bordered">
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <h4>Monthly sales</h4>
-                                    </td>
-                                    <td>
-                                        <h4>Monthly sales</h4>
-                                    </td>
-                                    <td>
-                                        <h4>New Customer</h4>
-                                    </td>
-                                    <td>
-                                        <h4>Class</h4>
-                                    </td>
-                                    <td>
-                                        <h4>Class</h4>
-                                    </td>
-                                    <td>
-                                        <h4>Class</h4>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                       <div class="col-lg-12">
+                            <div class="panel panel-pos panel-default">
+                              <div class="panel-body">
+                                <div id="chartContainer_GB" style="height: 300px; width: 100%;"> </div>
+                              </div>
+                            </div>
+                       </div>
+                    </div>
+                    <hr/>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="panel panel-pos panel-default panel-dashboard">
+                              <div class="panel-heading text-center">
+                                    <h4 style="font-weight: bold;">Monthly Sales (amount)</h4>
+                              </div>
+                              <div class="panel-body">
+                                <ul class="nav nav-pills nav-stacked">
+                                    {% for country in ticket_sale_groupe %}
+                                      <li style="border-bottom: 2px solid #eee;">
+                                          <a>
+                                            <span class="badge pull-right label label-default">{{ country['price']|format_price() }} {{ country['currency'] }}</span>
+                                            {{ country['country'] }}
+                                          </a>
+                                      </li>
+                                    {% endfor %}
+                                </ul>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="panel panel-pos panel-default panel-dashboard">
+                              <div class="panel-heading text-center">
+                                    <h4 style="font-weight: bold;">Monthly Sales (tickets)</h4>
+                              </div>
+                              <div class="panel-body">
+                                <ul class="nav nav-pills nav-stacked">
+                                    {% for country in ticket_sale_groupe %}
+                                      <li style="border-bottom: 2px solid #eee;">
+                                          <a>
+                                            <span class="badge pull-right label label-default">{{ country['number'] }}</span>
+                                            {{ country['country'] }}
+                                          </a>
+                                      </li>
+                                    {% endfor %}
+                                </ul>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="panel panel-pos panel-default panel-dashboard">
+                              <div class="panel-heading text-center">
+                                <h4 style="font-weight: bold;">Customers</h4>
+                              </div>
+                              <div class="panel-body">
+                                <ul class="nav nav-pills nav-stacked">
+                                      <li style="border-bottom: 2px solid #eee;">
+                                          <a>
+                                            <span class="badge pull-right label label-default">{{ new_customer }}</span>
+                                            New Customer
+                                          </a>
+                                      </li>
+                                      <li style="border-bottom: 2px solid #eee;">
+                                          <a>
+                                            <span class="badge pull-right label label-default">{{ old_customer }}</span>
+                                            Old Customer
+                                          </a>
+                                      </li>
+                                      <li style="border-bottom: 2px solid #eee;">
+                                          <a>
+                                            <span class="badge pull-right label label-default">{{ all_customer }}</span>
+                                            All Customer
+                                          </a>
+                                      </li>
+                                </ul>
+                              </div>
+                            </div>
                         </div>
                     </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                             <h3 class="panel-title">LIVE FEED</h3>
+                            </div>
+                          <div class="panel-body">
+                            Basic panel example
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                            <div class="panel panel-pos panel-default panel-dashboard">
+                              <div class="panel-heading text-center">
+                                <h4  style="font-weight: bold;">Ticket Sold</h4>
+                              </div>
+                              <div class="panel-body">
+                                <table class="table table-condensed">
+                                    {% for class_ticket in class_ticket_sold  %}
+                                    <tr>
+                                      <td>{{ class_ticket['country'] }}</td>
+                                      <td>
+                                          <ul class="nav nav-pills nav-stacked">
+                                              {% for class in class_ticket['class_query']  %}
+                                                 <li style="border-bottom: 2px solid #eee;">
+                                                     <span class="badge pull-right label label-default">{{ class['numbers'] }}</span>
+                                                     {{ class['classes'] }}
+                                                 </li>
+                                              {% endfor %}
+                                          </ul>
+                                        </td>
+                                    </tr>
+                                  {% endfor %}
+                                </table>
+                              </div>
+                            </div>
+
+                    </div>
+                </div>
 
                 </section>
             </div>

@@ -201,6 +201,73 @@ def Dashboard():
             temp_dict['price'] += item['price']
         ticket_sale_cm_ngn.append(temp_dict)
 
+
+    # TRAITEMENT DES STATISTIQUES DES VENTES PAR MOIR ET PAR PAYS
+    month_current = function.datetime_convert(date_auto_nows).month
+
+    ticket_sale_groupe_tab = []
+    for agency in all_agency:
+        ticket_agency = TicketModel.query(
+            TicketModel.agency == agency.key,
+            TicketModel.selling == True
+        )
+        for ticket in ticket_agency:
+            if function.datetime_convert(ticket.date_reservation).month == month_current:
+                tickets = {}
+                tickets['country'] = agency.country
+                tickets['price'] = ticket.sellprice
+                tickets['number'] = 1
+                tickets['currency'] = ticket.sellpriceCurrency.get().code
+                ticket_sale_groupe_tab.append(tickets)
+
+    groupers = itemgetter("country", "currency")
+    ticket_sale_groupe = []
+    for key, grp in groupby(sorted(ticket_sale_groupe_tab, key=groupers), groupers):
+        temp_dict = dict(zip(["country", "currency"], key))
+        temp_dict['price'] = 0
+        temp_dict['number'] = 0
+        for item in grp:
+            temp_dict['price'] += item['price']
+            temp_dict['number'] += item['number']
+        ticket_sale_groupe.append(temp_dict)
+
+    #TRAITEMENT DES STATISTIQUES DU NOMBRE DE CLIENT
+    from ..customer.models_customer import CustomerModel
+    all_customer = CustomerModel.query().count()
+    old_customer = CustomerModel.query(
+        CustomerModel.is_new == False
+    ).count()
+    new_customer = CustomerModel.query(
+        CustomerModel.is_new == True
+    ).count()
+
+    #TRAITEMENT DES TICKETS VENDUS PAR CLASSE
+    class_ticket_sold_tab = []
+    for agency in all_agency:
+        ticket_agency = TicketModel.query(
+            TicketModel.agency == agency.key,
+            TicketModel.selling == True
+        )
+        for ticket in ticket_agency:
+            tickets = {}
+            tickets['country'] = agency.country
+            tickets['class'] = ticket.class_name.get().name
+            tickets['number'] = 1
+            class_ticket_sold_tab.append(tickets)
+
+    groupers = itemgetter("country", "number")
+    class_ticket_sold = []
+
+    for key, grp in groupby(sorted(class_ticket_sold_tab, key=groupers), groupers):
+        temp_dict = dict(zip(["country", "number"], key))
+        temp_dict['class_query'] = []
+        temp = {'numbers': 0}
+        for item in grp:
+            temp['numbers'] += 1
+            temp['classes'] = item['class']
+        temp_dict['class_query'].append(temp)
+        class_ticket_sold.append(temp_dict)
+
     return render_template('/index/dashboard.html', **locals())
 
 

@@ -217,6 +217,17 @@ section {
   padding: 10px;
 }
 
+
+.panel-dashboard{
+    border-color: #F08080 ;
+}
+
+.panel-dashboard .panel-heading {
+  color: #000;
+  background-color: #f0dad9;
+  border-color: #F08080;
+}
+
 select.input-sm {
     height: 30px !important;
     line-height: 27px !important;

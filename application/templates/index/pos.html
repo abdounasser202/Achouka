@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="panel panel-info">
                                   <div class="panel-heading text-center">CURRENT JOURNEY</div>
-                                      <div id="current_departure">
+                                      <div id="current_departure" class="update">
                                         <br/><br/>
                                         {% if current_departure %}
                                             <span id="current_departure_start" class="hidden">{{ current_departure.destination.get().destination_start.get().key.id() }}</span>
@@ -177,6 +177,7 @@
                 });
 
                 $.when(ajax1, ajax2).done(function(rq1, rq2){
+                    $('#current_departure').removeClass('update');
                     $('#current_departure').html('');
                     $('#current_departure').html(rq1[0]);
                     $('#current_departure').parent().children('.panel-heading').text('CALENDAR DEPARTURE');

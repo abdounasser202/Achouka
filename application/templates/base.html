@@ -29,6 +29,7 @@
                 count : 0,
                 maxCount : 10,
                 object_count: 0,
+                depart:0,
                 interval : null,
                 //Initialize
                 init : function(compteur){
@@ -46,13 +47,21 @@
                             });
                         {% endif %}
 
-                        {% if menu == "pos" or menu == "boarding" %}
-                            var url = "{{ url_for('reset_current_departure') }}";
-                            $.get(url, function(data) {
-                                $('#current_departure').html(data);
-                                this.object_count = 1
-                            });
+                        {% if not departure_id %}
+                            {% if menu == "pos" or menu == "boarding" %}
+                                var url = "{{ url_for('reset_current_departure') }}";
+                                $.get(url, function(data) {
+                                    $('#current_departure.update').html(data);
+                                    this.object_count = 1
+                                });
+                            {% endif %}
+                        {% else %}
+                            if (this.depart == 12){
+                                window.location.replace(window.location.origin+"{{ url_for('Pos') }}")
+                            }
+                            this.depart++;
                         {% endif %}
+
                         this.count = 0
 
                     }

@@ -14,4 +14,5 @@ class CustomerModel(ndb.Model):
     phone = ndb.StringProperty()
     dial_code = ndb.StringProperty()
     email = ndb.StringProperty()
+    is_new = ndb.BooleanProperty(default=True)
     status = ndb.BooleanProperty(default=True)
