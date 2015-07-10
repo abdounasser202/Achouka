@@ -25,6 +25,10 @@ def set_session():
 @app.route('/', methods=['POST', 'GET'])
 def Home():
 
+    from ..activity.models_activity import ActivityModel
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     if 'user_id' in session:
         return redirect(url_for('Dashboard'))
 
@@ -78,7 +82,14 @@ def Home():
             session['agence_id'] = agency
             user_login.logged = True
             user_login.date_last_logged = function.datetime_convert(date_auto_nows)
-            user_login.put()
+            this_login = user_login.put()
+
+            activity = ActivityModel()
+            activity.object = "UserLogin"
+            activity.time = function.datetime_convert(date_auto_nows)
+            activity.identity = this_login.id()
+            activity.nature = 1
+            activity.put()
 
             if url:
                 return redirect(url)
