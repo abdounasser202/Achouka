@@ -66,6 +66,13 @@ class TicketModel(TicketPoly):
 
         return new_price
 
+    def answer_question(self):
+        answer = TicketQuestion.query(
+            TicketQuestion.ticket_id == self.key
+        )
+
+        return answer
+
 
 class TicketParent(TicketPoly): #TICKET VIRTUEL GENERE PAR UN TICKET ALLE ET RETOUR. IL N'EST PAS COMPTABILISE
     parent = ndb.KeyProperty(kind=TicketModel)

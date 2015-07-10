@@ -46,15 +46,15 @@
                             });
                         {% endif %}
 
-                        {% if menu == "pos" and menu == "boarding" %}
+                        {% if menu == "pos" or menu == "boarding" %}
                             var url = "{{ url_for('reset_current_departure') }}";
                             $.get(url, function(data) {
                                 $('#current_departure').html(data);
-
+                                this.object_count = 1
                             });
                         {% endif %}
                         this.count = 0
-                        this.object_count = 1
+
                     }
 
                     if(this.count == 0 && this.object_count == 1){
@@ -105,9 +105,9 @@
                     counter = {
                             $element : null,
                             count : 0,
-                            maxCount : 300,
-                            middleCount: 270,
-                            minCount: 30,
+                            maxCount : 1200,
+                            middleCount: 1140,
+                            minCount: 60,
                             interval : null,
                             //Initialize
                             init : function(compteur){

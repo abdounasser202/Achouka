@@ -59,7 +59,7 @@
                                       <div class="form-group {% if form.country.errors %} has-error {% endif %} has-feedback">
                                         <label class="col-sm-3 control-label">{{ form.country.label }} :</label>
                                         <div class="col-sm-9">
-                                          <select name="country" id="" class="form-control g-select" {% if agency_id %} disabled="disabled" {% endif %}>
+                                          <select name="country" id="" class="form-control g-select" {% if form.country.data %} disabled="disabled" {% endif %}>
                                                 <option value="">Select country</option>
                                                 {% for key, val in country_agency.items() %}
                                                     <option value="{{ key }}" {% if form.country.data == key %} selected {% endif %}>{{ val }}</option>

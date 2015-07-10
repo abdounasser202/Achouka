@@ -29,7 +29,7 @@
                                           <div class="form-group {% if form.destination_start.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-5 control-label">{{ form.destination_start.label }} :</label>
                                             <div class="col-sm-7">
-                                                <select name="destination_start" id="" class="form-control g-select">
+                                                <select name="destination_start" id="" class="form-control g-select" {% if form.destination_start.data %} disabled="disabled" {% endif %}>
                                                     <option value="">{{ form.destination_start.label }}</option>
                                                     {% for destitravel in destitravel %}
                                                         <option value="{{ destitravel.key.id() }}" {% if form.destination_start.data == destitravel.key or form.destination_start.data|int == destitravel.key.id() %} selected {% endif %}>{{ destitravel.name }}</option>
@@ -44,7 +44,7 @@
                                           <div class="form-group {% if form.destination_check.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-5 control-label">{{ form.destination_check.label }} :</label>
                                             <div class="col-sm-7">
-                                                <select name="destination_check" id="" class="form-control g-select">
+                                                <select name="destination_check" id="" class="form-control g-select" {% if form.destination_check.data %} disabled="disabled" {% endif %}>
                                                     <option value="">{{ form.destination_check.label }}</option>
                                                     {% for destitravel in destitravel %}
                                                         <option value="{{ destitravel.key.id() }}" {% if form.destination_check.data == destitravel.key or form.destination_check.data|int == destitravel.key.id() %} selected {% endif %}>{{ destitravel.name }}</option>

@@ -111,6 +111,95 @@ def logout_user():
 @login_required
 def Dashboard():
     menu = 'dashboard'
+    from ..ticket.models_ticket import AgencyModel, TicketModel
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    #TRAITEMENT DU TRAFIC GABON
+    all_agency = AgencyModel.query()
+
+    the_ticket_agency_gabon = []
+    the_ticket_agency_cm_ngn = []
+
+    time_minus_14days = datetime.datetime.now(time_zones) - datetime.timedelta(days=14)
+    time_minus_14days = time_minus_14days.strftime("%Y-%m-%d %H:%M:%S")
+
+    for agency in all_agency:
+        ticket_agency = TicketModel.query(
+            TicketModel.agency == agency.key,
+            TicketModel.selling == True,
+            TicketModel.date_reservation <= function.datetime_convert(date_auto_nows),
+            TicketModel.date_reservation > function.datetime_convert(time_minus_14days)
+        )
+
+        for ticket in ticket_agency:
+            if ticket.travel_ticket.get().destination_start == agency.destination and agency.country == 'GB':
+                tickets = {}
+                tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
+                tickets['departure'] = ticket.departure
+                tickets['departure_start'] = ticket.departure.get().destination.get().destination_start.get().name
+                tickets['departure_check'] = ticket.departure.get().destination.get().destination_check.get().name
+                tickets['heure'] = function.format_date(function.add_time(ticket.departure.get().schedule, ticket.departure.get().time_delay), "%H:%M:%S")
+                tickets['price'] = ticket.sellprice
+                tickets['currency'] = ticket.sellpriceCurrency.get().code
+                the_ticket_agency_gabon.append(tickets)
+            else:
+                tickets = {}
+                tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
+                tickets['departure'] = '11111111111'
+                tickets['departure_start'] = "No destination start"
+                tickets['departure_check'] = "No destination check"
+                tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
+                tickets['price'] = 0
+                tickets['currency'] = agency.destination.get().currency.get().code
+                the_ticket_agency_gabon.append(tickets)
+
+        for ticket in ticket_agency:
+            if ticket.travel_ticket.get().destination_start == agency.destination and (agency.country == 'CM' or agency.country == 'NGN'):
+                tickets = {}
+                tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
+                tickets['departure'] = ticket.departure
+                tickets['departure_start'] = ticket.departure.get().destination.get().destination_start.get().name
+                tickets['departure_check'] = ticket.departure.get().destination.get().destination_check.get().name
+                tickets['heure'] = function.format_date(function.add_time(ticket.departure.get().schedule, ticket.departure.get().time_delay), "%H:%M:%S")
+                tickets['price'] = ticket.sellprice
+                tickets['currency'] = ticket.sellpriceCurrency.get().code
+                the_ticket_agency_cm_ngn.append(tickets)
+            else:
+                tickets = {}
+                tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
+                tickets['departure'] = '11111111111'
+                tickets['departure_start'] = "No destination start"
+                tickets['departure_check'] = "No destination check"
+                tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
+                tickets['price'] = 0
+                tickets['currency'] = agency.destination.get().currency.get().code
+                the_ticket_agency_cm_ngn.append(tickets)
+
+
+    grouper = itemgetter("date", "heure", "departure", "currency")
+
+    ticket_sale_gabon = []
+    for key, grp in groupby(sorted(the_ticket_agency_gabon, key=grouper), grouper):
+        temp_dict = dict(zip(["date", "heure", "departure", "currency"], key))
+        temp_dict['price'] = 0
+        for item in grp:
+            temp_dict['departure_start'] = item['departure_start']
+            temp_dict['departure_check'] = item['departure_check']
+            temp_dict['price'] += item['price']
+        ticket_sale_gabon.append(temp_dict)
+
+    ticket_sale_cm_ngn = []
+    for key, grp in groupby(sorted(the_ticket_agency_cm_ngn, key=grouper), grouper):
+        temp_dict = dict(zip(["date", "heure", "departure", "currency"], key))
+        temp_dict['price'] = 0
+        for item in grp:
+            temp_dict['departure_start'] = item['departure_start']
+            temp_dict['departure_check'] = item['departure_check']
+            temp_dict['price'] += item['price']
+        ticket_sale_cm_ngn.append(temp_dict)
 
     return render_template('/index/dashboard.html', **locals())
 

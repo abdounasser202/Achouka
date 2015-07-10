@@ -96,6 +96,8 @@ def Departure_Edit(departure_id=None):
         departmod = DepartureModel.get_by_id(departure_id)
         form = FormDeparture(obj=departmod)
 
+        form.destination.data = departmod.destination
+
         if departmod.reserved():
             flash('You update departure reserved', 'danger')
             return redirect(url_for('Departure_Index'))

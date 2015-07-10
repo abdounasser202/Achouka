@@ -37,6 +37,9 @@ def Travel_Edit(travel_id=None):
     if travel_id:
         travelmod = TravelModel.get_by_id(travel_id)
         form = FormTravel(obj=travelmod)
+
+        form.destination_start.data = travelmod.destination_start
+        form.destination_check.data = travelmod.destination_check
     else:
         travelmod = TravelModel()
         form = FormTravel(request.form)

@@ -119,6 +119,13 @@ indexes:
 
 - kind: TicketPoly
   properties:
+  - name: agency
+  - name: class
+  - name: selling
+  - name: date_reservation
+
+- kind: TicketPoly
+  properties:
   - name: class
   - name: datecreate
 
