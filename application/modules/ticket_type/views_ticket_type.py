@@ -30,6 +30,11 @@ def TicketType_Edit(tickettype_id=None):
     menu = 'settings'
     submenu = 'tickettype'
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     #liste des voyages
     listTravel = TravelModel.query().order(TravelModel.destination_start)
 
@@ -80,13 +85,23 @@ def TicketType_Edit(tickettype_id=None):
         tickettype.price = form.price.data
         tickettype.travel = travel.key
 
-        try:
-            tickettype.put()
-            flash(u' Ticket  Type  Save. ', 'success')
-            return redirect(url_for('TicketType_Index'))
-        except CapabilityDisabledError:
-            flash(u' Error data base. ', 'danger')
-            return redirect(url_for('TicketType_Edit'))
+        this_ticket = tickettype.put()
+
+        activity = ActivityModel()
+        activity.user_modify = current_user.key
+        activity.identity = this_ticket.id()
+        activity.object = "TicketTypeModel"
+        activity.time = function.datetime_convert(date_auto_nows)
+
+        if tickettype_id:
+            activity.nature = 4
+            flash(u' Ticket Type Updated!', 'success')
+        else:
+            activity.nature = 1
+            flash(u' Ticket Type Saved!', 'success')
+        activity.put()
+
+        return redirect(url_for('TicketType_Index'))
 
     return render_template('/tickettype/edit.html', **locals())
 
@@ -97,6 +112,17 @@ def TicketType_Edit(tickettype_id=None):
 def Active_tickettype(tickettype_id):
 
     tickettype_active = TicketTypeModel.get_by_id(tickettype_id)
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = tickettype_active.key.id()
+    activity.object = "TicketTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     if not tickettype_active.active:
         tickettype_exit = TicketTypeModel.query(
@@ -112,10 +138,13 @@ def Active_tickettype(tickettype_id):
                   +', Type  = '+str(tickettype_active.type_name)+' and Journey = '
                   +str(tickettype_active.journey_name)+'from '+str(tickettype_active.travel.get().destination_start.get().name)+" to "+str(tickettype_active.travel.get().destination_check.get().name)+" is activated", 'danger')
         else:
+            activity.nature = 5
             tickettype_active.active = True
     else:
+        activity.nature = 2
         tickettype_active.active = False
 
+    activity.put()
     tickettype_active.put()
     return redirect(url_for('TicketType_Index'))
 
@@ -123,9 +152,24 @@ def Active_tickettype(tickettype_id):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def delete_tickettype(tickettype_id):
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     #recuperer la cle de la devise equivalence
     TicketType_delete = TicketTypeModel.get_by_id(tickettype_id)
-    flash(u' Ticket Type deleted. ' + TicketType_delete.name, 'success')
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = TicketType_delete.key.id()
+    activity.object = "TicketTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.nature = 3
+    activity.put()
+
+    flash(u'Ticket Type Deleted: ' + TicketType_delete.name, 'success')
     TicketType_delete.key.delete()
     return redirect(url_for('TicketType_Index'))
 
@@ -204,6 +248,11 @@ def ClassType_Index(class_type_id=None):
     menu = 'settings'
     submenu = 'tickettype'
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     if class_type_id:
         class_type = ClassTypeModel.get_by_id(class_type_id)
         form = FormClassType(obj=class_type)
@@ -219,11 +268,22 @@ def ClassType_Index(class_type_id=None):
         else:
             class_type.name = form.name.data
             class_type.put()
+
+            activity = ActivityModel()
+            activity.user_modify = current_user.key
+            activity.identity = class_type.key.id()
+            activity.object = "ClassTypeModel"
+            activity.time = function.datetime_convert(date_auto_nows)
+
             if class_type_id:
+                activity.nature = 4
                 flash(u"Class Type Updated!", "success")
+
             else:
+                activity.nature = 1
                 flash(u"Class Type Saved!", "success")
 
+            activity.put()
             return redirect(url_for('ClassType_Index'))
 
     class_type_list = ClassTypeModel.query()
@@ -237,19 +297,36 @@ def ClassType_Default(class_type_id):
 
     class_type = ClassTypeModel.get_by_id(class_type_id)
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = class_type.key.id()
+    activity.object = "ClassTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     if not class_type.default:
         journey_default_exist = ClassTypeModel.query(
             ClassTypeModel.default == True
         ).count()
+
         if journey_default_exist >= 1:
             flash(u"you can not define two class type as a criterion 'is default'!", "danger")
         else:
+            activity.nature = 6
             flash(u"Journey Updated!", "success")
             class_type.default = True
+
     else:
+        activity.nature = 7
         flash(u"Journey Updated!", "success")
         class_type.default = False
+
     class_type.put()
+    activity.put()
     return redirect(url_for('ClassType_Index'))
 
 
@@ -257,6 +334,11 @@ def ClassType_Default(class_type_id):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def ClassType_Delete(class_type_id):
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     class_delete = ClassTypeModel.get_by_id(class_type_id)
 
@@ -272,6 +354,14 @@ def ClassType_Delete(class_type_id):
     if class_ticket_type_exist >= 1 or class_ticket_exist >= 1:
         flash(u"You can't delete this class"+class_delete.name+u" it's used by ticket type and some ticket!", "danger")
         return redirect(url_for('ClassType_Index'))
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = class_delete.key.id()
+    activity.object = "ClassTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.nature = 3
+    activity.put()
 
     class_delete.key.delete()
     flash(u"Class Type has been deleted successfully!", "success")
@@ -292,6 +382,11 @@ def JourneyType_Index(journey_type_id=None):
     menu = 'settings'
     submenu = 'tickettype'
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     if journey_type_id:
         journey_type = JourneyTypeModel.get_by_id(journey_type_id)
         form = FormJourneyType(obj=journey_type)
@@ -310,11 +405,22 @@ def JourneyType_Index(journey_type_id=None):
             else:
                 journey_type.name = form.name.data
                 journey_type.put()
+
+                activity = ActivityModel()
+                activity.user_modify = current_user.key
+                activity.identity = journey_type.key.id()
+                activity.object = "ClassTypeModel"
+                activity.time = function.datetime_convert(date_auto_nows)
+
                 if journey_type_id:
+                    activity.nature = 4
                     flash(u"Journey Updated!", "success")
+
                 else:
+                    activity.nature = 1
                     flash(u"Journey Saved!", "success")
 
+                activity.put()
                 return redirect(url_for('JourneyType_Index'))
         else:
             flash(u"You can not create more than two journey!", "danger")
@@ -331,19 +437,35 @@ def JourneyType_Default(journey_type_id):
 
     journey_type = JourneyTypeModel.get_by_id(journey_type_id)
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = journey_type.key.id()
+    activity.object = "JourneyTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     if not journey_type.default:
         journey_default_exist = JourneyTypeModel.query(
             JourneyTypeModel.default == True
         ).count()
+
         if journey_default_exist >= 1:
             flash(u"you can not define two type of ticket as a criterion 'is default'!", "danger")
         else:
+            activity.nature = 6
             flash(u"Journey Updated!", "success")
             journey_type.default = True
     else:
-        flash(u"Journey Updated!", "success")
+        activity.nature = 7
+        flash(u"Journey Saved!", "success")
         journey_type.default = False
+
     journey_type.put()
+    activity.put()
 
     return redirect(url_for('JourneyType_Index'))
 
@@ -410,6 +532,19 @@ def JourneyType_Delete(journey_type_id):
         flash(u"You can't delete this journey :"+journey_delete.name+u" it's used by ticket type and some ticket!!", "danger")
         return redirect(url_for('JourneyType_Index'))
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.identity = journey_delete.key.id()
+    activity.object = "JourneyTypeModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.nature = 3
+    activity.put()
+
     journey_delete.key.delete()
     flash(u"Journey Type has been deleted successfully!", "success")
     return redirect(url_for('JourneyType_Index'))
@@ -428,6 +563,11 @@ def JourneyType_Delete(journey_type_id):
 def Ticket_Type_Name_Index(ticket_type_name_id=None):
     menu = 'settings'
     submenu = 'tickettype'
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     if ticket_type_name_id:
         tickets = TicketTypeNameModel.get_by_id(ticket_type_name_id)
@@ -449,14 +589,26 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
         else:
             tickets.name = form.name.data
 
+            activity = ActivityModel()
+
+            activity.user_modify = current_user.key
+            activity.object = "TicketTypeNameModel"
+            activity.time = function.datetime_convert(date_auto_nows)
+
             if number_ticket_normal >= 2:
                 tickets.special = True
 
-            tickets.put()
+            this_ticket = tickets.put()
             if ticket_type_name_id:
+                activity.nature = 4
                 flash(u"Ticket Type Name Updated!", "success")
+
             else:
+                activity.nature = 1
                 flash(u"Ticket Type Name Saved!", "success")
+
+            activity.identity = this_ticket.id()
+            activity.put()
             return redirect(url_for('Ticket_Type_Name_Index'))
 
 
@@ -493,22 +645,36 @@ def Ticket_Type_Name_Child(ticket_type_name_id):
 def Ticket_Type_Name_Default(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "TicketTypeNameModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.identity = ticket.key.id()
 
     if not ticket.default:
         is_default_exist = TicketTypeNameModel.query(
             TicketTypeNameModel.default == True,
             TicketTypeNameModel.key != ticket.key
         ).count()
+
         if is_default_exist >= 1:
             flash(u"you can not define two type of ticket as a criterion 'is default'!", "danger")
         else:
+            activity.nature = 6
             flash(u"Ticket Type Name Updated!", "success")
             ticket.default = True
     else:
+        activity.nature = 7
         flash(u"Ticket Type Name Updated!", "success")
         ticket.default = False
 
     ticket.put()
+    activity.put()
     return redirect(url_for("Ticket_Type_Name_Index"))
 
 
@@ -519,6 +685,19 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
 
+    ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "TicketTypeNameModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.identity = ticket.key.id()
+
     if ticket.special:
         number_ticket_normal = TicketTypeNameModel.query(
             TicketTypeNameModel.special == False
@@ -526,12 +705,15 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
         if number_ticket_normal >= 2:
             flash(u"You can not activate more than two normal ticket type", "danger")
         else:
+            activity.nature = 9
             flash(u"Ticket Type Name Updated!", "success")
             ticket.special = False
     else:
+        activity.nature = 8
         flash(u"Ticket Type Name Updated!", "success")
         ticket.special = True
 
+    activity.put()
     ticket.put()
     return redirect(url_for("Ticket_Type_Name_Index"))
 
@@ -540,6 +722,12 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def Delete_Ticket_Type_Name(ticket_type_name_id):
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     delete_ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
     # On verifiera si le TicketTypeName est utilisee
 
@@ -555,6 +743,14 @@ def Delete_Ticket_Type_Name(ticket_type_name_id):
     if ticket_type_name_ticket_exist >= 1 or ticket_type_name_ticket_type_exist >= 1:
         flash(u"You can't delete this ticket type name :"+delete_ticket.name+u" it's used by ticket type and some ticket!!", "danger")
         return redirect(url_for("Ticket_Type_Name_Index"))
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "TicketTypeNameModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.identity = delete_ticket.key.id()
+    activity.nature = 3
+    activity.put()
 
     # Si oui il ne sera pas supprime
     delete_ticket.key.delete()

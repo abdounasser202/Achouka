@@ -29,6 +29,16 @@ def Customer_Edit(customer_id=None):
     menu = 'recording'
     submenu = 'customer'
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "DepartureModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     number_list = global_dial_code_custom
     nationalList = global_nationality_contry
 
@@ -66,7 +76,18 @@ def Customer_Edit(customer_id=None):
             customer.dial_code = form.dial_code.data
 
             custom = customer.put()
-            flash(u' Customer save. ', 'success')
+
+            if customer_id:
+                activity.identity = custom.id()
+                activity.nature = 4
+                activity.put()
+                flash(u'Customer Updated!', 'success')
+            else:
+                activity.identity = custom.id()
+                activity.nature = 1
+                activity.put()
+                flash(u'Customer Saved!', 'success')
+
             return redirect(url_for('Customer_Index'))
 
     return render_template('customer/edit.html', **locals())

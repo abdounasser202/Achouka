@@ -2,16 +2,16 @@ __author__ = 'bapetel'
 
 """
 La nature d'une modification peut etre:
-    creation ou enregistrement 1
-    desactivation 2
-    suppression 3
-    modification 4
-    activation 5
-    is_default 6
-    is_not_default 7
-    is_special 8
-    is_not_special 9
-    ancienne_valeur 0
+    1: creation ou enregistrement
+    2: desactivation
+    3: suppression
+    4: modification sans stockage de l'ancienne valeur
+    5: activation
+    6: is_default
+    7: is_not_default
+    8: is_special
+    9: is_not_special
+    0: modification avec stockage de l'ancienne valeur dans ActivityModel.object
 """
 
 from google.appengine.ext import ndb
@@ -24,3 +24,4 @@ class ActivityModel(ndb.Model):
     object = ndb.StringProperty() # type objet qui a ete modifie par exemple vessel
     identity = ndb.IntegerProperty() # id() de l'objet qui a ete modifie
     time = ndb.DateTimeProperty() # date de la modification
+    last_value = ndb.StringProperty() # stocke l'ancienne valeur

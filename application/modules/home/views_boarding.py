@@ -59,19 +59,19 @@ def Search_Ticket_Boarding(ticket_id=None):
     if len(number_ticket) < 16:
         ticket_sold = TicketPoly.query(
             TicketPoly.selling == True,
-            TicketModel.statusValid == True,
-            TicketModel.is_boarding == False,
-            TicketModel.departure == departure_id.key
+            TicketPoly.statusValid == True,
+            TicketPoly.is_boarding == False,
+            TicketPoly.departure == departure_id.key
         )
     else:
-        ticket = TicketModel.get_by_id(int(number_ticket))
+        ticket = TicketPoly.get_by_id(int(number_ticket))
 
         ticket_count = TicketPoly.query(
-            TicketModel.key == ticket.key,
+            TicketPoly.key == ticket.key,
             TicketPoly.selling == True,
-            TicketModel.statusValid == True,
-            TicketModel.is_boarding == False,
-            TicketModel.departure == departure_id.key
+            TicketPoly.statusValid == True,
+            TicketPoly.is_boarding == False,
+            TicketPoly.departure == departure_id.key
         ).count()
 
         if ticket_count:
@@ -96,9 +96,14 @@ def Search_Ticket_Boarding(ticket_id=None):
 @roles_required(('employee_Boarding', 'super_admin'))
 def Update_Ticket_For_Boarding(ticket_id):
 
-    ticket = TicketModel.get_by_id(ticket_id)
+    ticket = TicketPoly.get_by_id(ticket_id)
 
     question_request = request.form.getlist('questions')
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     #liste des questions
     questions = QuestionModel.query(
@@ -156,7 +161,15 @@ def Update_Ticket_For_Boarding(ticket_id):
         ticket.is_boarding = True
         if not ticket.journey_name.get().returned and not ticket.is_return:
             ticket.statusValid = False
-        ticket.put()
+        this_ticket = ticket.put()
+
+        activity = ActivityModel()
+        activity.user_modify = current_user.key
+        activity.object = "TicketPoly"
+        activity.time = function.datetime_convert(date_auto_nows)
+        activity.identity = this_ticket.id()
+        activity.nature = 4
+        activity.put()
 
         modal = 'true'
 
