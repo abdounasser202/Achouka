@@ -117,6 +117,11 @@ def User_Admin_Index():
 def User_Admin_Edit(user_id=None):
     menu='settings'
     submenu ='user_admin'
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
     
     number_list = global_dial_code_custom
 
@@ -143,6 +148,11 @@ def User_Admin_Edit(user_id=None):
     else:
         form = FormRegisterUserAdmin(request.form)
         User = UserModel()
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "UserModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     if form.validate_on_submit():
 
@@ -194,9 +204,17 @@ def User_Admin_Edit(user_id=None):
 
                 UserCreate.profil = profil.profil_id #profil pour les comptes admins
                 UserCreate.put()
+
             if user_id:
+                activity.identity = user_id
+                activity.nature = 4
+                activity.put()
                 flash('User Updated', 'success')
+
             else:
+                activity.identity = UserCreate.key.id()
+                activity.nature = 1
+                activity.put()
                 flash('User Created', 'success')
 
             return redirect(url_for('User_Admin_Index'))
@@ -214,13 +232,30 @@ def User_Admin_Edit(user_id=None):
 @login_required
 @roles_required(('super_admin', 'admin'))
 def activate_user_admin(user_id=None):
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "UserModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     user_status = UserModel.get_by_id(user_id)
 
     if user_status.is_enabled:
         user_status.is_enabled = False
+        activity.nature = 2
     else:
         user_status.is_enabled = True
+        activity.nature = 5
+
     user_status.put()
+
+    activity.identity = user_status.key.id()
+    activity.put()
+
     flash(u'Admin is activated!', 'success')
     return redirect(url_for("User_Admin_Index"))
 

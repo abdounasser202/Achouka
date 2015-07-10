@@ -57,7 +57,7 @@ def Currency_Edit(currency_id=None):
 
         if code_exist >= 1: # si le code existe on peut modifier la devise
 
-            if currency.code == form.code.data:
+            if currency.code == form.code.data and currency_id:
                 currency.code = form.code.data
                 currency.name = form.name.data
 
@@ -65,15 +65,15 @@ def Currency_Edit(currency_id=None):
                     devise = currency.put()
 
                     # enregistrement de l'activite de modification du currency
-                    currency_activity_modification = ActivityModel()
-                    currency_activity_modification.user_modify = current_user.key
-                    currency_activity_modification.identity = devise.id()
-                    currency_activity_modification.nature = 4
-                    currency_activity_modification.object = "currency"
-                    currency_activity_modification.time = function.datetime_convert(date_auto_nows)
-                    currency_activity_modification.put()
+                    activity = ActivityModel()
+                    activity.user_modify = current_user.key
+                    activity.identity = devise.id()
+                    activity.nature = 4
+                    activity.object = "CurrencyModel"
+                    activity.time = function.datetime_convert(date_auto_nows)
+                    activity.put()
 
-                    flash(u' Currency Save. ', 'success')
+                    flash(u' Currency Update. ', 'success')
                     return redirect(url_for('Currency_Index'))
 
                 except CapabilityDisabledError:
@@ -90,16 +90,23 @@ def Currency_Edit(currency_id=None):
                 devise = currency.put()
 
                 # enregistrement de l'activite de creation du currency
-                currency_activity_creation = ActivityModel()
-                currency_activity_creation.user_modify = current_user.key
-                currency_activity_creation.identity = devise.id()
-                currency_activity_creation.nature = 1
-                currency_activity_creation.object = "currency"
-                currency_activity_creation.time = function.datetime_convert(date_auto_nows)
-                currency_activity_creation.put()
+                activity = ActivityModel()
+                activity.user_modify = current_user.key
+                activity.nature = None
+                activity.identity = devise.id()
+                activity.time = function.datetime_convert(date_auto_nows)
+                activity.object = "CurrencyModel"
 
-                flash(u' Currency Save. ', 'success')
+                if currency_id:
+                    activity.nature = 4
+                    flash(u' Currency Update. ', 'success')
+                else:
+                    activity.nature = 1
+                    flash(u' Currency Save. ', 'success')
+
+                activity.put()
                 return redirect(url_for('Currency_Index'))
+
 
             except CapabilityDisabledError:
                 flash(u' Error data base. ', 'danger')
@@ -166,7 +173,10 @@ def Currency_Equiv():
 def Currency_Delete(currency_id=None):
 
     from ..ticket.models_ticket import TicketModel, UserModel
-    from ..transaction.models_transaction import TransactionModel
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     delete_currency = CurrencyModel.get_by_id(int(currency_id))
 
@@ -182,31 +192,27 @@ def Currency_Delete(currency_id=None):
         TicketModel.sellpriceAgCurrency == delete_currency.key
     ).count()
 
-    agency_currency_exist = AgencyModel.query(
-        AgencyModel.currency == delete_currency.key
-    ).count()
-
-    transaction_currency_exist = TransactionModel.query(
-        TransactionModel.currency==delete_currency.key
+    ticket_currency_exist2 = TicketModel.query(
+        TicketModel.sellpriceCurrency == delete_currency.key
     ).count()
 
     user_currency_admin = UserModel.query(
         UserModel.currency == delete_currency.key
     ).count()
 
-    if equi_currency_exist >= 1 or ticket_type_currency_exist >= 1 or ticket_currency_exist >= 1 or agency_currency_exist >= 1 or transaction_currency_exist >= 1 or user_currency_admin >=  1:
+    if equi_currency_exist >= 1 or ticket_type_currency_exist >= 1 or ticket_currency_exist >= 1 or user_currency_admin >=  1 or ticket_currency_exist2 >= 1:
         flash(u'You can\'t delete this currency', 'danger')
         return redirect(url_for("Currency_Index"))
 
     else:
         # enregistrement de l'activite de suppression du currency
-        currency_activity_deletion = ActivityModel()
-        currency_activity_deletion.user_modify = current_user.key
-        currency_activity_deletion.identity = delete_currency
-        currency_activity_deletion.nature = 3
-        currency_activity_deletion.object = "currency"
-        currency_activity_deletion.time = function.datetime_convert(date_auto_nows)
-        currency_activity_deletion.put()
+        activity = ActivityModel()
+        activity.time = function.datetime_convert(date_auto_nows)
+        activity.identity = delete_currency.key.id()
+        activity.nature = 3
+        activity.object = "CurrencyModel"
+        activity.user_modify = current_user.key
+        activity.put()
 
         delete_currency.key.delete()
         flash(u'Currency has been deleted successfully', 'success')
@@ -218,7 +224,20 @@ def Currency_Delete(currency_id=None):
 @roles_required(('admin', 'super_admin'))
 def delete_currency_equivalence(equivalence_id):
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
     Equivalence = EquivalenceModel.get_by_id(equivalence_id)
+
+    # enregistrement de l'activite de suppression du currency
+    activity = ActivityModel()
+    activity.time = function.datetime_convert(date_auto_nows)
+    activity.identity = Equivalence.key.id()
+    activity.nature = 3
+    activity.object = "CurrencyModel"
+    activity.user_modify = current_user.key
+    activity.put()
 
     Equivalence.key.delete()
     flash('Equivalence has been deleted successfully', 'success')

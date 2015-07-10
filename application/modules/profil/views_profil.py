@@ -45,6 +45,10 @@ def Profil_Edit(profil_id=None):
     menu = 'settings'
     submenu = 'profil'
     from ..user.models_user import ProfilRoleModel
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
     if profil_id:
         profil = ProfilModel.get_by_id(profil_id)
@@ -53,6 +57,11 @@ def Profil_Edit(profil_id=None):
     else:
         profil = ProfilModel()
         form = FormProfil(request.form)
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "ProfilModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     if form.validate_on_submit():
         profil_exist = ProfilModel.query(ProfilModel.name == form.name.data).count()
@@ -68,13 +77,14 @@ def Profil_Edit(profil_id=None):
                 else:
                     profil.standard = False
 
-                try:
-                    profil.put()
-                    flash(u' Profil Save. '+str(form.standard.data), 'success')
-                    return redirect(url_for('Profil_Index'))
-                except CapabilityDisabledError:
-                    flash(u' Error data base. ', 'danger')
-                    return redirect(url_for('Profil_Index'))
+                this_profil = profil.put()
+
+                activity.identity = this_profil.id()
+                activity.nature = 4
+                activity.put()
+
+                flash(u' Profil Save. '+str(form.standard.data), 'success')
+                return redirect(url_for('Profil_Index'))
             else:
                 form.name.errors.append('This name profil '+ str(form.name.data) + 'is already exist')
         else:
@@ -88,13 +98,14 @@ def Profil_Edit(profil_id=None):
             else:
                 profil.standard = False
 
-            try:
-                profil.put()
-                flash(u' Profil Save. ', 'success')
-                return redirect(url_for('Profil_Index'))
-            except CapabilityDisabledError:
-                flash(u' Error data base. ', 'danger')
-                return redirect(url_for('Agency_Index'))
+            this_profil = profil.put()
+
+            activity.identity = this_profil.id()
+            activity.nature = 1
+            activity.put()
+
+            flash(u' Profil Save. ', 'success')
+            return redirect(url_for('Profil_Index'))
 
     return render_template('/profil/edit.html', **locals())
 
@@ -104,6 +115,15 @@ def Profil_Edit(profil_id=None):
 @roles_required(('admin', 'super_admin'))
 def Add_Role_Profil(profil_id):
     from ..user.models_user import ProfilRoleModel, RoleModel
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "ProfilRoleModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     profil_update = ProfilModel.get_by_id(profil_id)
 
@@ -129,7 +149,11 @@ def Add_Role_Profil(profil_id):
                 profilRole = ProfilRoleModel()
                 profilRole.role_id = slc_role.key
                 profilRole.profil_id = profil_update.key
-                profilRole.put()
+                this_role_profil = profilRole.put()
+
+                activity.identity = this_role_profil.id()
+                activity.nature = 1
+                activity.put()
 
             nombre += 1
 
@@ -148,11 +172,27 @@ def Add_Role_Profil(profil_id):
 @roles_required(('admin', 'super_admin'))
 def Delete_Role_Profil(profilrole_id, profil_id):
     from ..user.models_user import ProfilRoleModel
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "ProfilRoleModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     profilrole = ProfilRoleModel.get_by_id(profilrole_id)
     profil = ProfilModel.get_by_id(profil_id)
+    last_parent_profil = profil.key.id()
 
     if profilrole:
+
+        activity.identity = profilrole.key.id()
+        activity.nature = 3
+        activity.last_value = str(last_parent_profil)
+        activity.put()
+
         profilrole.key.delete()
         flash('Role Deleted', 'success')
     else:
@@ -165,8 +205,17 @@ def Delete_Role_Profil(profilrole_id, profil_id):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def Profil_Delete(profil_id):
-    from ..user.models_user import ProfilRoleModel, UserModel
     """ Suppression des profils """
+    from ..user.models_user import ProfilRoleModel, UserModel
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "ProfilModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     delete_profil = ProfilModel.get_by_id(profil_id)
 
@@ -182,6 +231,10 @@ def Profil_Delete(profil_id):
         flash(u'You can\'t delete this profil', 'danger')
         return redirect(url_for("Profil_Index"))
     else:
+        activity.identity = delete_profil.key.id()
+        activity.nature = 3
+        activity.put()
+
         delete_profil.key.delete()
         flash(u'Profil has been deleted successfully', 'success')
         return redirect(url_for("Profil_Index"))

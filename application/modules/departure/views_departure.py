@@ -89,8 +89,18 @@ def Departure_Edit(departure_id=None):
     menu = 'recording'
     submenu = 'departure'
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     vessel = VesselModel.query()
     departravel = TravelModel.query()
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "DepartureModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     if departure_id:
         departmod = DepartureModel.get_by_id(departure_id)
@@ -118,6 +128,36 @@ def Departure_Edit(departure_id=None):
 
             if departmod.destination == travel_destination.key and departmod.departure_date == function.date_convert(form.departure_date.data) and departmod.schedule == function.time_convert(form.schedule.data):
                 departmod.vessel = vessel_departure.key
+
+                if departure_id:
+
+                    last_vessel = str(departmod.vessel)
+                    last_date = str(departmod.schedule)
+                    last_hour = str(departmod.departure_date)
+
+                    if form.vessel.data != last_vessel:
+                        activity.identity = departmod.key.id()
+                        activity.nature = 0
+                        activity.last_value = last_vessel
+                        activity.put()
+
+                    if form.departure_date.data != last_date:
+                        activity.identity = departmod.key.id()
+                        activity.nature = 0
+                        activity.last_value = last_date
+                        activity.put()
+
+                    if form.schedule.data != last_hour:
+                        activity.identity = departmod.key.id()
+                        activity.nature = 0
+                        activity.last_value = last_hour
+                        activity.put()
+
+                    if form.vessel.data == last_vessel and form.departure_date.data == last_date and form.schedule.data == last_hour:
+                        activity.identity = departmod.key.id()
+                        activity.nature = 4
+                        activity.put()
+
                 flash(u' Departure Updated. ', 'success')
                 return redirect(url_for('Departure_Index'))
             else:
@@ -131,6 +171,11 @@ def Departure_Edit(departure_id=None):
             departmod.vessel = vessel_departure.key
 
             depart = departmod.put()
+
+            activity.identity = depart.id()
+            activity.nature = 1
+            activity.put()
+
             flash(u' Departure Saved. ', 'success')
             return redirect(url_for('Departure_Index'))
 

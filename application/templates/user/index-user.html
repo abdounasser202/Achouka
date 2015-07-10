@@ -35,7 +35,7 @@
                             </thead>
                             <tbody>
                             {% for user in user %}
-                                {% if user.user_id not in user_admins %}
+                                {% if user.user_id not in user_admins and user_admins %}
                                         <tr>
                                             <td>{{ user.user_id.get().first_name }}</td>
                                             <td>{{ user.user_id.get().last_name }}</td>
