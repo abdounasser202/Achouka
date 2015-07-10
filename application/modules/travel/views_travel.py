@@ -28,6 +28,7 @@ def Travel_Edit(travel_id=None):
     menu = 'recording'
     submenu = 'travel'
 
+    from ..activity.models_activity import ActivityModel
 
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
@@ -54,21 +55,29 @@ def Travel_Edit(travel_id=None):
             TravelModel.destination_check == check_destitravel.key
         ).count()
 
+        activity = ActivityModel()
+        activity.user_modify = current_user.key
+        activity.object = "TravelModel"
+        activity.time = function.datetime_convert(date_auto_nows)
+
         if count_dest_travel >= 1:
             if travelmod.destination_start == start_destitravel.key and travelmod.destination_check == check_destitravel.key:
-
                 travelmod.time = function.time_convert(form.time.data)
-                try:
-                    travelmod.put()
-                    flash(u' Travel Save. ', 'success')
-                    return redirect(url_for("Travel_Index"))
-                except CapabilityDisabledError:
-                    flash(u' Error data base. ', 'danger')
-                    return redirect(url_for('Travel_Index'))
+
+                this_travel = travelmod.put()
+                activity.identity = this_travel.id()
+                activity.nature = 4
+                activity.put()
+
+                flash(u' Travel Updated! ', 'success')
+                return redirect(url_for("Travel_Index"))
+
             else:
                 flash(u"This travel exist!", "danger")
+
         elif start_destitravel == check_destitravel:
             flash(u"This travel kind  does'nt exist!", "danger")
+
         else:
             if form.time.data:
                 travelmod.time = function.time_convert(form.time.data)
@@ -85,14 +94,18 @@ def Travel_Edit(travel_id=None):
                 travelmod2.destination_start = check_destitravel.key
                 travelmod2.destination_check = start_destitravel.key
                 travelmod2.datecreate = function.datetime_convert(date_auto_nows)
-                travelmod2.put()
+                this_travel = travelmod2.put()
 
-            try:
-                travelmod.put()
-                flash(u' Travel Save. ', 'success')
-                return redirect(url_for("Travel_Index"))
-            except CapabilityDisabledError:
-                flash(u' Error data base. ', 'danger')
-                return redirect(url_for('Travel_Index'))
+                activity.identity = this_travel.id()
+                activity.nature = 1
+                activity.put()
+
+            this_travel = travelmod.put()
+
+            activity.identity = this_travel.id()
+            activity.nature = 1
+            activity.put()
+            flash(u' Travel Saved! ', 'success')
+            return redirect(url_for("Travel_Index"))
 
     return render_template('/travel/edit.html', **locals())
