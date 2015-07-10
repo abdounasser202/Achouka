@@ -302,6 +302,16 @@ def User_Index():
 def User_Edit(user_id=None):
     menu = 'recording'
     submenu = 'user'
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "UserModel"
+    activity.time = function.datetime_convert(date_auto_nows)
     
     number_list = global_dial_code_custom
 
@@ -378,7 +388,7 @@ def User_Edit(user_id=None):
         )
 
         # insertion de chaque role a l'utilisateur cree
-        UserCreate = UserModel.get_by_id(UserCreate.id())
+        this_user = UserCreate = UserModel.get_by_id(UserCreate.id())
 
         for role in all_role:
 
@@ -389,8 +399,14 @@ def User_Edit(user_id=None):
             UserRole.put()
 
         if user_id:
+            activity.identity = user_id
+            activity.nature = 4
+            activity.put()
             flash('User Updated', 'success')
         else:
+            activity.identity = this_user.key.id()
+            activity.nature = 1
+            activity.put()
             flash('User Created', 'success')
 
         return redirect(url_for('User_Index'))
@@ -404,10 +420,26 @@ def User_Edit(user_id=None):
 def Activate_User(user_id=None):
     user_status = UserModel.get_by_id(user_id)
 
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "UserModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     if user_status.is_enabled:
+        activity.identity = user_status.key.id()
+        activity.nature = 2
+        activity.put()
         flash(u'User is disabled!', 'success')
         user_status.is_enabled = False
     else:
+        activity.identity = user_status.key.id()
+        activity.nature = 5
+        activity.put()
         flash(u'User is activated!', 'success')
         user_status.is_enabled = True
 

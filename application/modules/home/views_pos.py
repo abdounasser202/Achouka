@@ -253,7 +253,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         QuestionModel.is_obligate == True
     )
 
-    # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definient
+    # s'il n'y a pas de question envoye et qu'il y'a des questions obligatoires definies
     if number_obligated_question >= 1 and question_request is None and request.method == 'POST':
         obligated = True
         quest_obligated = [question.key.id() for question in obligated_question]
@@ -328,7 +328,20 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         ticket_update = new_ticket.put()
 
         Ticket_Return.statusValid = False
-        Ticket_Return.put()
+        this_ticket = Ticket_Return.put()
+
+        from ..activity.models_activity import ActivityModel
+
+        time_zones = pytz.timezone('Africa/Douala')
+        date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+        activity = ActivityModel()
+        activity.user_modify = current_user.key
+        activity.object = "DepartureModel"
+        activity.time = function.datetime_convert(date_auto_nows)
+        activity.identity = this_ticket.id()
+        activity.nature = 1
+        activity.put()
 
         modal = 'true'
 

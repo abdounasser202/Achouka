@@ -106,7 +106,11 @@ def Departure_Edit(departure_id=None):
         departmod = DepartureModel.get_by_id(departure_id)
         form = FormDeparture(obj=departmod)
 
-        form.destination.data = departmod.destination
+        form.destination.data = departmod.destination.get().key.id()
+
+        last_vessel = str(departmod.vessel.get().key.id())
+        last_date = str(departmod.departure_date)
+        last_hour = str(departmod.schedule)
 
         if departmod.reserved():
             flash('You update departure reserved', 'danger')
@@ -130,35 +134,32 @@ def Departure_Edit(departure_id=None):
 
             if departmod.destination == travel_destination.key and departmod.departure_date == function.date_convert(form.departure_date.data) and departmod.schedule == function.time_convert(form.schedule.data):
                 departmod.vessel = vessel_departure.key
+                departmod.departure_date = function.date_convert(form.departure_date.data)
+                departmod.schedule = function.time_convert(form.schedule.data)
+                depart = departmod.put()
 
-                if departure_id:
+                if form.vessel.data != last_vessel:
+                    activity.identity = depart.id()
+                    activity.nature = 0
+                    activity.last_value = last_vessel
+                    activity.put()
 
-                    last_vessel = str(departmod.vessel)
-                    last_date = str(departmod.schedule)
-                    last_hour = str(departmod.departure_date)
+                if function.date_convert(form.departure_date.data) != function.date_convert(last_date):
+                    activity.identity = depart.id()
+                    activity.nature = 0
+                    activity.last_value = last_date
+                    activity.put()
 
-                    if form.vessel.data != last_vessel:
-                        activity.identity = departmod.key.id()
-                        activity.nature = 0
-                        activity.last_value = last_vessel
-                        activity.put()
+                if function.time_convert(form.schedule.data) != function.time_convert(last_hour):
+                    activity.identity = depart.id()
+                    activity.nature = 0
+                    activity.last_value = last_hour
+                    activity.put()
 
-                    if form.departure_date.data != last_date:
-                        activity.identity = departmod.key.id()
-                        activity.nature = 0
-                        activity.last_value = last_date
-                        activity.put()
-
-                    if form.schedule.data != last_hour:
-                        activity.identity = departmod.key.id()
-                        activity.nature = 0
-                        activity.last_value = last_hour
-                        activity.put()
-
-                    if form.vessel.data == last_vessel and form.departure_date.data == last_date and form.schedule.data == last_hour:
-                        activity.identity = departmod.key.id()
-                        activity.nature = 4
-                        activity.put()
+                if form.vessel.data == last_vessel and form.departure_date.data == last_date and form.schedule.data == last_hour:
+                    activity.identity = departmod.key.id()
+                    activity.nature = 4
+                    activity.put()
 
                 flash(u' Departure Updated. ', 'success')
                 return redirect(url_for('Departure_Index'))
@@ -174,11 +175,38 @@ def Departure_Edit(departure_id=None):
 
             depart = departmod.put()
 
-            activity.identity = depart.id()
-            activity.nature = 1
-            activity.put()
+            if departure_id:
+                if form.vessel.data != last_vessel:
+                    activity.identity = departmod.key.id()
+                    activity.nature = 0
+                    activity.last_value = last_vessel
+                    activity.put()
 
-            flash(u' Departure Saved. ', 'success')
+                if form.departure_date.data != last_date:
+                    activity.identity = departmod.key.id()
+                    activity.nature = 0
+                    activity.last_value = last_date
+                    activity.put()
+
+                if form.schedule.data != last_hour:
+                    activity.identity = departmod.key.id()
+                    activity.nature = 0
+                    activity.last_value = last_hour
+                    activity.put()
+
+                if form.vessel.data == last_vessel and form.departure_date.data == last_date and form.schedule.data == last_hour:
+                    activity.identity = departmod.key.id()
+                    activity.nature = 4
+                    activity.put()
+
+                flash(u' Departure Updated. ', 'success')
+
+            else:
+                activity.identity = depart.id()
+                activity.nature = 1
+                activity.put()
+                flash(u' Departure Saved. ', 'success')
+
             return redirect(url_for('Departure_Index'))
 
             #insertion et modification de la capacite restante pour les reservations
@@ -199,10 +227,29 @@ def Departure_Edit(departure_id=None):
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Time_Delay_Edit(departure_id):
+
+    from ..activity.models_activity import ActivityModel
+
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "DepartureModel"
+    activity.time = function.datetime_convert(date_auto_nows)
+
     departmod = DepartureModel.get_by_id(departure_id)
+    last_time = departmod.time_delay
+
     if request.method == 'POST':
         departmod.time_delay = function.time_convert(request.form['time_delay'])
         depart = departmod.put()
+
+        activity.identity = depart.id()
+        activity.nature = 0
+        activity.last_value = str(last_time)
+        activity.put()
+
         flash(u' Delay add successfully. ', 'success')
         return redirect(url_for('Departure_Index'))
     return render_template('/departure/edit-delay.html', **locals())
