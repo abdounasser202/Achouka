@@ -124,6 +124,10 @@ def Dashboard():
     menu = 'dashboard'
     from ..ticket.models_ticket import AgencyModel, TicketModel
 
+
+    if not current_user.has_roles(('admin', 'super_admin')) and current_user.has_roles('manager_agency'):
+        return redirect(url_for('Pos'))
+
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
