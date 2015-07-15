@@ -132,7 +132,7 @@ def reset_current_departure(departure_id=None):
     else:
         element = """<br/><br/>
           <div class="panel-body text-center">
-            <h3>No up coming journey</h3>
+            <h3>No next journey</h3>
           </div>"""
 
     return element

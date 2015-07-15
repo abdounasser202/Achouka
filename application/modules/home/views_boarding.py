@@ -12,6 +12,9 @@ cache = Cache(app)
 def Boarding():
     menu = 'boarding'
 
+    if not session.get('agence_id'):
+        flash('You can\'t use boarding. you dont have this permission', 'danger')
+
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
@@ -46,6 +49,10 @@ def Boarding():
 @login_required
 @roles_required(('employee_Boarding', 'super_admin'))
 def Search_Ticket_Boarding(ticket_id=None):
+
+    if not session.get('agence_id'):
+        flash('You can\'t find a ticket. you dont have this permission', 'danger')
+        return redirect('Boarding')
 
     if ticket_id:
         number_ticket = str(ticket_id)

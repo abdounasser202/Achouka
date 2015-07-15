@@ -139,6 +139,14 @@ def find(word, search):
             w = True
     return w
 
+
+def convert_timedelta(duration):
+    days, seconds = duration.days, duration.seconds
+    hours = days * 24 + seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = (seconds % 60)
+    return hours, minutes, seconds
+
 app.jinja_env.filters['format_date'] = format_date
 app.jinja_env.filters['add_time'] = add_time
 app.jinja_env.filters['format_price'] = format_price

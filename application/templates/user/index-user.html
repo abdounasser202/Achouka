@@ -29,6 +29,8 @@
                                     <th>First name </th>
                                     <th>Last name</th>
                                     <th>Email Adresse</th>
+                                    <th>Profil</th>
+                                    <th>Agency</th>
                                     <th>Last Logged</th>
                                     <th class="nosort"></th>
                                 </tr>
@@ -40,6 +42,8 @@
                                             <td>{{ user.user_id.get().first_name }}</td>
                                             <td>{{ user.user_id.get().last_name }}</td>
                                             <td>{{ user.user_id.get().email }} </td>
+                                            <td>{{ user.user_id.get().profil.get().name }} </td>
+                                            <td>{{ user.user_id.get().agency.get().name }} </td>
                                             <td>{{ user.user_id.get().date_last_logged }} </td>
                                             <td>
                                                 <a href="" class="btn btn-link btn-xs">Reset password </a>

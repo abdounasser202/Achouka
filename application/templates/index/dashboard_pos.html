@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <section>
+                    <div class="page-header clearfix text-center" style="margin: 0 !important;">
+                      <h1  style='margin: 0;'>{{ current_user.first_name }} {{ current_user.last_name }}, welcome to your <small>DASHBOARD</small> </h1>
+                    </div>
+                    <br/>
+
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="panel panel-pos panel-default">
+                              <div class="panel-heading text-center">
+                                    <h4 style="font-weight: bold;">Departure recorded</h4>
+                              </div>
+                              <div class="panel-body">
+                                <table class="table table-hover" id="dataTableDash">
+                                    <thead>
+                                    <tr>
+                                        <th>Date Departure</th>
+                                        <th>Journey</th>
+                                        <th>Number of ticket</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for ticket in the_ticket_sale %}
+                                        <tr>
+                                            <td>{{ ticket['departure'].get().departure_date }}<br/> <small>{{ ticket['departure'].get().schedule|add_time(ticket['departure'].get().time_delay) }}</small></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="panel panel-pos panel-default">
+                                      <div class="panel-heading text-center">
+                                            <h4 style="font-weight: bold;">Number of ticket</h4>
+                                      </div>
+                                      <div class="panel-body text-center">
+                                          <p class="lead">2</p>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="panel panel-pos panel-default">
+                                      <div class="panel-heading text-center">
+                                            <h4 style="font-weight: bold;">Balance</h4>
+                                      </div>
+                                      <div class="panel-body text-center">
+                                          <p class="lead">2</p>
+                                      </div>
+                                    </div>
+                                </div>
+                             <div class="col-lg-12">2</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block footer_script %}
+    <script>
+        $('#dataTableDash').dataTable({
+            "paging": true,
+            "sPaginationType":"full_numbers",
+            "iDisplayLength": 25,
+            "bFilter": false,
+            'aoColumnDefs': [
+                {'bSortable': false, 'aTargets': ['nosort']},
+                {'bSearchable': false, "aTargets": ['nosort']}
+            ],
+             "order": [[ 0, "desc" ]]
+        });
+    </script>
+{% endblock %}
