@@ -59,7 +59,7 @@
                                         <td>
                                             {{ type.journey_name.get().name }}
                                         </td>
-                                        <td>{{ type.price }} {{ type.currency.get().code }}</td>
+                                        <td>{{ type.price|format_price() }} {{ type.currency.get().code }}</td>
                                         <td>
                                             <a href="{{ url_for('TicketType_Edit', tickettype_id=type.key.id()) }}" class="btn btn-link  btn-xs">Edit</a>
                                             {% if type.active %}

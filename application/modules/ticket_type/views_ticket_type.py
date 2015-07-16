@@ -134,9 +134,9 @@ def Active_tickettype(tickettype_id):
         ).count()
 
         if tickettype_exit >= 1:
-            flash(' Other ticket type have Class = '+str(tickettype_active.class_name)
-                  +', Type  = '+str(tickettype_active.type_name)+' and Journey = '
-                  +str(tickettype_active.journey_name)+'from '+str(tickettype_active.travel.get().destination_start.get().name)+" to "+str(tickettype_active.travel.get().destination_check.get().name)+" is activated", 'danger')
+            flash(' Other ticket type have Class = '+str(tickettype_active.class_name.get().name)
+                  +', Type  = '+str(tickettype_active.type_name.get().name)+' and Journey = '
+                  +str(tickettype_active.journey_name.get().name)+'from '+str(tickettype_active.travel.get().destination_start.get().name)+" to "+str(tickettype_active.travel.get().destination_check.get().name)+" is activated", 'danger')
         else:
             activity.nature = 5
             tickettype_active.active = True

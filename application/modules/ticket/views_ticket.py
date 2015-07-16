@@ -182,7 +182,7 @@ def Ticket_Edit(agency_id, tickettype):
 
         insert_transaction.amount = montant_ticket
         insert_transaction.agency = info_agency.key
-        insert_transaction.reason = 'Expense'
+        insert_transaction.reason = 'Ticket Purchase'
         insert_transaction.is_payment = False
         insert_transaction.destination = TicketType.travel.get().destination_start
         insert_transaction.transaction_date = function.datetime_convert(date_auto_nows)

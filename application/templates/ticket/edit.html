@@ -79,6 +79,9 @@
         e.preventDefault();
         var btn = $(this);
         btn.button('loading');
+        $(".close").addClass('hidden');
+        $("#return").addClass('disabled');
+        $("#close").addClass('disabled');
         $.ajax({
             url: "{{ url_for('Ticket_Edit', tickettype=tickettype, agency_id=agency_id) }}",
             data: $('#formulaire').serialize(),
@@ -91,8 +94,12 @@
 
     $('#number').keypress(function(e) {
         if (e.which == 13){
+            e.preventDefault();
             var btns = btn;
             btns.button('loading');
+            $('.close').addClass('hidden');
+            $('#return').addClass('disabled');
+            $("#close").addClass('disabled');
             $.ajax({
                 url: "{{ url_for('Ticket_Edit', tickettype=tickettype, agency_id=agency_id) }}",
                 data: $('#formulaire').serialize(),

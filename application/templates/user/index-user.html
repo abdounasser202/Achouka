@@ -36,31 +36,59 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for user in user %}
-                                {% if user.user_id not in user_admins and user_admins %}
-                                        <tr>
-                                            <td>{{ user.user_id.get().first_name }}</td>
-                                            <td>{{ user.user_id.get().last_name }}</td>
-                                            <td>{{ user.user_id.get().email }} </td>
-                                            <td>{{ user.user_id.get().profil.get().name }} </td>
-                                            <td>{{ user.user_id.get().agency.get().name }} </td>
-                                            <td>{{ user.user_id.get().date_last_logged }} </td>
-                                            <td>
-                                                <a href="" class="btn btn-link btn-xs">Reset password </a>
-                                                <a href="" class="btn btn-link btn-xs">Change email </a>
-                                                <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
-                                                {% if current_user.key != user.user_id %}
-                                                    {% if user.user_id.get().is_enabled %}
-                                                        <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
-                                                    {% else %}
-                                                        <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                            {% if not current_user.has_roles('manager_agency') %}
+                                {% for user in user %}
+                                    {% if user.user_id not in user_admins and user_admins %}
+                                            <tr>
+                                                <td>{{ user.user_id.get().first_name }}</td>
+                                                <td>{{ user.user_id.get().last_name }}</td>
+                                                <td>{{ user.user_id.get().email }} </td>
+                                                <td>{{ user.user_id.get().profil.get().name }} </td>
+                                                <td>{{ user.user_id.get().agency.get().name }} </td>
+                                                <td>{{ user.user_id.get().date_last_logged }} </td>
+                                                <td>
+                                                    <a href="" class="btn btn-link btn-xs">Reset password </a>
+                                                    <a href="" class="btn btn-link btn-xs">Change email </a>
+                                                    <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
+                                                    {% if current_user.key != user.user_id %}
+                                                        {% if user.user_id.get().is_enabled %}
+                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
+                                                        {% else %}
+                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                                                        {% endif %}
                                                     {% endif %}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                {% endif %}
-                            {% endfor %}
+                                                </td>
+                                            </tr>
+                                    {% endif %}
 
+                                {% endfor %}
+                            {% else %}
+                                {% for user in user %}
+                                    {% if user.user_id not in user_admins and user_admins and user.user_id.get().agency == agency_user.key %}
+                                            <tr>
+                                                <td>{{ user.user_id.get().first_name }}</td>
+                                                <td>{{ user.user_id.get().last_name }}</td>
+                                                <td>{{ user.user_id.get().email }} </td>
+                                                <td>{{ user.user_id.get().profil.get().name }} </td>
+                                                <td>{{ user.user_id.get().agency.get().name }} </td>
+                                                <td>{{ user.user_id.get().date_last_logged }} </td>
+                                                <td>
+                                                    <a href="" class="btn btn-link btn-xs">Reset password </a>
+                                                    <a href="" class="btn btn-link btn-xs">Change email </a>
+                                                    <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}" class="btn btn-link btn-xs">Edit </a>
+                                                    {% if current_user.key != user.user_id %}
+                                                        {% if user.user_id.get().is_enabled %}
+                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-danger btn-xs">Disable</a>
+                                                        {% else %}
+                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}" class="btn btn-success btn-xs">Activate</a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                    {% endif %}
+
+                                {% endfor %}
+                            {% endif %}
                             </tbody>
                         </table>
 

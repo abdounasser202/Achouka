@@ -53,6 +53,30 @@ def Transaction_detail(transaction_id=None):
 
     current_transaction_get_id = TransactionModel.get_by_id(transaction_id)
 
+    transaction_detail = []
+    for transaction in current_transaction_get_id.relation_parent_child():
+        transactions = {}
+        transactions['type'] = transaction.ticket.get().type_name
+        transactions['journey'] = transaction.ticket.get().journey_name
+        transactions['class'] = transaction.ticket.get().class_name
+        transactions['travel'] = transaction.ticket.get().travel_ticket
+        transactions['amount'] = transaction.amount
+        transactions['currency'] = transaction.ticket.get().sellpriceAgCurrency.get().code
+        transaction_detail.append(transactions)
+
+    grouper = itemgetter("type", "class", "journey", "travel", "currency")
+
+    detail_transaction = []
+    for key, grp in groupby(sorted(transaction_detail, key=grouper), grouper):
+        temp_dict = dict(zip(["type", "class", "journey", "travel", "currency"], key))
+        temp_dict['number'] = 0
+        temp_dict['amount'] = 0
+        for item in grp:
+            temp_dict['number'] += 1
+            temp_dict['amount'] += item['amount']
+        detail_transaction.append(temp_dict)
+
+
     return render_template('/transaction/transaction_details.html', **locals())
 
 

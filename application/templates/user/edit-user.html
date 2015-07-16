@@ -121,22 +121,37 @@
 
                                                 </div>
                                             </div>
+                                            {% if current_user.has_roles('manager_agency') %}
+                                                    <div class="form-group {% if form.agency.errors %} has-error {% endif %} has-feedback">
+                                                        <label class="col-sm-3 control-label">Select agency :</label>
+                                                        <div class="col-sm-9">
+                                                           <select class="form-control g-select" disabled="disabled ">
+                                                                    <option value="{{ agency_user.key.id() }}">{{ agency_user.name }}</option>
+                                                            </select>
+                                                            <input type="hidden" name="agency" value="{{ agency_user.key.id() }}"/>
+                                                          {% for message in form.agency.errors %}
+                                                            <span class="help-block text-danger">{{ message }}</span>
+                                                          {% endfor %}
 
-                                            <div class="form-group {% if form.agency.errors %} has-error {% endif %} has-feedback">
-                                                <label class="col-sm-3 control-label">Select agency :</label>
-                                                <div class="col-sm-9">
-                                                   <select name="agency" id="" class="form-control g-select">
-                                                        <option value="">Select agency</option>
-                                                        {% for agency in agency %}
-                                                            <option value="{{ agency.key.id() }}" {% if form.agency.data == agency.key or form.agency.data|int == agency.key.id() %} selected {% endif %}>{{ agency.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                  {% for message in form.agency.errors %}
-                                                    <span class="help-block text-danger">{{ message }}</span>
-                                                  {% endfor %}
+                                                        </div>
+                                                    </div>
+                                            {% else %}
+                                                    <div class="form-group {% if form.agency.errors %} has-error {% endif %} has-feedback">
+                                                        <label class="col-sm-3 control-label">Select agency :</label>
+                                                        <div class="col-sm-9">
+                                                           <select name="agency" id="" class="form-control g-select">
+                                                                <option value="">Select agency</option>
+                                                                {% for agency in agency %}
+                                                                    <option value="{{ agency.key.id() }}" {% if form.agency.data == agency.key or form.agency.data|int == agency.key.id() %} selected {% endif %}>{{ agency.name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                          {% for message in form.agency.errors %}
+                                                            <span class="help-block text-danger">{{ message }}</span>
+                                                          {% endfor %}
 
-                                                </div>
-                                            </div>
+                                                        </div>
+                                                    </div>
+                                            {% endif %}
 
                                           <div class="form-group">
                                             <div class="col-sm-offset-3 col-sm-10">

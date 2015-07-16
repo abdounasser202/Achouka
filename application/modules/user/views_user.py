@@ -291,6 +291,9 @@ def User_Index():
         group_by=[UserRoleModel.user_id]
     )
 
+    if current_user.has_roles('manager_agency'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+
     return render_template('/user/index-user.html', **locals())
 
 
@@ -339,9 +342,13 @@ def User_Edit(user_id=None):
         AgencyModel.is_achouka == True
     )
 
+    if current_user.has_roles('manager_agency'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+
     if user_id:
         User = UserModel.get_by_id(user_id)
         form = FormEditUser(obj=User)
+
     else:
         form = FormRegisterUser(request.form)
         User = UserModel()

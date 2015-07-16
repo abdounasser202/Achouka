@@ -56,6 +56,8 @@ def Search_Ticket_Boarding(ticket_id=None):
 
     if ticket_id:
         number_ticket = str(ticket_id)
+        departure_id = request.args.get('departure_id')
+        departure_id = DepartureModel.get_by_id(int(departure_id))
     else:
         number_ticket = request.form['number_ticket']
         departure_id = request.form['departure_id']

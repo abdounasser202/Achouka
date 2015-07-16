@@ -15,24 +15,26 @@
         <tr>
             <th>Ticket Type</th>
             <th>Travel</th>
+            <th>Number</th>
             <th>Amount</th>
         </tr>
         </thead>
         <tbody>
-            {% for transaction in current_transaction_get_id.relation_parent_child() %}
-                <tr class="{% if transaction.amount < transaction.ticket.get().sellprice %} warning {% endif %}">
+            {% for transaction in detail_transaction %}
+                <tr class="">
 
                     <td>
-                        {{ transaction.ticket.get().class_name.get().name }}
+                        {{ transaction['class'].get().name }}
                         -
-                        {{ transaction.ticket.get().type_name.get().name }}
+                        {{ transaction['type'].get().name }}
                         -
-                        {{ transaction.ticket.get().journey_name.get().name }}
+                        {{ transaction['journey'].get().name }}
                     </td>
-                    <td>{{ transaction.ticket.get().travel_ticket.get().destination_start.get().name }}
+                    <td>{{ transaction['travel'].get().destination_start.get().name }}
                     -
-                    {{ transaction.ticket.get().travel_ticket.get().destination_check.get().name }}</td>
-                 <td>{{ transaction.amount|format_price() }} {{ current_transaction_get_id.destination.get().currency.get().code }}</td>
+                    {{ transaction['travel'].get().destination_check.get().name }}</td>
+                 <td>{{ transaction['number']|format_price() }}</td>
+                 <td>{{ transaction['amount']|format_price() }} {{ transaction['currency'] }}</td>
                 </tr>
             {% endfor %}
         </tbody>

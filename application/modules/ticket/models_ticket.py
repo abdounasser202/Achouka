@@ -45,6 +45,8 @@ class TicketPoly(polymodel.PolyModel):
 
 class TicketModel(TicketPoly):
 
+    upgrade = ndb.KeyProperty(kind=TicketPoly)
+
     def get_price_sell(self, current_user):
         #Traitement des prix en fonction de la devise.
         db_currency = CurrencyModel.get_by_id(self.sellpriceCurrency.id())

@@ -20,7 +20,7 @@
                         </ol>
                         <div class="row">
                             <div class="col-lg-8">
-                                <form method="post" class="form-horizontal">
+                                <form method="post" class="form-horizontal" id="FormSubmit">
                                     <fieldset><legend>Edit Ticket Type</legend>
                                     {% if returnjourney < 1 %}
                                         <div class="alert alert-danger">
@@ -137,7 +137,7 @@
                                       <div class="form-group">
                                         <div class="col-sm-offset-3 col-sm-10">
                                             <button type="button" class="btn btn-primary {% if returnjourney < 1 %} disabled {% endif %}" id="save">Save</button>
-                                            <button type="submit" class="btn btn-success hidden" id="confirm">Confirm</button>
+                                            <button type="button" class="btn btn-success hidden" id="confirm">Confirm</button>
                                             <button type="button" class="btn btn-default hidden" id="clean_confirm">Return</button>
                                             <a href="{{ url_for('TicketType_Index') }}" class="btn btn-default" id="clean">Return</a>
                                         </div>
@@ -186,6 +186,12 @@
                             }
                         }
                     });
+             });
+
+             $('#confirm').on('click', function(e){
+                 e.preventDefault();
+                 $('#FormSubmit').submit();
+
              });
 
              $('#save').on('click', function(e){
