@@ -14,6 +14,15 @@
 
 <!-- Code JavaScript -->
 <script>
+{#    function printTrigger(elementId) {#}
+{#        var getMyFrame = document.getElementById(elementId);#}
+{#        getMyFrame.focus();#}
+{#        getMyFrame.contentWindow.print();#}
+{#    }#}
+{#    $(document).ready(function() {#}
+{#        printTrigger('frame'); // Chrome#}
+{#        //embedPDF('pdfobj'); // Non Chrome#}
+{#    });#}
     function Print(){
         document.getElementById("frame").contentWindow.print();
     }

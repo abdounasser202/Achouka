@@ -69,13 +69,15 @@
 
                                         {% else %}
                                               <div class="panel-body text-center">
-                                                <h3>No up coming journey</h3>
+                                                <h3>No next journey</h3>
                                               </div>
                                         {% endif %}
                                     </div>
 
                                     <div class="panel-footer">
-
+                                        {% if current_departure %}
+                                            <button class="btn btn-info btn-block btn-sm" id="customer_aboard">View Customer Aboard</button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -128,5 +130,31 @@
              $('#FindTicketBoarding').html('');
         });
 
+        $('#customer_aboard').on('click', function(e){
+            e.preventDefault();
+            url = "{{ url_for('customer_aboard', departure_id=current_departure.key.id()) }}";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    $('#NoFoundTicketBoarding').addClass('hidden');
+                    $('#FindTicketBoarding').removeClass('hidden').html(data);
+                    $('#print_customer_aboard').removeClass('hidden')
+                }
+            });
+        });
+
+
+{#        function printDiv(divName) {#}
+{##}
+{#             var printContents = document.getElementById(divName).innerHTML;#}
+{#             var originalContents = document.body.innerHTML;#}
+{##}
+{#             document.body.innerHTML = printContents;#}
+{##}
+{#             window.print();#}
+{##}
+{#             document.body.innerHTML = originalContents;#}
+{#        }#}
     </script>
 {% endblock %}

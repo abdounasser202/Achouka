@@ -583,13 +583,6 @@ def generate_pdf_ticket(ticket_id):
     barcode = code39.Standard39(code, barHeight=20, stop=1)
     barcode.humanReadable = 1
 
-    # from application import APP_STATIC
-
-    # f = open(os.path.join(APP_STATIC, 'fonts/Lato-Bold.ttf'))
-    # font = f.read()
-
-    #font = r"Lato-Bold.ttf"
-    #pdfmetrics.registerFont("Lato-Bold.ttf")
     string = '<font name="Times-Roman" size="14">%s</font>'
 
     journey = string % 'Return Ticket'
@@ -1047,4 +1040,5 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
         link_transaction.put()
 
         modal = 'true'
+
     return render_template('/pos/create_upgrade_ticket.html', **locals())
