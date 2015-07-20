@@ -13,7 +13,7 @@ def Boarding():
     menu = 'boarding'
 
     if not session.get('agence_id'):
-        flash('You can\'t use boarding. you dont have this permission', 'danger')
+        flash('You can\'t use boarding. You don\'t have permissions', 'danger')
 
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
@@ -22,8 +22,7 @@ def Boarding():
     heure = function.datetime_convert(date_auto_nows).time()
 
     departure = DepartureModel.query(
-        DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= heure
+        DepartureModel.departure_date >= datetime.date.today()
     ).order(
         -DepartureModel.departure_date,
         DepartureModel.schedule,
@@ -35,7 +34,7 @@ def Boarding():
         user_agence = AgencyModel.get_by_id(int(agence_id))
 
         for dep in departure:
-            if dep.destination.get().destination_start == user_agence.destination:
+            if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
                 current_departure = dep
                 break
     else:
@@ -212,6 +211,7 @@ def generate_pdf_boarding(ticket_id):
 
     string = '<font name="Times-Roman" size="14">%s</font>'
     string_2 = '<font name="Times-Roman" size="13">%s</font>'
+    string_3 = '<font name="Times-Roman" size="10">%s</font>'
 
     journey = string % 'Return T.'
     if Ticket_print.journey_name:
@@ -226,7 +226,11 @@ def generate_pdf_boarding(ticket_id):
     lieu = string % Ticket_print.agency.get().name
     agent = string % str(Ticket_print.ticket_seller.get().key.id())
 
-    econo_2 = string_2 % Ticket_print.class_name.get().name+" - "+string_2 % Ticket_print.type_name.get().name+" - "+journey
+    journey = string_3 % 'Return T.'
+    if Ticket_print.journey_name:
+        journey = string_3 % Ticket_print.journey_name.get().name
+
+    econo_2 = string_3 % Ticket_print.class_name.get().name+" - "+string_3 % Ticket_print.type_name.get().name+" - "+journey
     name_2 = string_2 % Ticket_print.customer.get().first_name+" "+string_2 % Ticket_print.customer.get().last_name
     froms_2 = string_2 % Ticket_print.departure.get().destination.get().destination_start.get().name
     destination_2 = string_2 % Ticket_print.departure.get().destination.get().destination_check.get().name
@@ -234,11 +238,11 @@ def generate_pdf_boarding(ticket_id):
     time_2 = string_2 % str(function.format_date(function.add_time(Ticket_print.departure.get().schedule, Ticket_print.departure.get().time_delay), "%H:%M"))
     lieu_2 = string_2 % Ticket_print.agency.get().name
 
-    p.drawImage(url_for('static', filename='BOARDING-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
+    p.drawImage(url_for('static', filename='BOARDING-ONLY-2.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
 
     c = Paragraph(econo_2, style=style['Normal'])
     c.wrapOn(p, width, height)
-    c.drawOn(p, 15*cm, 7.9*cm)
+    c.drawOn(p, 16.3*cm, 7.9*cm)
 
     c = Paragraph(econo, style=style['Normal'])
     c.wrapOn(p, width, height)

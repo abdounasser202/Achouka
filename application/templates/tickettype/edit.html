@@ -11,7 +11,7 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Settings') }}">Settings</a></li>
-                          <li><a href="{{ url_for('TicketType_Index') }}">Ticket Type </a></li>
+                          <li><a href="{{ url_for('TicketType_Index') }}">Tickets</a></li>
                             {% if tickettype_id %}
                                 <li class="active">Edit</li>
                             {% else %}
@@ -21,7 +21,7 @@
                         <div class="row">
                             <div class="col-lg-8">
                                 <form method="post" class="form-horizontal" id="FormSubmit">
-                                    <fieldset><legend>Edit Ticket Type</legend>
+                                    <fieldset><legend>Edit Ticket</legend>
                                     {% if returnjourney < 1 %}
                                         <div class="alert alert-danger">
                                             <h4>Please Define a return journey.</h4>

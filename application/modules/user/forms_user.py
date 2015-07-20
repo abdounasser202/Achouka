@@ -85,7 +85,7 @@ def last_name_validator(form, field):
 class FormRegisterUserAdmin(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
-    email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
+    email = wtf.StringField(label='Email', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
     phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
     dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
@@ -107,7 +107,7 @@ class FormEditUserAdmin(wtf.Form):
 class FormRegisterUser(wtf.Form):
     first_name = wtf.StringField(label='First Name', validators=[validators.Required(), first_name_validator])
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
-    email = wtf.StringField(label='Email Adresse', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
+    email = wtf.StringField(label='Email', validators=[validators.Email('Email not valid'), validators.Required(), unique_email_validator])
     phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
     dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])

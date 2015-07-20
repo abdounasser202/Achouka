@@ -10,7 +10,7 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Settings') }}">Settings</a></li>
-                          <li><a href="{{ url_for('TicketType_Index') }}">Ticket Type</a></li>
+                          <li><a href="{{ url_for('TicketType_Index') }}">Tickets</a></li>
                           <li class="active">Journey Type</li>
                         </ol>
                         <nav class="navbar navbar-toolbar navbar-default" role="navigation">
@@ -21,7 +21,7 @@
                                       <form class="navbar-form " role="search" method="post">
                                           {{ form.hidden_tag() }}
                                         <div class="form-group">
-                                             {{ form.name(class_='form-control input-lg', placeholder='Ticket type name')|safe }}
+                                             {{ form.name(class_='form-control input-lg', placeholder='Create new journey')|safe }}
                                         </div>
                                           {% if journey_type_id %}
                                                <button type="submit" class="btn btn-warning">Update</button>
@@ -40,9 +40,9 @@
                          <table class="table table-hover"  id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Name Journey Type</th>
-                                    <th class="nosort">Is default ?</th>
-                                    <th class="nosort">Used to return the tickets ?</th>
+                                    <th>Name</th>
+                                    <th class="nosort">Is it default?</th>
+                                    <th class="nosort">Includes return ticket?</th>
                                     <th class="nosort"></th>
                                 </tr>
                             </thead>
@@ -52,16 +52,16 @@
                                     <td>{{ journey_type.name }}</td>
                                     <td>
                                         {% if journey_type.default == False %}
-                                            <a href="{{ url_for('JourneyType_Default', journey_type_id=journey_type.key.id()) }}" class="btn btn-danger btn-xs"> None </a>
+                                            <a href="{{ url_for('JourneyType_Default', journey_type_id=journey_type.key.id()) }}" class="btn btn-danger btn-xs"> No </a>
                                         {% else %}
-                                            <a href="{{ url_for('JourneyType_Default', journey_type_id=journey_type.key.id()) }}" class="btn btn-success btn-xs"> OK </a>
+                                            <a href="{{ url_for('JourneyType_Default', journey_type_id=journey_type.key.id()) }}" class="btn btn-success btn-xs"> Yes </a>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if journey_type.returned == False %}
-                                            <a href="{{ url_for('JourneyType_retuned', journey_type_id=journey_type.key.id()) }}" class="btn btn-danger btn-xs"> None </a>
+                                            <a href="{{ url_for('JourneyType_retuned', journey_type_id=journey_type.key.id()) }}" class="btn btn-danger btn-xs"> No </a>
                                         {% else %}
-                                            <a href="{{ url_for('JourneyType_retuned', journey_type_id=journey_type.key.id()) }}" class="btn btn-success btn-xs"> OK </a>
+                                            <a href="{{ url_for('JourneyType_retuned', journey_type_id=journey_type.key.id()) }}" class="btn btn-success btn-xs"> Yes </a>
                                         {% endif %}
                                     </td>
                                     <td>

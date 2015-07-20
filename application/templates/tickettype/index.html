@@ -10,7 +10,7 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Settings') }}">Settings</a></li>
-                          <li class="active">Ticket Type </li>
+                          <li class="active">Tickets </li>
                         </ol>
                         <nav class="navbar navbar-toolbar navbar-default" role="navigation">
                           <div class="container-fluid">
@@ -19,13 +19,13 @@
                                    <a href="{{ url_for('TicketType_Edit') }}" class="btn btn-danger btn-lg">New</a>
                                </div>
                                <div class="btn-group pull-left">
-                                   <a href="{{ url_for('Ticket_Type_Name_Index') }}" class="btn btn-default btn-lg">Ticket Type</a>
+                                   <a href="{{ url_for('Ticket_Type_Name_Index') }}" class="btn btn-default btn-lg">Category</a>
                                </div>
                                <div class="btn-group pull-left">
                                    <a href="{{ url_for('JourneyType_Index') }}" class="btn btn-default btn-lg">Journey Type</a>
                                </div>
                                 <div class="btn-group pull-left">
-                                   <a href="{{ url_for('ClassType_Index') }}" class="btn btn-default btn-lg">Class Type</a>
+                                   <a href="{{ url_for('ClassType_Index') }}" class="btn btn-default btn-lg">Class</a>
                                </div>
 
                             </div>
@@ -37,9 +37,9 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Travel</th>
+                                    <th>Travel Line</th>
                                     <th>Class</th>
-                                    <th>Type</th>
+                                    <th>Category</th>
                                     <th>Journey</th>
                                     <th>Price</th>
                                     <th class="nosort"></th>

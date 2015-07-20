@@ -10,7 +10,7 @@
                         {
 
                             title:{
-                                text: "Selling traffic tickets for 14 days",
+                                text: "Tickets sales for last 14 days",
                                 fontSize: 30
                             },
                             animationEnabled: true,
@@ -41,7 +41,7 @@
                                 name: "Gabon traffic",
                                 markerType: "square",
                                 color: "#4d90fe",
-                                toolTipContent: '<span class="text-center" style="background-color:#5bc0de;font-size: 80%;padding:2.6em;padding-top:.2em;padding-bottom:.3em;color:#fff;">{travel}</span><br>{date}<hr style="margin-top:10px;margin-bottom:10px;"/><span>Amount: {y} {currency}</span>',
+                                toolTipContent: '<span class="text-center" style="background-color:#5bc0de;font-size:80%;padding:2.6em;padding-top:.2em;padding-bottom:.3em;color:#fff;">{travel}</span><br>{date}<hr style="margin-top:10px;margin-bottom:10px;"/><span>Amount: {y} {currency}</span>',
                                 dataPoints: [
                                 {% for ticket in the_ticket_agency_gabon %}
                                     { x: new Date("{{ ticket['date'] }} {{ ticket['heure'] }}"),
@@ -194,7 +194,7 @@
                              <h4 style="font-weight: bold;">Live Feed</h4>
                             </div>
                           <div class="panel-body">
-                            Basic panel example
+
                           </div>
                         </div>
                     </div>

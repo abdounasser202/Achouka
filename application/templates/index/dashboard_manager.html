@@ -9,7 +9,7 @@
                         {
 
                             title:{
-                                text: "Selling traffic tickets for 14 days",
+                                text: "Tickets sales for last 14 days",
                                 fontSize: 30
                             },
                             animationEnabled: true,
@@ -153,7 +153,7 @@
                         <div class="col-lg-4">
                                                         <div class="list-group">
                               <a class="list-group-item text-center">
-                                <h3 class="list-group-item-heading text-info">Next Trip</h3>
+                                <h3 class="list-group-item-heading text-info">Next Journey</h3>
                                   {% if current_departure %}
                                     <p class="list-group-item-text">
                                         {{ current_departure.destination.get().destination_start.get().name }} - {{ current_departure.destination.get().destination_check.get().name }}
@@ -161,13 +161,13 @@
                                         {{ current_departure.departure_date|format_date("%d-%m-%Y") }} {{ current_departure.schedule|add_time(current_departure.time_delay)|format_date("%H:%M") }} {% if current_departure.time_delay %}({{ current_departure.time_delay }}) {% endif %}
                                     </p>
                                   {% else %}
-                                    <p class="list-group-item-text">No next journey</p>
+                                    <p class="list-group-item-text">None</p>
                                   {% endif %}
                               </a>
                             </div>
                             <div class="list-group">
                               <a class="list-group-item text-center">
-                                <h3 class="list-group-item-heading">In Coming Journey</h3>
+                                <h3 class="list-group-item-heading">Incoming Journey</h3>
                                 {% if current_departure_check %}
                                     <p class="list-group-item-text">
                                         {{ current_departure_check.destination.get().destination_start.get().name }} - {{ current_departure_check.destination.get().destination_check.get().name }}
@@ -175,14 +175,14 @@
                                         {{ current_departure_check.departure_date|format_date("%d-%m-%Y") }} {{ current_departure_check.schedule|add_time(current_departure_check.time_delay)|format_date("%H:%M") }} {% if current_departure_check.time_delay %}({{ current_departure_check.time_delay }}) {% endif %}
                                     </p>
                                   {% else %}
-                                    <p class="list-group-item-text">No in coming</p>
+                                    <p class="list-group-item-text">None</p>
                                   {% endif %}
                               </a>
                             </div>
 
                             <div class="list-group">
                               <a class="list-group-item text-center">
-                                <h3 class="list-group-item-heading">On going journey</h3>
+                                <h3 class="list-group-item-heading">Ongoing Journey</h3>
                                 {% if current_departure_in_progress %}
                                     <p class="list-group-item-text">
                                         {{ current_departure_in_progress.destination.get().destination_start.get().name }} - {{ current_departure_in_progress.destination.get().destination_check.get().name }}
@@ -190,7 +190,7 @@
                                         {{ current_departure_in_progress.departure_date|format_date("%d-%m-%Y") }} {{ current_departure_in_progress.schedule|add_time(current_departure_in_progress.time_delay)|format_date("%H:%M") }} {% if current_departure_in_progress.time_delay %}({{ current_departure_in_progress.time_delay }}) {% endif %}
                                     </p>
                                   {% else %}
-                                    <p class="list-group-item-text">No on going</p>
+                                    <p class="list-group-item-text">None</p>
                                   {% endif %}
                               </a>
                             </div>

@@ -14,5 +14,5 @@ class FormVessel(wtf.Form):
             raise validators.ValidationError('Capacity should be more than zero')
 
         if not isinstance(field.data, int) and field.data:
-            raise validators.ValidationError('Capacity waiting number')
+            raise validators.ValidationError('Enter capacity in figures')
 

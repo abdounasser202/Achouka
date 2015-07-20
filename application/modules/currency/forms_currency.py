@@ -6,8 +6,8 @@ from lib.flaskext.wtf import validators
 
 
 class FormCurrency(wtf.Form):
-    code = wtf.StringField(label='Currency Code :',  validators=[validators.Required()])
-    name = wtf.StringField(label='Currency Name :',  validators=[validators.Required()])
+    code = wtf.StringField(label='Code :',  validators=[validators.Required()])
+    name = wtf.StringField(label='Name :',  validators=[validators.Required()])
 
 
 class FormEquivalence(wtf.Form):

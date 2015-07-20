@@ -30,8 +30,7 @@ def Pos(departure_id=None):
     heure = function.datetime_convert(date_auto_nows).time()
 
     departure = DepartureModel.query(
-        DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= heure
+        DepartureModel.departure_date >= datetime.date.today()
     ).order(
         -DepartureModel.departure_date,
         DepartureModel.schedule,
@@ -45,7 +44,7 @@ def Pos(departure_id=None):
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination:
+                if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
                     current_departure = dep
                     break
         else:
@@ -80,8 +79,7 @@ def reset_current_departure(departure_id=None):
     heure = function.datetime_convert(date_auto_nows).time()
 
     departure = DepartureModel.query(
-        DepartureModel.departure_date == datetime.date.today(),
-        DepartureModel.schedule >= heure
+        DepartureModel.departure_date >= datetime.date.today()
     ).order(
         -DepartureModel.departure_date,
         DepartureModel.schedule,
@@ -95,7 +93,7 @@ def reset_current_departure(departure_id=None):
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination:
+                if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
                     current_departure = dep
                     break
         else:
@@ -598,7 +596,7 @@ def generate_pdf_ticket(ticket_id):
     lieu = string % Ticket_print.agency.get().name
     agent = string % str(Ticket_print.ticket_seller.get().key.id())
 
-    p.drawImage(url_for('static', filename='TICKET-ONLY.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
+    p.drawImage(url_for('static', filename='TICKET-ONLY-2.jpg', _external=True), 0, 0, width=21*cm, height=9.9*cm, preserveAspectRatio=True)
 
     c = Paragraph(econo, style=style['Normal'])
     c.wrapOn(p, width, height)

@@ -9,7 +9,7 @@
       {{ form.hidden_tag() }}
       <div class="well well-sm">
           <div class="form-group">
-            <label class="col-sm-4 control-label">Type Ticket :</label>
+            <label class="col-sm-4 control-label">Catetory :</label>
             <div class="col-sm-8">
               <p class="form-control-static">{{ TicketType.type_name.get().name }}
               </p>
@@ -30,16 +30,16 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-4 control-label">Prix :</label>
+            <label class="col-sm-4 control-label">Price :</label>
             <div class="col-sm-8">
-              <p class="form-control-static">{{ TicketType.price }} {{ TicketType.currency.get().code }}
+              <p class="form-control-static">{{ TicketType.price|format_price() }} {{ TicketType.currency.get().code }}
               </p>
             </div>
           </div>
       </div>
       <div class="form-group {% if form.number.errors %} has-error {% endif %} has-feedback">
-        <label class="col-sm-4 control-label">{{ form.number.label }} :</label>
-        <div class="col-sm-8">
+        <label class="col-sm-5 control-label">{{ form.number.label }} :</label>
+        <div class="col-sm-7">
           {{ form.number(class_='form-control', id="number")|safe }}
           {% for message in form.number.errors %}
             <span class="help-block text-danger">{{ message }}</span>

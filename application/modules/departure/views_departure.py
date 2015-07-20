@@ -9,7 +9,7 @@ from forms_departure import FormDeparture
 cache = Cache(app)
 
 
-@app.route('/recording/departure')
+@app.route('/recording/journey')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Departure_Index():
@@ -81,8 +81,8 @@ def Departure_manager_agency(agency_id):
 
 
 
-@app.route('/recording/departure/edit', methods=['GET', 'POST'])
-@app.route('/recording/departure/edit/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/recording/journey/edit', methods=['GET', 'POST'])
+@app.route('/recording/journey/edit/<int:departure_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Departure_Edit(departure_id=None):

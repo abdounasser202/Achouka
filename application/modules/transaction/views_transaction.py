@@ -145,7 +145,7 @@ def Transaction_user(user_id=None):
         #Traitement de la transaction parente
 
         parent_transaction = TransactionModel()
-        parent_transaction.reason = "Payment"
+        parent_transaction.reason = "Ticket Sale"
         parent_transaction.amount = amount_to_save
         parent_transaction.agency = user_get_id.agency
         parent_transaction.is_payment = True
@@ -371,7 +371,7 @@ def Payment_admin_local(agency_id):
         diff = agency_get_id.escrow_amount() - agency_get_id.escrow_amount(True)
 
         amount_diff = diff - amount
-        if amount_diff > 0:
+        if amount_diff >= 0:
             amount_to_save = amount
         else:
             amount_to_save = amount + amount_diff
@@ -380,7 +380,7 @@ def Payment_admin_local(agency_id):
         #Traitement de la transaction parente
 
         parent_transaction = TransactionModel()
-        parent_transaction.reason = "Payment"
+        parent_transaction.reason = "Agency Ticket Sale"
         parent_transaction.amount = amount_to_save
         parent_transaction.agency = agency_get_id.key
         parent_transaction.is_payment = True
@@ -432,7 +432,22 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
     )
 
     amount = 0
+    amount_agency = 0
     for transaction in transaction_destination_query_2:
+
+        entry_query_agency = TransactionModel.query(
+            TransactionModel.is_payment == True,
+            TransactionModel.agency == agency_get_id.key,
+            TransactionModel.transaction_admin == False,
+            TransactionModel.destination == transaction.destination
+        )
+
+        # SOMMES DES ENTRES
+        entry_amount_agency = 0
+        for entry in entry_query_agency:
+            entry_amount_agency += entry.amount
+
+
         entry_query = TransactionModel.query(
             TransactionModel.is_payment == True,
             TransactionModel.agency == agency_get_id.key,
@@ -459,6 +474,8 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
 
         # TOTAL RETENU
         amount = entry_amount - expense_amount
+
+        amount_agency = entry_amount_agency - expense_amount
 
     if request.method == "POST":
 

@@ -10,13 +10,13 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
-                          <li class="active">Travel</li>
+                          <li class="active">Travel Lines</li>
                         </ol>
                         <nav class="navbar navbar-toolbar navbar-default" role="navigation">
                           <div class="container-fluid">
                             <div class="btn-toolbar" role="toolbar">
                                <div class="btn-group pull-left">
-                                   <a href="{{ url_for('Travel_Edit') }}" class="btn btn-danger btn-lg">Create</a>
+                                   <a href="{{ url_for('Travel_Edit') }}" class="btn btn-danger btn-lg">New</a>
                                </div>
                             </div>
                           </div>
@@ -26,9 +26,12 @@
                          <table class="table table-hover" id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Departure</th>
-                                    <th>Arrivals</th>
-                                    <th>Travel line time</th>
+                                    <th>
+                                        From
+                                    </th>
+                                    <th>To</th>
+                                    <th>
+                                        Line Travel Time</th>
                                     <th class="nosort"></th>
                                 </tr>
                             </thead>

@@ -10,7 +10,7 @@ from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, Fo
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-@app.route('/settings/tickettype')
+@app.route('/settings/ticket')
 @login_required
 @roles_required(('admin', 'super_admin'))
 def TicketType_Index():
@@ -22,8 +22,8 @@ def TicketType_Index():
     return render_template('/tickettype/index.html', **locals())
 
 
-@app.route('/settings/tickettype/edit/<int:tickettype_id>', methods=['POST', 'GET'])
-@app.route('/settings/tickettype/edit', methods=['POST', 'GET'])
+@app.route('/settings/ticket/edit/<int:tickettype_id>', methods=['POST', 'GET'])
+@app.route('/settings/ticket/edit', methods=['POST', 'GET'])
 @login_required
 @roles_required(('admin', 'super_admin'))
 def TicketType_Edit(tickettype_id=None):
@@ -240,8 +240,8 @@ def Verified_Disabled(tickettype_id):
 #
 #-------------------------------------------------------------------------------
 
-@app.route('/settings/tickettype/classtype', methods=['GET', 'POST'])
-@app.route('/settings/tickettype/classtype/<int:class_type_id>', methods=['GET', 'POST'])
+@app.route('/settings/tickettype/class', methods=['GET', 'POST'])
+@app.route('/settings/tickettype/class/<int:class_type_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
 def ClassType_Index(class_type_id=None):
@@ -556,8 +556,8 @@ def JourneyType_Delete(journey_type_id):
 #
 #-------------------------------------------------------------------------------
 
-@app.route("/settings/tickettype/tickettypename", methods=['GET', 'POST'])
-@app.route('/settings/tickettype/tickettypename/<int:ticket_type_name_id>', methods=['GET', 'POST'])
+@app.route("/settings/ticket/category", methods=['GET', 'POST'])
+@app.route('/settings/ticket/category/<int:ticket_type_name_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('admin', 'super_admin'))
 def Ticket_Type_Name_Index(ticket_type_name_id=None):
