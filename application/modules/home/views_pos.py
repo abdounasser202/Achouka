@@ -32,7 +32,7 @@ def Pos(departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -81,7 +81,7 @@ def reset_current_departure(departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
