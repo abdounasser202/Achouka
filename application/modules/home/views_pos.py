@@ -44,11 +44,18 @@ def Pos(departure_id=None):
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
+                if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
                     current_departure = dep
                     break
         else:
-            current_departure = departure.get()
+            current_departure = DepartureModel.query(
+                    DepartureModel.departure_date == datetime.date.today(),
+                    DepartureModel.schedule >= heure
+                ).order(
+                    DepartureModel.departure_date,
+                    DepartureModel.schedule,
+                    DepartureModel.time_delay
+                ).get()
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
@@ -97,7 +104,14 @@ def reset_current_departure(departure_id=None):
                     current_departure = dep
                     break
         else:
-            current_departure = departure.get()
+            current_departure = DepartureModel.query(
+                    DepartureModel.departure_date == datetime.date.today(),
+                    DepartureModel.schedule >= heure
+                ).order(
+                    DepartureModel.departure_date,
+                    DepartureModel.schedule,
+                    DepartureModel.time_delay
+                ).get()
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 

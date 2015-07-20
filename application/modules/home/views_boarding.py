@@ -38,7 +38,14 @@ def Boarding():
                 current_departure = dep
                 break
     else:
-        current_departure = departure.get()
+        current_departure = DepartureModel.query(
+                    DepartureModel.departure_date == datetime.date.today(),
+                    DepartureModel.schedule >= heure
+                ).order(
+                    DepartureModel.departure_date,
+                    DepartureModel.schedule,
+                    DepartureModel.time_delay
+                ).get()
 
     return render_template('/index/boarding.html', **locals())
 
