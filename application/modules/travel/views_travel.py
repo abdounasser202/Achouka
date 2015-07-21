@@ -8,11 +8,11 @@ from forms_travel import FormTravel
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
-@app.route('/recording/travel')
+@app.route('/settings/travel')
 @login_required
 @roles_required(('super_admin', 'admin'))
 def Travel_Index():
-    menu = 'recording'
+    menu = 'settings'
     submenu = 'travel'
 
     travels = TravelModel.query()
@@ -20,12 +20,12 @@ def Travel_Index():
     return render_template('/travel/index.html', **locals())
 
 
-@app.route('/recording/travel/edit', methods=['GET', 'POST'])
-@app.route('/recording/travel/edit/<int:travel_id>', methods=['GET', 'POST'])
+@app.route('/settings/travel/edit', methods=['GET', 'POST'])
+@app.route('/settings/travel/edit/<int:travel_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'admin'))
 def Travel_Edit(travel_id=None):
-    menu = 'recording'
+    menu = 'settings'
     submenu = 'travel'
 
     from ..activity.models_activity import ActivityModel

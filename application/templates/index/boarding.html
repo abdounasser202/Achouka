@@ -21,7 +21,7 @@
                                       <div class="form-group">
                                         <label class="col-sm-2 control-label">Ticket Code :</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control" placeholder="Enter ticket number" name="number_ticket" id="number_ticket" autofocus autocomplete="false" >
+                                            <input type="text" class="form-control" placeholder="Enter ticket number" name="number_ticket" id="number_ticket" {% if number %} value="{{ number }}" {% endif %} autofocus autocomplete="false" >
                                             <input type="hidden" name="departure_id" id="departure_id" value="{% if current_departure %} {{ current_departure.key.id() }} {% endif %}" />
                                         </div>
                                           <div class="col-sm-2">
@@ -107,7 +107,7 @@
         $('#number_ticket').inputmask("9999999999999999", { placeholder:"****************"});
 
         // Traitement de la recherche de ticket
-        $('#SubmitTicketNumber').click(function(e){
+        $('#SubmitTicketNumber').on('click', function(e){
             e.preventDefault();
             if($('#departure_id').val() != ""){
                 url = $(this).attr('href');
@@ -141,6 +141,11 @@
                 }
             });
         });
+
+        if($('#number_ticket').val().length == 16){
+            $('#SubmitTicketNumber').trigger('click');
+        }
+
 
 
 {#        function printDiv(divName) {#}

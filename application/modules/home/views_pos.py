@@ -4,14 +4,13 @@ __author__ = 'wilrona'
 from ...modules import *
 
 from ..customer.models_customer import CustomerModel
-from ..ticket.models_ticket import (TicketPoly, TicketModel, TicketParent, TicketTypeNameModel,
+from ..ticket.models_ticket import (TicketPoly, TicketModel, TicketTypeNameModel,
                                     JourneyTypeModel, ClassTypeModel, AgencyModel, QuestionModel, TicketQuestion)
 
 from ..customer.forms_customer import FormCustomerPOS
 
 
 cache = Cache(app)
-
 
 
 @app.route('/point-of-sale/<int:departure_id>', methods=['GET', 'POST'])
@@ -49,13 +48,13 @@ def Pos(departure_id=None):
                     break
         else:
             current_departure = DepartureModel.query(
-                    DepartureModel.departure_date == datetime.date.today(),
-                    DepartureModel.schedule >= heure
-                ).order(
-                    DepartureModel.departure_date,
-                    DepartureModel.schedule,
-                    DepartureModel.time_delay
-                ).get()
+                DepartureModel.departure_date == datetime.date.today(),
+                DepartureModel.schedule >= heure
+            ).order(
+                DepartureModel.departure_date,
+                DepartureModel.schedule,
+                DepartureModel.time_delay
+            ).get()
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
@@ -72,6 +71,7 @@ def reset_remaining_ticket():
         number = 'No Ticket'
 
     return number+' Available'
+
 
 @app.route('/reset_current_departure/<int:departure_id>')
 @app.route('/reset_current_departure')
@@ -105,13 +105,13 @@ def reset_current_departure(departure_id=None):
                     break
         else:
             current_departure = DepartureModel.query(
-                    DepartureModel.departure_date == datetime.date.today(),
-                    DepartureModel.schedule >= heure
-                ).order(
-                    DepartureModel.departure_date,
-                    DepartureModel.schedule,
-                    DepartureModel.time_delay
-                ).get()
+                DepartureModel.departure_date == datetime.date.today(),
+                DepartureModel.schedule >= heure
+            ).order(
+                DepartureModel.departure_date,
+                DepartureModel.schedule,
+                DepartureModel.time_delay
+            ).get()
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
@@ -149,6 +149,7 @@ def reset_current_departure(departure_id=None):
 
     return element
 
+
 @app.route('/search_customer_pos', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
@@ -185,7 +186,6 @@ def search_customer_pos():
     return render_template('/pos/search_customer.html', **locals())
 
 
-
 @app.route('/search_ticket_pos', methods=['GET', 'POST'])
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
@@ -215,7 +215,6 @@ def search_ticket_pos():
 def Ticket_found(ticket_id):
     ticket = TicketModel.get_by_id(ticket_id)
     return render_template('/pos/ticket_found.html', **locals())
-
 
 
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['GET', 'POST'])
@@ -315,13 +314,14 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         customer.profession = form.profession.data
         customer_save = customer.put()
 
-        new_ticket = TicketParent()
+        new_ticket = TicketModel()
 
         new_ticket.type_name = Ticket_Return.type_name
         new_ticket.class_name = Ticket_Return.class_name
 
         new_ticket.selling = True
         new_ticket.is_ticket = True
+        new_ticket.is_count = False
         new_ticket.date_reservation = function.datetime_convert(date_auto_nows)
         new_ticket.datecreate = function.datetime_convert(date_auto_nows)
 
@@ -331,7 +331,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         user = UserModel.get_by_id(int(session.get('user_id')))
         new_ticket.ticket_seller = user.key
 
-        new_ticket.parent = Ticket_Return.key
+        new_ticket.parent_return = Ticket_Return.key
 
         #sauvegarde de l'agence de l'utilisateur courant
         new_ticket.agency = agency_current_user.key
@@ -359,7 +359,6 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         modal = 'true'
 
     return render_template('/pos/create_customer_and_ticket_return.html', **locals())
-
 
 
 @app.route('/create_customer_and_ticket_pos', methods=['GET', 'POST'])
@@ -432,7 +431,6 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
             # verifie que le quota de question obligatoire est atteint dans le questionnaire
             if count < number_obligated_question:
                 obligated = True
-
 
     if customer_id:
         customer = CustomerModel.get_by_id(customer_id)
@@ -566,7 +564,6 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         modal = 'true'
 
     return render_template('/pos/create_customer_and_ticket.html', **locals())
-
 
 
 @app.route('/modal_generate_pdf_ticket')
@@ -716,7 +713,7 @@ def Search_Ticket_Type():
     if priceticket:
         data = json.dumps({
             'statut': 'OK',
-            'price': priceticket.price,
+            'price': function.format_price(priceticket.price),
             'currency': priceticket.currency.get().code,
             'type_name' : typeticket.name,
             'class_name': classticket.name,
@@ -748,7 +745,6 @@ def remaining_ticket():
     return data
 
 
-
 @app.route('/Calendrier')
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
@@ -767,7 +763,6 @@ def Calendrier(current_month_active=None, current_day_active=None):
     cal_list = [cal.monthdatescalendar(year, i+1) for i in xrange(12)]
 
     return render_template('/pos/calendrier.html', **locals())
-
 
 
 @app.route('/List_All_Departure/<int:current_month_active>/<int:current_day_active>')
@@ -894,6 +889,7 @@ def create_customer_and_ticket_upgrade_2(departure_id, ticket_id, ticket_type_id
     )
 
     return render_template('/pos/create_customer_and_ticket_upgrade_2.html', **locals())
+
 
 @app.route('/create_upgrade_ticket/<int:departure_id>/<int:ticket_id>/<int:ticket_type_same_id>/<int:ticket_type_id>', methods=['GET','POST'])
 @app.route('/create_upgrade_ticket/<int:departure_id>/<int:ticket_id>/<int:ticket_type_same_id>', methods=['GET','POST'])
@@ -1022,7 +1018,8 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
         customer_ticket = CustomerModel.get_by_id(customer_save.id())
         new_ticket.customer = customer_ticket.key
 
-        new_ticket.upgrade = Ticket_Return.key
+        new_ticket.upgrade_parent = Ticket_Return.key
+        new_ticket.is_upgrade = True
 
         new_ticket.departure = departure_current.key
 

@@ -119,7 +119,7 @@
                     <div class="text-center well">
                         <h6>Parent ticket price</h6>
                       <h1 style="margin:0;">
-                              <span class="text-muted">{{ Ticket_Return.sellprice }}
+                              <span class="text-muted">{{ Ticket_Return.sellprice|format_price() }}
                               </span>
                               <span class="text-primary">{{ Ticket_Return.sellpriceCurrency.get().code }}
                               </span>

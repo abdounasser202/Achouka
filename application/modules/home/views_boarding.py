@@ -15,6 +15,8 @@ def Boarding():
     if not session.get('agence_id'):
         flash('You can\'t use boarding. You don\'t have permissions', 'danger')
 
+    number = request.args.get('ticket_id')
+
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")

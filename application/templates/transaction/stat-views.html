@@ -89,18 +89,18 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for user in user_agency %}
-                                                        {% for ticket in user.foreign_escrow_and_number_ticket() %}
-                                                            {% if ticket['travel'].get().destination_start != user.agency.get().destination and ticket['ticket_seller'] == user.key and ticket['escrow'] > 0 %}
-                                                                <tr id="{{ user.key.id() }}_{{ ticket['travel'].get().key.id() }}" class="dblClickEmpForeign">
-                                                                    <td><strong>{{ user.last_name }} {{ user.first_name }}</strong></td>
-                                                                    <td>{{ ticket['travel'].get().destination_start.get().name }} - {{ ticket['travel'].get().destination_check.get().name }}</td>
-                                                                    <td>{{ ticket['number'] }}</td>
-                                                                    <td>{{ ticket['escrow']|format_price() }} {{ ticket['travel'].get().destination_start.get().currency.get().code }}</td>
-                                                                </tr>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    {% endfor %}
+{#                                                    {% for user in user_agency %}#}
+{#                                                        {% for ticket in user.foreign_escrow_and_number_ticket() %}#}
+{#                                                            {% if ticket['travel'].get().destination_start != user.agency.get().destination and ticket['ticket_seller'] == user.key and ticket['escrow'] > 0 %}#}
+{#                                                                <tr id="{{ user.key.id() }}_{{ ticket['travel'].get().key.id() }}" class="dblClickEmpForeign">#}
+{#                                                                    <td><strong>{{ user.last_name }} {{ user.first_name }}</strong></td>#}
+{#                                                                    <td>{{ ticket['travel'].get().destination_start.get().name }} - {{ ticket['travel'].get().destination_check.get().name }}</td>#}
+{#                                                                    <td>{{ ticket['number'] }}</td>#}
+{#                                                                    <td>{{ ticket['escrow']|format_price() }} {{ ticket['travel'].get().destination_start.get().currency.get().code }}</td>#}
+{#                                                                </tr>#}
+{#                                                            {% endif %}#}
+{#                                                        {% endfor %}#}
+{#                                                    {% endfor %}#}
                                                 </tbody>
                                             </table>
                                         </div>

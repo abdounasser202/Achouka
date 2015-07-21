@@ -117,18 +117,23 @@ def Departure_Edit(departure_id=None):
         form = FormDeparture(request.form)
 
     if form.validate_on_submit():
-        travel_destination = TravelModel.get_by_id(int(form.destination.data))
+
+        travel_destination = departmod.destination
+        if not departure_id:
+            travel_destination = TravelModel.get_by_id(int(form.destination.data))
+            travel_destination = travel_destination.key
+
         vessel_departure = VesselModel.get_by_id(int(form.vessel.data))
 
         departure_exist = DepartureModel.query(
             DepartureModel.departure_date == function.date_convert(form.departure_date.data),
             DepartureModel.schedule == function.time_convert(form.schedule.data),
-            DepartureModel.destination == travel_destination.key
+            DepartureModel.destination == travel_destination
         ).count()
 
         if departure_exist >= 1:
 
-            if departmod.destination == travel_destination.key and departmod.departure_date == function.date_convert(form.departure_date.data) and departmod.schedule == function.time_convert(form.schedule.data):
+            if departmod.destination == travel_destination and departmod.departure_date == function.date_convert(form.departure_date.data) and departmod.schedule == function.time_convert(form.schedule.data):
                 departmod.vessel = vessel_departure.key
 
                 if departure_id:
@@ -160,16 +165,16 @@ def Departure_Edit(departure_id=None):
                         activity.nature = 4
                         activity.put()
 
-                flash(u' Departure Updated. ', 'success')
+                flash(u' Journey Updated. ', 'success')
                 return redirect(url_for('Departure_Index'))
             else:
-                flash(u'This departure exist. ', 'danger')
+                flash(u'This journey exist. ', 'danger')
 
         else:
 
             departmod.departure_date = function.date_convert(form.departure_date.data)
             departmod.schedule = function.time_convert(form.schedule.data)
-            departmod.destination = travel_destination.key
+            departmod.destination = travel_destination
             departmod.vessel = vessel_departure.key
 
             depart = departmod.put()
@@ -178,7 +183,10 @@ def Departure_Edit(departure_id=None):
             activity.nature = 1
             activity.put()
 
-            flash(u' Departure Saved. ', 'success')
+            if departure_id:
+                flash(u' Journey Update. ', 'success')
+            else:
+                flash(u' Journey Saved. ', 'success')
             return redirect(url_for('Departure_Index'))
 
             #insertion et modification de la capacite restante pour les reservations

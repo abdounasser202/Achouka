@@ -43,7 +43,9 @@ def Stat_View(agency_id):
 
     # Traitement pour l'affichage du nombre de dernier ticket achete
     purchases_query = TicketModel.query(
-        TicketModel.agency == current_agency.key
+        TicketModel.agency == current_agency.key,
+        TicketModel.is_count == True,
+        TicketModel.is_upgrade == False
     )
 
     ticket_purchase_tab = []

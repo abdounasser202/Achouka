@@ -35,12 +35,15 @@
                             {% for agency in List_agency %}
                                 <tr>
                                     <td><a href="{{ url_for('Transaction_Agency', agency_id=agency.key.id()) }}">{{ agency.name }}</a></td>
-                                    <td>{{ agency.escrow_amount(true)|format_price() }} {{ agency.destination.get().currency.get().code }}</td>
+                                    <td>{% set price = agency.escrow_amount(true)*-1 %}
+                                        {{ price|format_price() }}
+                                        {{ agency.destination.get().currency.get().code }}
+                                    </td>
                                     <td>
 
                                         {% for foreign in agency.escrow_amount_foreign(true) %}
-
-                                            <strong>{{ foreign['destination'].get().name }} : </strong> <span class="text-primary">{{ foreign['amount']|format_price() }} {{ foreign['destination'].get().currency.get().code }}</span>
+                                            {% set price = foreign['amount']*-1 %}
+                                            <strong>{{ foreign['destination'].get().name }} : </strong> <span class="text-primary">{{ price|format_price() }} {{ foreign['destination'].get().currency.get().code }}</span>
                                             {% if loop.index > 1 %} | {% endif %}
                                         {% else %}
                                             Not Found

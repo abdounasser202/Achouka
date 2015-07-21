@@ -40,7 +40,9 @@ class AgencyModel(ndb.Model):
 
         ticket = TicketModel.query(
             TicketModel.agency == self.key,
-            TicketModel.selling == False
+            TicketModel.selling == False,
+            TicketModel.is_count == True,
+            TicketModel.is_upgrade == False
         ).count()
 
         if ticket <= 1:
@@ -54,7 +56,9 @@ class AgencyModel(ndb.Model):
         from ..ticket.models_ticket import TicketModel
 
         ticket = TicketModel.query(
-            TicketModel.agency == self.key
+            TicketModel.agency == self.key,
+            TicketModel.is_count == True,
+            TicketModel.is_upgrade == False
         ).order(-TicketModel.datecreate)
 
         ticket = ticket.get()

@@ -5,12 +5,12 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-2">
-                    {% include 'includes/menu-recording.html' %}
+                    {% include 'includes/menu-settings.html' %}
             </div>
             <div class="col-lg-10">
                 <section>
                         <ol class="breadcrumb">
-                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('Settings') }}">Settings</a></li>
                           <li><a href="{{ url_for('Travel_Index') }}">Travel Lines</a></li>
                             {% if travel_id %}
                                 <li class="active">Edit</li>

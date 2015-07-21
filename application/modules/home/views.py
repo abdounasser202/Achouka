@@ -138,7 +138,8 @@ def Dashboard():
 
         user_ticket = TicketModel.query(
             TicketModel.ticket_seller == current_user.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         ).order(-TicketModel.date_reservation)
 
         agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
@@ -232,6 +233,7 @@ def Dashboard():
         ticket_agency = TicketModel.query(
             TicketModel.agency == user_agency.key,
             TicketModel.selling == True,
+            TicketModel.is_count == True,
             TicketModel.date_reservation <= function.datetime_convert(date_auto_nows),
             TicketModel.date_reservation > function.datetime_convert(time_minus_14days)
         )
@@ -313,7 +315,8 @@ def Dashboard():
 
         ticket_agency = TicketModel.query(
             TicketModel.agency == user_agency.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
 
         ticket_sale_local = {}
@@ -355,6 +358,7 @@ def Dashboard():
         ticket_agency = TicketModel.query(
             TicketModel.agency == agency.key,
             TicketModel.selling == True,
+            TicketModel.is_count == True,
             TicketModel.date_reservation <= function.datetime_convert(date_auto_nows),
             TicketModel.date_reservation > function.datetime_convert(time_minus_14days)
         )
@@ -432,7 +436,8 @@ def Dashboard():
     for agency in all_agency:
         ticket_agency = TicketModel.query(
             TicketModel.agency == agency.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
         for ticket in ticket_agency:
             if function.datetime_convert(ticket.date_reservation).month == month_current:
@@ -469,7 +474,8 @@ def Dashboard():
     for agency in all_agency:
         ticket_agency = TicketModel.query(
             TicketModel.agency == agency.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
         for ticket in ticket_agency:
             tickets = {}

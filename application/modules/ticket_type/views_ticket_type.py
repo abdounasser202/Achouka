@@ -169,7 +169,7 @@ def delete_tickettype(tickettype_id):
     activity.nature = 3
     activity.put()
 
-    flash(u'Ticket Type Deleted: ' + TicketType_delete.name, 'success')
+    flash(u'Ticket Deleted: ' + TicketType_delete.name, 'success')
     TicketType_delete.key.delete()
     return redirect(url_for('TicketType_Index'))
 
@@ -277,11 +277,11 @@ def ClassType_Index(class_type_id=None):
 
             if class_type_id:
                 activity.nature = 4
-                flash(u"Class Type Updated!", "success")
+                flash(u"Class Updated!", "success")
 
             else:
                 activity.nature = 1
-                flash(u"Class Type Saved!", "success")
+                flash(u"Class Saved!", "success")
 
             activity.put()
             return redirect(url_for('ClassType_Index'))
@@ -314,7 +314,7 @@ def ClassType_Default(class_type_id):
         ).count()
 
         if journey_default_exist >= 1:
-            flash(u"you can not define two class type as a criterion 'is default'!", "danger")
+            flash(u"you can not define two class as a criterion 'is default'!", "danger")
         else:
             activity.nature = 6
             flash(u"Journey Updated!", "success")
@@ -352,7 +352,7 @@ def ClassType_Delete(class_type_id):
     ).count()
 
     if class_ticket_type_exist >= 1 or class_ticket_exist >= 1:
-        flash(u"You can't delete this class"+class_delete.name+u" it's used by ticket type and some ticket!", "danger")
+        flash(u"You can't delete this class "+class_delete.name+u" it's used by ticket type and some ticket!", "danger")
         return redirect(url_for('ClassType_Index'))
 
     activity = ActivityModel()
@@ -364,7 +364,7 @@ def ClassType_Delete(class_type_id):
     activity.put()
 
     class_delete.key.delete()
-    flash(u"Class Type has been deleted successfully!", "success")
+    flash(u"Class has been deleted successfully!", "success")
     return redirect(url_for('ClassType_Index'))
 
 
@@ -546,7 +546,7 @@ def JourneyType_Delete(journey_type_id):
     activity.put()
 
     journey_delete.key.delete()
-    flash(u"Journey Type has been deleted successfully!", "success")
+    flash(u"Journey has been deleted successfully!", "success")
     return redirect(url_for('JourneyType_Index'))
 
 
@@ -601,11 +601,11 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
             this_ticket = tickets.put()
             if ticket_type_name_id:
                 activity.nature = 4
-                flash(u"Ticket Type Name Updated!", "success")
+                flash(u"Category Updated!", "success")
 
             else:
                 activity.nature = 1
-                flash(u"Ticket Type Name Saved!", "success")
+                flash(u"Category Saved!", "success")
 
             activity.identity = this_ticket.id()
             activity.put()
@@ -666,11 +666,11 @@ def Ticket_Type_Name_Default(ticket_type_name_id):
             flash(u"you can not define two type of ticket as a criterion 'is default'!", "danger")
         else:
             activity.nature = 6
-            flash(u"Ticket Type Name Updated!", "success")
+            flash(u"Category Updated!", "success")
             ticket.default = True
     else:
         activity.nature = 7
-        flash(u"Ticket Type Name Updated!", "success")
+        flash(u"Category Updated!", "success")
         ticket.default = False
 
     ticket.put()
@@ -706,11 +706,11 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
             flash(u"You can not activate more than two normal ticket type", "danger")
         else:
             activity.nature = 9
-            flash(u"Ticket Type Name Updated!", "success")
+            flash(u"Category Updated!", "success")
             ticket.special = False
     else:
         activity.nature = 8
-        flash(u"Ticket Type Name Updated!", "success")
+        flash(u"Category Updated!", "success")
         ticket.special = True
 
     activity.put()
@@ -741,7 +741,7 @@ def Delete_Ticket_Type_Name(ticket_type_name_id):
     ).count()
 
     if ticket_type_name_ticket_exist >= 1 or ticket_type_name_ticket_type_exist >= 1:
-        flash(u"You can't delete this ticket type name :"+delete_ticket.name+u" it's used by ticket type and some ticket!!", "danger")
+        flash(u"You can't delete this Catetory :"+delete_ticket.name+u" it's used by ticket type and some ticket!!", "danger")
         return redirect(url_for("Ticket_Type_Name_Index"))
 
     activity = ActivityModel()
@@ -754,5 +754,5 @@ def Delete_Ticket_Type_Name(ticket_type_name_id):
 
     # Si oui il ne sera pas supprime
     delete_ticket.key.delete()
-    flash(u"Ticket Type name has been deleted successfully!", "success")
+    flash(u"Catetory has been deleted successfully!", "success")
     return redirect(url_for("Ticket_Type_Name_Index"))

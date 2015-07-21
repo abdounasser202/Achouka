@@ -76,7 +76,6 @@ def Transaction_detail(transaction_id=None):
             temp_dict['amount'] += item['amount']
         detail_transaction.append(temp_dict)
 
-
     return render_template('/transaction/transaction_details.html', **locals())
 
 
@@ -99,7 +98,8 @@ def Transaction_user(user_id=None):
 
         user_ticket_query = TicketModel.query(
             TicketModel.ticket_seller == user_get_id.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
 
         user_tickets_tab = []
@@ -220,7 +220,8 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
 
     ticket_user_query = TicketModel.query(
         TicketModel.ticket_seller == user_get_id.key,
-        TicketModel.travel_ticket == travel_get_id.key
+        TicketModel.travel_ticket == travel_get_id.key,
+        TicketModel.is_count == True
     )
 
     user_tickets_tab = []

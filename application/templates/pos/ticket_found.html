@@ -76,7 +76,7 @@
                                   <tr>
                                       <td><strong>Price</strong></td>
                                       <td>
-                                          {{ ticket.sellprice }} {{ ticket.sellpriceCurrency.get().code }}
+                                          {{ ticket.sellprice|format_price() }} {{ ticket.sellpriceCurrency.get().code }}
                                       </td>
                                   </tr>
                               </table>

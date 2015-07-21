@@ -115,7 +115,8 @@ class UserModel(ndb.Model):
         if not user_ticket_query:
             user_ticket_query = TicketModel.query(
                 TicketModel.ticket_seller == self.key,
-                TicketModel.selling == True
+                TicketModel.selling == True,
+                TicketModel.is_count == True
             )
 
         # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
@@ -228,12 +229,14 @@ class UserModel(ndb.Model):
             ticket_travel_foreign_query = TicketModel.query(
                 TicketModel.selling == True,
                 TicketModel.travel_ticket == travel.key,
-                TicketModel.ticket_seller == self.key
+                TicketModel.ticket_seller == self.key,
+                TicketModel.is_count == True
             )
         else:
             ticket_travel_foreign_query = TicketModel.query(
                 TicketModel.selling == True,
-                TicketModel.ticket_seller == self.key
+                TicketModel.ticket_seller == self.key,
+                TicketModel.is_count == True
             )
 
         ticket_travel_foreign_tab = []
@@ -245,7 +248,8 @@ class UserModel(ndb.Model):
                 list_ticket_travel_query = TicketModel.query(
                     TicketModel.travel_ticket == ticket_foreign.travel_ticket,
                     TicketModel.ticket_seller == self.key,
-                    TicketModel.selling == True
+                    TicketModel.selling == True,
+                    TicketModel.is_count == True
                 )
 
                 #Nombre de ticket
@@ -288,7 +292,8 @@ class UserModel(ndb.Model):
 
         user_ticket_query = TicketModel.query(
             TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
 
         # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
@@ -313,7 +318,8 @@ class UserModel(ndb.Model):
 
         user_ticket_query = TicketModel.query(
             TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
 
         user_tickets_tab = []
@@ -359,7 +365,8 @@ class UserModel(ndb.Model):
 
         user_ticket_query = TicketModel.query(
             TicketModel.ticket_seller == self.key,
-            TicketModel.selling == True
+            TicketModel.selling == True,
+            TicketModel.is_count == True
         )
 
         user_tickets_tab = []
