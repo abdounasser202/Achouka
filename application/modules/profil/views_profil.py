@@ -17,6 +17,47 @@ def Profil_Index():
     submenu = 'profil'
 
     profil_lists = ProfilModel.query()
+
+    from ..user.models_user import ProfilRoleModel, RoleModel
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'ProfilModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        if feed.nature == 10:
+            vess = ProfilRoleModel.get_by_id(feed.identity)
+            feed_list['data'] = vess.role_id.get().name
+            feed_list['last_value'] = vess.profil_id.get().name
+            feed_list['id'] = vess.profil_id.get().key.id()
+        elif feed.nature == 13:
+            vess = RoleModel.get_by_id(feed.identity)
+            feed_list['data'] = vess.name
+            profiling = ProfilModel.get_by_id(int(feed.last_value))
+            feed_list['last_value'] = profiling.name
+            feed_list['id'] = profiling.key.id()
+        else:
+            vess = ProfilModel.get_by_id(feed.identity)
+            feed_list['data'] = vess.name
+            feed_list['id'] = feed.identity
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/profil/all_feed.html', **locals())
+
     return render_template('/profil/index.html', **locals())
 
 
@@ -44,16 +85,63 @@ def Profil_View(profil_id):
 def Profil_Edit(profil_id=None):
     menu = 'settings'
     submenu = 'profil'
-    from ..user.models_user import ProfilRoleModel
+    from ..user.models_user import ProfilRoleModel, RoleModel
     from ..activity.models_activity import ActivityModel
 
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    feed_tab = []
+
+
     if profil_id:
         profil = ProfilModel.get_by_id(profil_id)
         form = FormProfil(obj=profil)
         profilRole = ProfilRoleModel.query(ProfilRoleModel.profil_id == profil.key)
+
+        profilRole_id = [profil_role_id.key.id() for profil_role_id in profilRole]
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'ProfilModel'
+        ).order(
+            -ActivityModel.time
+        )
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            if feed.identity == profil.key.id(): #AFFICHER TOUTES LES MODIFICATIONS EFFECTUE SUR LE PROFIL
+                vess = ProfilModel.get_by_id(feed.identity)
+                feed_list['data'] = vess.name
+                feed_list['id'] = feed.identity
+                feed_list['time'] = feed.time
+                feed_list['nature'] = feed.nature
+                feed_tab.append(feed_list)
+
+            if feed.identity in profilRole_id: # AFFICHER LES AJOUTS DE ROLE EFFECTUES
+                vess = ProfilRoleModel.get_by_id(feed.identity)
+                feed_list['data'] = vess.role_id.get().name
+                feed_list['last_value'] = vess.profil_id.get().name
+                feed_list['id'] = vess.profil_id.get().key.id()
+                feed_list['time'] = feed.time
+                feed_list['nature'] = feed.nature
+                feed_tab.append(feed_list)
+
+            if feed.nature == 13: #AFFICHER LES SUPPRESSIONS EFFECTUEES
+                if int(feed.last_value) == profil.key.id():
+                    vess = RoleModel.get_by_id(feed.identity)
+                    feed_list['data'] = vess.name
+                    profiling = ProfilModel.get_by_id(int(feed.last_value))
+                    feed_list['last_value'] = profiling.name
+                    feed_list['id'] = profiling.key.id()
+
+                    feed_list['time'] = feed.time
+                    feed_list['nature'] = feed.nature
+                    feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
     else:
         profil = ProfilModel()
         form = FormProfil(request.form)
@@ -122,7 +210,7 @@ def Add_Role_Profil(profil_id):
 
     activity = ActivityModel()
     activity.user_modify = current_user.key
-    activity.object = "ProfilRoleModel"
+    activity.object = "ProfilModel"
     activity.time = function.datetime_convert(date_auto_nows)
 
     profil_update = ProfilModel.get_by_id(profil_id)
@@ -152,7 +240,7 @@ def Add_Role_Profil(profil_id):
                 this_role_profil = profilRole.put()
 
                 activity.identity = this_role_profil.id()
-                activity.nature = 1
+                activity.nature = 10
                 activity.put()
 
             nombre += 1
@@ -177,20 +265,26 @@ def Delete_Role_Profil(profilrole_id, profil_id):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-    activity = ActivityModel()
-    activity.user_modify = current_user.key
-    activity.object = "ProfilRoleModel"
-    activity.time = function.datetime_convert(date_auto_nows)
-
     profilrole = ProfilRoleModel.get_by_id(profilrole_id)
     profil = ProfilModel.get_by_id(profil_id)
-    last_parent_profil = profil.key.id()
+
+    del_activity = ActivityModel.query(
+            ActivityModel.object == "ProfilModel",
+            ActivityModel.identity == profilrole.key.id()
+    )
+
+    for del_act in del_activity:
+        del_act.key.delete()
+
+    activity = ActivityModel()
+    activity.user_modify = current_user.key
+    activity.object = "ProfilModel"
+    activity.time = function.datetime_convert(date_auto_nows)
 
     if profilrole:
-
-        activity.identity = profilrole.key.id()
-        activity.nature = 3
-        activity.last_value = str(last_parent_profil)
+        activity.identity = profilrole.role_id.get().key.id()
+        activity.nature = 13
+        activity.last_value = str(profilrole.profil_id.get().key.id())
         activity.put()
 
         profilrole.key.delete()

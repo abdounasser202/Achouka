@@ -84,12 +84,12 @@ def Home():
             user_login.date_last_logged = function.datetime_convert(date_auto_nows)
             this_login = user_login.put()
 
-            activity = ActivityModel()
-            activity.object = "UserLogin"
-            activity.time = function.datetime_convert(date_auto_nows)
-            activity.identity = this_login.id()
-            activity.nature = 1
-            activity.put()
+            # activity = ActivityModel()
+            # activity.object = "UserLogin"
+            # activity.time = function.datetime_convert(date_auto_nows)
+            # activity.identity = this_login.id()
+            # activity.nature = 1
+            # activity.put()
 
             if url:
                 return redirect(url)

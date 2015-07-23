@@ -18,6 +18,32 @@ def Destination_Index():
 
     destinations = DestinationModel.query()
 
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'DestinationModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = DestinationModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/destination/all_feed.html', **locals())
+
     return render_template('/destination/index.html', **locals())
 
 
@@ -36,6 +62,8 @@ def Destination_Edit(destination_id=None):
 
     #liste des devises
     listcurency = CurrencyModel.query()
+
+    feed_tab = []
 
     if destination_id:
         # formulaire et information de la devise a editer
@@ -63,6 +91,29 @@ def Destination_Edit(destination_id=None):
         ).count()
 
         currency_destination_id = destination.currency.get().key.id()
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'DestinationModel',
+            ActivityModel.identity == destination.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = DestinationModel.get_by_id(feed.identity)
+            feed_list['data'] = feed.last_value
+            if vess:
+                feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
 
     else:
         form = FormDestination()
@@ -163,6 +214,14 @@ def Destination_Delete(destination_id=None):
         return redirect(url_for("Destination_Index"))
 
     else:
+
+        del_activity = ActivityModel.query(
+            ActivityModel.object == "DestinationModel",
+            ActivityModel.identity == delete_destination.key.id()
+        )
+
+        for del_act in del_activity:
+            del_act.key.delete()
 
         activity = ActivityModel()
         activity.user_modify = current_user.key

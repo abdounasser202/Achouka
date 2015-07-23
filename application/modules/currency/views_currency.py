@@ -22,6 +22,32 @@ def Currency_Index():
 
     currencys = CurrencyModel.query()
 
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'CurrencyModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = CurrencyModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/currency/all_feed.html', **locals())
+
     return render_template('/currency/index.html', **locals())
 
 
@@ -37,6 +63,8 @@ def Currency_Edit(currency_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    feed_tab = []
+
     if currency_id:
         # formulaire et information de la devise a editer
         currency = CurrencyModel.get_by_id(currency_id)
@@ -47,6 +75,29 @@ def Currency_Edit(currency_id=None):
 
         #liste des equivalences de la devise en cours
         Equivalences = EquivalenceModel.query(EquivalenceModel.currencyRate == currency.key)
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'CurrencyModel',
+            ActivityModel.identity == currency.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = CurrencyModel.get_by_id(feed.identity)
+            feed_list['data'] = feed.last_value
+            if vess:
+                feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
 
     else:
         form = FormCurrency(request.form)
@@ -92,7 +143,6 @@ def Currency_Edit(currency_id=None):
                 # enregistrement de l'activite de creation du currency
                 activity = ActivityModel()
                 activity.user_modify = current_user.key
-                activity.nature = None
                 activity.identity = devise.id()
                 activity.time = function.datetime_convert(date_auto_nows)
                 activity.object = "CurrencyModel"
@@ -205,6 +255,15 @@ def Currency_Delete(currency_id=None):
         return redirect(url_for("Currency_Index"))
 
     else:
+
+        del_activity = ActivityModel.query(
+            ActivityModel.object == "CurrencyModel",
+            ActivityModel.identity == delete_currency.key.id()
+        )
+
+        for del_act in del_activity:
+            del_act.key.delete()
+
         # enregistrement de l'activite de suppression du currency
         activity = ActivityModel()
         activity.time = function.datetime_convert(date_auto_nows)
@@ -212,6 +271,7 @@ def Currency_Delete(currency_id=None):
         activity.nature = 3
         activity.object = "CurrencyModel"
         activity.user_modify = current_user.key
+        activity.last_value = delete_currency.code+" ("+delete_currency.name+")"
         activity.put()
 
         delete_currency.key.delete()

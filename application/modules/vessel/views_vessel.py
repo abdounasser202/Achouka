@@ -16,6 +16,29 @@ def Vessel_Index():
 
     vessels = VesselModel.query()
 
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'VesselModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = VesselModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name+" ("+str(vess.capacity)+")"
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5:
+            count += 1
+            break
+
     return render_template('/vessel/index.html', **locals())
 
 
@@ -31,9 +54,34 @@ def Vessel_Edit(vessel_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    feed_tab = []
+
     if vessel_id:
         vessel = VesselModel.get_by_id(vessel_id)
         form = FormVessel(obj=vessel)
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'VesselModel',
+            ActivityModel.identity == vessel.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = VesselModel.get_by_id(feed.identity)
+            feed_list['data'] = feed.last_value
+            if vess:
+                feed_list['data'] = vess.name+" ("+str(vess.capacity)+")"
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
     else:
         form = FormVessel()
         vessel = VesselModel()
@@ -115,6 +163,15 @@ def Vessel_Delete(vessel_id=None):
         flash(u'You can\'t delete this vessel', 'danger')
         return redirect(url_for("Vessel_Index"))
     else:
+
+        del_activity = ActivityModel.query(
+            ActivityModel.object == "VesselModel",
+            ActivityModel.identity == delete_vessel.key.id()
+        )
+
+        for del_act in del_activity:
+            del_act.key.delete()
+
         # enregistrement de l'activite de suppression
         activity = ActivityModel()
         activity.user_modify = current_user.key
@@ -122,7 +179,11 @@ def Vessel_Delete(vessel_id=None):
         activity.nature = 3
         activity.identity = delete_vessel.key.id()
         activity.time = function.datetime_convert(date_auto_nows)
+        activity.last_value = delete_vessel.name+" ("+str(delete_vessel.capacity)+")"
         activity.put()
+
+        #SUPPRESSION DE TOUTES LES ACTIVITES DE L'ENREGISTREMENT A SUPPRIMER
+
 
         delete_vessel.key.delete()
         flash(u'Vessel has been deleted successfully', 'success')

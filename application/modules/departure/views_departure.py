@@ -16,6 +16,32 @@ def Departure_Index():
     menu = 'recording'
     submenu = 'departure'
 
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'DepartureModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = DepartureModel.get_by_id(feed.identity)
+        feed_list['data'] = str(vess.departure_date)+" "+str(vess.schedule)+" for "+vess.destination.get().destination_start.get().name+" - "+vess.destination.get().destination_check.get().name
+        feed_list['last_value'] = feed.last_value
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/departure/all_feed.html', **locals())
+
     if not current_user.has_roles(('admin', 'super_admin')) and current_user.has_roles('manager_agency'):
         from ..agency.models_agency import AgencyModel
         agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
@@ -48,6 +74,32 @@ def Departure_Index():
 def Departure_manager_agency(agency_id):
     menu = 'recording'
     submenu = 'departure'
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'DepartureModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = DepartureModel.get_by_id(feed.identity)
+        feed_list['data'] = str(vess.departure_date)+" "+str(vess.schedule)+" for "+vess.destination.get().destination_start.get().name+" - "+vess.destination.get().destination_check.get().name
+        feed_list['last_value'] = feed.last_value
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/departure/all_feed.html', **locals())
 
     year = datetime.date.today().year
 
@@ -102,6 +154,8 @@ def Departure_Edit(departure_id=None):
     activity.object = "DepartureModel"
     activity.time = function.datetime_convert(date_auto_nows)
 
+    feed_tab = []
+
     if departure_id:
         departmod = DepartureModel.get_by_id(departure_id)
         form = FormDeparture(obj=departmod)
@@ -111,6 +165,29 @@ def Departure_Edit(departure_id=None):
         if departmod.reserved():
             flash('You update departure reserved', 'danger')
             return redirect(url_for('Departure_Index'))
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'DepartureModel',
+            ActivityModel.identity == departmod.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = DepartureModel.get_by_id(feed.identity)
+            feed_list['data'] = str(vess.departure_date)+" "+str(vess.schedule)+" for "+vess.destination.get().destination_start.get().name+" - "+vess.destination.get().destination_check.get().name
+
+            feed_list['last_value'] = feed.last_value
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
 
     else:
         departmod = DepartureModel()
@@ -207,9 +284,23 @@ def Departure_Edit(departure_id=None):
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Time_Delay_Edit(departure_id):
+
+    from ..activity.models_activity import ActivityModel
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
     departmod = DepartureModel.get_by_id(departure_id)
     if request.method == 'POST':
+        activity = ActivityModel()
+        activity.user_modify = current_user.key
+        activity.object = "DepartureModel"
+        activity.time = function.datetime_convert(date_auto_nows)
+
         departmod.time_delay = function.time_convert(request.form['time_delay'])
+        activity.identity = departmod.key.id()
+        activity.nature = 4
+        activity.last_value = "Add "+str(function.time_convert(request.form['time_delay']))+" to schedule time"
+        activity.put()
         depart = departmod.put()
         flash(u' Delay add successfully. ', 'success')
         return redirect(url_for('Departure_Index'))

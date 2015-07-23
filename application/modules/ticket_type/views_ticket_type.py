@@ -10,6 +10,7 @@ from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, Fo
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
+
 @app.route('/settings/ticket')
 @login_required
 @roles_required(('admin', 'super_admin'))
@@ -18,6 +19,32 @@ def TicketType_Index():
     submenu = 'tickettype'
 
     tickettype = TicketTypeModel.query()
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'TicketTypeModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = TicketTypeModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name+" ("+vess.class_name.get().name+" - "+vess.type_name.get().name+" - "+vess.journey_name.get().name+")"
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/tickettype/all_feed.html', **locals())
 
     return render_template('/tickettype/index.html', **locals())
 
@@ -51,9 +78,10 @@ def TicketType_Edit(tickettype_id=None):
         JourneyTypeModel.returned == True
     ).count()
 
-
+    feed_tab = []
 
     if tickettype_id:
+
         tickettype = TicketTypeModel.get_by_id(tickettype_id)
         form = FormTicketType(obj=tickettype)
 
@@ -61,6 +89,31 @@ def TicketType_Edit(tickettype_id=None):
         form_currency = form_currency.code
 
         form_travel = tickettype.travel.get().key.id()
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'TicketTypeModel',
+            ActivityModel.identity == tickettype.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = TicketTypeModel.get_by_id(feed.identity)
+            feed_list['data'] = feed.last_value
+            if vess:
+                feed_list['data'] = vess.name+" ("+vess.class_name.get().name+" - "+vess.type_name.get().name+" - "+vess.journey_name.get().name+")"
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
+
     else:
         tickettype = TicketTypeModel()
         form = FormTicketType(request.form)
@@ -161,15 +214,24 @@ def delete_tickettype(tickettype_id):
     #recuperer la cle de la devise equivalence
     TicketType_delete = TicketTypeModel.get_by_id(tickettype_id)
 
+    del_activity = ActivityModel.query(
+            ActivityModel.object == "TicketTypeModel",
+            ActivityModel.identity == TicketType_delete.key.id()
+    )
+
+    for del_act in del_activity:
+        del_act.key.delete()
+
     activity = ActivityModel()
     activity.user_modify = current_user.key
     activity.identity = TicketType_delete.key.id()
     activity.object = "TicketTypeModel"
     activity.time = function.datetime_convert(date_auto_nows)
     activity.nature = 3
+    activity.last_value = TicketType_delete.name+" ("+TicketType_delete.class_name.get().name+" - "+TicketType_delete.type_name.get().name+" - "+TicketType_delete.journey_name.get().name+")"
     activity.put()
 
-    flash(u'Ticket Deleted: ' + TicketType_delete.name, 'success')
+    flash(u' Ticket Deleted: ' + TicketType_delete.name, 'success')
     TicketType_delete.key.delete()
     return redirect(url_for('TicketType_Index'))
 
@@ -252,6 +314,31 @@ def ClassType_Index(class_type_id=None):
 
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    feed = ActivityModel.query(
+        ActivityModel.object == 'ClassTypeModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = ClassTypeModel.get_by_id(int(feed.identity))
+        feed_list['data'] = str(vess.name)
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/tickettype/all_feed_class.html', **locals())
 
     if class_type_id:
         class_type = ClassTypeModel.get_by_id(class_type_id)
@@ -355,6 +442,14 @@ def ClassType_Delete(class_type_id):
         flash(u"You can't delete this class "+class_delete.name+u" it's used by ticket type and some ticket!", "danger")
         return redirect(url_for('ClassType_Index'))
 
+    del_activity = ActivityModel.query(
+            ActivityModel.object == "ClassTypeModel",
+            ActivityModel.identity == class_delete.key.id()
+    )
+
+    for del_act in del_activity:
+        del_act.key.delete()
+
     activity = ActivityModel()
     activity.user_modify = current_user.key
     activity.identity = class_delete.key.id()
@@ -387,6 +482,31 @@ def JourneyType_Index(journey_type_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    feed = ActivityModel.query(
+        ActivityModel.object == 'JourneyTypeModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = JourneyTypeModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/tickettype/all_feed_journey.html', **locals())
+
     if journey_type_id:
         journey_type = JourneyTypeModel.get_by_id(journey_type_id)
         form = FormJourneyType(obj=journey_type)
@@ -409,7 +529,7 @@ def JourneyType_Index(journey_type_id=None):
                 activity = ActivityModel()
                 activity.user_modify = current_user.key
                 activity.identity = journey_type.key.id()
-                activity.object = "ClassTypeModel"
+                activity.object = "JourneyTypeModel"
                 activity.time = function.datetime_convert(date_auto_nows)
 
                 if journey_type_id:
@@ -537,6 +657,14 @@ def JourneyType_Delete(journey_type_id):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    del_activity = ActivityModel.query(
+            ActivityModel.object == "JourneyTypeModel",
+            ActivityModel.identity == journey_delete.key.id()
+    )
+
+    for del_act in del_activity:
+        del_act.key.delete()
+
     activity = ActivityModel()
     activity.user_modify = current_user.key
     activity.identity = journey_delete.key.id()
@@ -569,13 +697,37 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    feed = ActivityModel.query(
+        ActivityModel.object == 'TicketTypeNameModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = TicketTypeNameModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.name
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/tickettype/all_feed_catetory.html', **locals())
+
     if ticket_type_name_id:
         tickets = TicketTypeNameModel.get_by_id(ticket_type_name_id)
         form = FormTicketTypeName(obj=tickets)
     else:
         tickets = TicketTypeNameModel()
         form = FormTicketTypeName()
-
 
     if form.validate_on_submit():
         ticket_exist = TicketTypeNameModel.query(TicketTypeNameModel.name == form.name.data).count()
@@ -743,6 +895,14 @@ def Delete_Ticket_Type_Name(ticket_type_name_id):
     if ticket_type_name_ticket_exist >= 1 or ticket_type_name_ticket_type_exist >= 1:
         flash(u"You can't delete this Catetory :"+delete_ticket.name+u" it's used by ticket type and some ticket!!", "danger")
         return redirect(url_for("Ticket_Type_Name_Index"))
+
+    del_activity = ActivityModel.query(
+            ActivityModel.object == "TicketTypeNameModel",
+            ActivityModel.identity == delete_ticket.key.id()
+    )
+
+    for del_act in del_activity:
+        del_act.key.delete()
 
     activity = ActivityModel()
     activity.user_modify = current_user.key

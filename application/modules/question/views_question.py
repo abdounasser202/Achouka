@@ -16,6 +16,34 @@ def Question_Index():
     submenu="question"
 
     items = QuestionModel.query()
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'QuestionModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = QuestionModel.get_by_id(feed.identity)
+        feed_list['data'] = vess.question
+        feed_list['last_value'] = feed.last_value
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/question/all_feed.html', **locals())
+
     return render_template("question/index.html", **locals())
 
 
@@ -36,9 +64,36 @@ def Question_Edit(question_id=None):
     activity.object = "QuestionModel"
     activity.time = function.datetime_convert(date_auto_nows)
 
+    feed_tab = []
+
     if question_id:
         items = QuestionModel.get_by_id(question_id)
         form = FormQuestion(obj=items)
+
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'QuestionModel',
+            ActivityModel.identity == items.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = QuestionModel.get_by_id(feed.identity)
+            feed_list['data'] = feed.last_value
+            if vess:
+                feed_list['data'] = vess.question
+            feed_list['last_value'] = feed.last_value
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
 
     else:
         items = QuestionModel()
@@ -87,6 +142,11 @@ def Question_Edit(question_id=None):
         if last_is_pos == current_is_pos and last_is_obligate == current_is_obligate:
             activity.identity = this_item.id()
             activity.nature = 4
+            activity.put()
+
+        if not question_id:
+            activity.identity = this_item.id()
+            activity.nature = 1
             activity.put()
 
         flash(u"Question has been saved!", "success")

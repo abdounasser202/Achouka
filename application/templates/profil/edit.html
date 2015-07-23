@@ -106,7 +106,29 @@
                             {% endif %}
                             </div>
                             <div class="col-lg-4">
-
+                                <h4>Last Activity</h4>
+                                    <hr/>
+                                    {% for feed in feed_tab %}
+                                        <blockquote style="padding: 10px 6px;">
+                                            {% if feed['nature'] == 1 %}
+                                                  <p style="font-size: 13px;"><strong>New Record</strong> : {{ feed['data'] }} by {{ feed['user'].get().first_name }} {{ feed['user'].get().last_name }}</p>
+                                            {% endif %}
+                                            {% if feed['nature'] == 4 %}
+                                                  <p style="font-size: 13px;"><strong>Record Updated</strong> : {{ feed['data'] }} by {{ feed['user'].get().first_name }} {{ feed['user'].get().last_name }}</p>
+                                            {% endif %}
+                                            {% if feed['nature'] == 13 %}
+                                                  <p style="font-size: 13px;"><strong>Record Updated</strong> : Role {{ feed['data'] }} removed  by {{ feed['user'].get().first_name }} {{ feed['user'].get().last_name }}</p>
+                                            {% endif %}
+                                            {% if feed['nature'] == 10 %}
+                                                  <p style="font-size: 13px;"><strong>Record Updated</strong> : Role {{ feed['data'] }} added  by {{ feed['user'].get().first_name }} {{ feed['user'].get().last_name }}</p>
+                                            {% endif %}
+                                            <footer style="font-size: 65%;">{{ feed['time']|format_date("%d-%m-%Y %H:%M") }} </footer>
+                                        </blockquote>
+                                    {% else %}
+                                        <blockquote style="padding: 10px 6px;">
+                                            <p style="font-size: 13px;"><strong>No recent activity</strong> </p>
+                                        </blockquote>
+                                    {% endfor %}
                             </div>
                         </div>
 

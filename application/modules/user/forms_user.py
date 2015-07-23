@@ -90,7 +90,7 @@ class FormRegisterUserAdmin(wtf.Form):
     dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
     password = wtf.PasswordField(label='Password', validators=[validators.Required('Password is required'), password_validator])
     retype_password = wtf.PasswordField(label='Retype Password', validators=[validators.EqualTo('password', message='Password and Retype Password did not match')])
-    currency = wtf.StringField(validators=[validators.Required()])
+    # currency = wtf.StringField(validators=[validators.Required()])
     # agency = wtf.StringField()
     submit = wtf.SubmitField("Register")
 
@@ -100,7 +100,7 @@ class FormEditUserAdmin(wtf.Form):
     last_name = wtf.StringField(label='Last Name', validators=[validators.Required(), last_name_validator])
     phone = wtf.StringField(label='Mobile Phone Number', validators=[verify_format_number])
     dial_code = wtf.StringField(label='Select country code', validators=[verify_dial_code])
-    currency = wtf.StringField(validators=[validators.Required()])
+    # currency = wtf.StringField(validators=[validators.Required()])
     agency = wtf.StringField()
 
 

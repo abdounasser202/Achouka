@@ -70,6 +70,47 @@ def User_Admin_Index():
     menu='settings'
     submenu ='user_admin'
 
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ndb.OR(
+                ActivityModel.object == 'UserModel',
+                # ActivityModel.object == 'UserLogin'
+        )
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        vess = UserModel.get_by_id(feed.identity)
+        if vess.has_roles('admin') and current_user.has_roles('admin'):
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+        if vess.has_roles(('admin','super_admin')) and current_user.has_roles('super_admin'):
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/user/all_feed.html', **locals())
+
+
     admin_role = RoleModel.query(
         RoleModel.name == 'admin'
     ).get()
@@ -142,9 +183,34 @@ def User_Admin_Edit(user_id=None):
         AgencyModel.is_achouka == True
     )
 
+    feed_tab = []
+
     if user_id:
         User = UserModel.get_by_id(user_id)
         form = FormEditUserAdmin(obj=User)
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'UserModel',
+            ActivityModel.identity == User.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = UserModel.get_by_id(feed.identity)
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
+
     else:
         form = FormRegisterUserAdmin(request.form)
         User = UserModel()
@@ -175,8 +241,6 @@ def User_Admin_Edit(user_id=None):
             User.currency = currency.key
 
             User.agency = None
-
-
 
             if not user_id:
                 User.email = form.email.data
@@ -267,6 +331,52 @@ def User_Index():
     menu='recording'
     submenu='user'
 
+    agency_user = None
+    if current_user.has_roles('manager_agency'):
+        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
+
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ndb.OR(
+                ActivityModel.object == 'UserModel',
+                # ActivityModel.object == 'UserLogin'
+        )
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        vess = UserModel.get_by_id(feed.identity)
+
+        if not vess.has_roles(('admin', 'super_admin')) and agency_user and vess.agency == agency_user.key:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+
+        if vess.has_roles(('admin', 'super_admin')):
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/user/all_feed.html', **locals())
+
+
     admin_role = RoleModel.query(
         RoleModel.name == 'admin'
     ).get()
@@ -290,9 +400,6 @@ def User_Index():
         projection=[UserRoleModel.user_id],
         group_by=[UserRoleModel.user_id]
     )
-
-    if current_user.has_roles('manager_agency'):
-        agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
 
     return render_template('/user/index-user.html', **locals())
 
@@ -345,10 +452,33 @@ def User_Edit(user_id=None):
     if current_user.has_roles('manager_agency'):
         agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
 
+    feed_tab = []
+
     if user_id:
         User = UserModel.get_by_id(user_id)
         form = FormEditUser(obj=User)
 
+        feed = ActivityModel.query(
+            ActivityModel.object == 'UserModel',
+            ActivityModel.identity == User.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = UserModel.get_by_id(feed.identity)
+            feed_list['data'] = vess.last_name+" "+vess.first_name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
     else:
         form = FormRegisterUser(request.form)
         User = UserModel()

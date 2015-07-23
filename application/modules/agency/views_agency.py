@@ -22,6 +22,33 @@ def Agency_Index():
     agency = AgencyModel.query()
     destagency = DestinationModel.query()
 
+    from ..activity.models_activity import ActivityModel
+    feed = ActivityModel.query(
+        ActivityModel.object == 'AgencyModel',
+    ).order(
+        -ActivityModel.time
+    )
+
+    feed_tab = []
+    count = 0
+    for feed in feed:
+        feed_list = {}
+        feed_list['user'] = feed.user_modify
+        vess = AgencyModel.get_by_id(feed.identity)
+        feed_list['last_value'] = feed.last_value
+        feed_list['data'] = vess.name
+        feed_list['time'] = feed.time
+        feed_list['nature'] = feed.nature
+        feed_list['id'] = feed.identity
+        feed_tab.append(feed_list)
+        count += 1
+        if count > 5 and not request.args.get('modal'):
+            count += 1
+            break
+
+    if request.args.get('modal'):
+        return render_template('/agency/all_feed.html', **locals())
+
     return render_template('agency/index.html', **locals())
 
 
@@ -43,6 +70,8 @@ def Agency_Edit(agency_id=None):
     currency = CurrencyModel.query()
     country_agency = global_current_country
 
+    feed_tab = []
+
     if agency_id:
         agencymod = AgencyModel.get_by_id(agency_id)
         form = FormAgency(obj=agencymod)
@@ -51,6 +80,28 @@ def Agency_Edit(agency_id=None):
 
         form.country.data = agencymod.country
         form.destination.data = agencymod.destination
+
+        feed = ActivityModel.query(
+            ActivityModel.object == 'AgencyModel',
+            ActivityModel.identity == agencymod.key.id()
+        ).order(
+            -ActivityModel.time
+        )
+        count = 0
+        for feed in feed:
+            feed_list = {}
+            feed_list['user'] = feed.user_modify
+            vess = AgencyModel.get_by_id(feed.identity)
+            feed_list['last_value'] = feed.last_value
+            feed_list['data'] = vess.name
+            feed_list['time'] = feed.time
+            feed_list['nature'] = feed.nature
+            feed_list['id'] = feed.identity
+            feed_tab.append(feed_list)
+            count += 1
+            if count > 5:
+                count += 1
+                break
     else:
         agencymod = AgencyModel()
         form = FormAgency()
@@ -91,7 +142,7 @@ def Agency_Edit(agency_id=None):
                     activity.put()
 
                 if form.reduction.data != last_agency_reduction:
-                    activity.last_value = str(form.name.label) + ":" + str(last_agency_name)
+                    activity.last_value = str(form.reduction.label) + ":" + str(last_agency_reduction)
                     activity.identity = this_agency.id()
                     activity.nature = 0
                     activity.put()
