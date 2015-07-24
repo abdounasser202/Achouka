@@ -56,13 +56,16 @@
                                         </td>
 
                                         <td class="text-right">
-                                            {% if departure.departure_date >= date_day %}
+                                            {% if not departure.reserved() and departure.departure_date == date_day and departure.schedule|add_time(departure.time_delay) > time_now %}
+                                                <a class="btn btn-link btn-xs"
+                                                   href="{{ url_for('Departure_Edit', departure_id = departure.key.id()) }}">Edit</a><br/>
+                                            {% endif %}
 
-                                                {% if not departure.reserved() %}
+                                            {% if departure.departure_date >= date_day %}
+                                                {% if not departure.reserved() and departure.departure_date > date_day %}
                                                     <a class="btn btn-link btn-xs"
-                                                       href="{{ url_for('Departure_Edit', departure_id = departure.key.id()) }}">Edit</a>
+                                                       href="{{ url_for('Departure_Edit', departure_id = departure.key.id()) }}">Edit</a><br/>
                                                 {% endif %}
-                                                <br/>
                                                 {% if departure.departure_date == date_day and departure.schedule|add_time(departure.time_delay) >= time_now %}
                                                     <a class="btn btn-link btn-xs"
                                                        href="{{ url_for('Time_Delay_Edit',departure_id = departure.key.id()) }}"

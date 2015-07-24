@@ -43,7 +43,6 @@ class UserModel(ndb.Model):
         return full_name
 
     def agencys(self):
-        agency = None
         if self.agency:
             agency_data = AgencyModel.get_by_id(self.agency.id())
             agency = agency_data.name
@@ -56,7 +55,22 @@ class UserModel(ndb.Model):
             return True
         return False
 
+    def make_to_dict(self):
+        to_dict = {}
+        to_dict['id'] = self.key.id()
+        to_dict['password'] = self.password
+        to_dict['email'] = self.email
+        to_dict['first_name'] = self.first_name
+        to_dict['last_name'] = self.last_name
+        to_dict['phone'] = self.phone
+        to_dict['dial_code'] = self.dial_code
+        to_dict['agency'] = self.agency
+        to_dict['profil'] = self.profil
+        to_dict['enabled'] = self.is_active()
+        return to_dict
+
     def have_credit(self): #verifie que l'agence de l'utilisateur courant a des tickets a vendre
+
         from ..ticket.models_ticket import TicketModel
         user_agence = AgencyModel.get_by_id(self.agency.id())
 
@@ -108,7 +122,6 @@ class UserModel(ndb.Model):
             number = 'No Ticket'
         return number+' Available'
 
-
     def ticket_number_selling(self, user_ticket_query=None, local_agency=True):
         from ..transaction.models_transaction import ExpensePaymentTransactionModel, TicketModel
 
@@ -151,6 +164,7 @@ class UserModel(ndb.Model):
 
     #Montant des tickets qui n'ont pas encore de transaction de paiement
     def ticket_no_transaction_amount(self, list_ticket_travel_query, local_agency=True):
+
         from ..transaction.models_transaction import ExpensePaymentTransactionModel
 
         ticket_no_transaction_amount = 0
@@ -407,6 +421,13 @@ class RoleModel(ndb.Model):
 class UserRoleModel(ndb.Model):
     user_id = ndb.KeyProperty(kind=UserModel)
     role_id = ndb.KeyProperty(kind=RoleModel)
+
+    def make_to_dict(self):
+        to_dict = {}
+        to_dict['role_id'] = self.role_id.id()
+        to_dict['name'] = self.role_id.get().name
+        to_dict['visible'] = self.role_id.get().visible
+        return to_dict
 
 
 class ProfilRoleModel(ndb.Model):

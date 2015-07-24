@@ -18,6 +18,10 @@ def login_required(func):
         if not current_user.is_authenticated() or not session.get('user_id'):
             return redirect(url_for('Home'))
 
+        if current_user.is_authenticated() and not current_user.is_active():
+            flash('Your account is disabled. Contact Administrator', 'danger')
+            return redirect(url_for('logout_user'))
+
         return func(*args, **kwargs)
     return decorated_view
 

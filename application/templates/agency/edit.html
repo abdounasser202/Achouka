@@ -24,6 +24,14 @@
                                 <form method="post" class="form-horizontal">
                                     <fieldset><legend>Edit Agency</legend>
                                         {{ form.hidden_tag() }}
+                                    {% if agency_id %}
+                                      <div class="form-group">
+                                        <label class="col-sm-3 control-label">Local Token :</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" value="{{ agencymod.Key() }}" disabled="disabled" class='form-control input-lg'/>
+                                        </div>
+                                      </div>
+                                    {% endif %}
                                       <div class="form-group {% if form.name.errors %} has-error {% endif %} has-feedback">
                                         <label class="col-sm-3 control-label">{{ form.name.label }} :</label>
                                         <div class="col-sm-9">

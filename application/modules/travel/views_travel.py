@@ -131,8 +131,8 @@ def Travel_Edit(travel_id=None):
             flash(u"This travel kind  does'nt exist!", "danger")
 
         else:
-            activity = ActivityModel()
-            activity.last_value = str(travelmod.time)
+            activity_1 = ActivityModel()
+            activity_1.last_value = str(travelmod.time)
 
             if form.time.data:
                 travelmod.time = function.time_convert(form.time.data)
@@ -162,12 +162,12 @@ def Travel_Edit(travel_id=None):
 
             this_travel = travelmod.put()
 
-            activity.user_modify = current_user.key
-            activity.object = "TravelModel"
-            activity.time = function.datetime_convert(date_auto_nows)
-            activity.identity = this_travel.id()
-            activity.nature = 1
-            activity.put()
+            activity_1.user_modify = current_user.key
+            activity_1.object = "TravelModel"
+            activity_1.time = function.datetime_convert(date_auto_nows)
+            activity_1.identity = this_travel.id()
+            activity_1.nature = 1
+            activity_1.put()
 
             flash(u' Travel Saved! ', 'success')
             return redirect(url_for("Travel_Index"))

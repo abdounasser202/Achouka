@@ -189,7 +189,11 @@ def Profil_Edit(profil_id=None):
             this_profil = profil.put()
 
             activity.identity = this_profil.id()
-            activity.nature = 1
+            if profil_id:
+                activity.nature = 4
+            else:
+                activity.nature = 1
+
             activity.put()
 
             flash(u' Profil Save. ', 'success')
@@ -208,10 +212,7 @@ def Add_Role_Profil(profil_id):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-    activity = ActivityModel()
-    activity.user_modify = current_user.key
-    activity.object = "ProfilModel"
-    activity.time = function.datetime_convert(date_auto_nows)
+
 
     profil_update = ProfilModel.get_by_id(profil_id)
 
@@ -238,6 +239,11 @@ def Add_Role_Profil(profil_id):
                 profilRole.role_id = slc_role.key
                 profilRole.profil_id = profil_update.key
                 this_role_profil = profilRole.put()
+
+                activity = ActivityModel()
+                activity.user_modify = current_user.key
+                activity.object = "ProfilModel"
+                activity.time = function.datetime_convert(date_auto_nows)
 
                 activity.identity = this_role_profil.id()
                 activity.nature = 10

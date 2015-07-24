@@ -350,7 +350,7 @@ def User_Index():
     for feed in feed:
         vess = UserModel.get_by_id(feed.identity)
 
-        if not vess.has_roles(('admin', 'super_admin')) and agency_user and vess.agency == agency_user.key:
+        if not current_user.has_roles(('admin', 'super_admin')) and agency_user and vess.agency == agency_user.key:
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = vess.last_name+" "+vess.first_name
@@ -360,7 +360,7 @@ def User_Index():
             feed_tab.append(feed_list)
             count += 1
 
-        if vess.has_roles(('admin', 'super_admin')):
+        if current_user.has_roles(('admin', 'super_admin')):
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = vess.last_name+" "+vess.first_name

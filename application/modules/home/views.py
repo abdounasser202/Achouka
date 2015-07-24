@@ -49,7 +49,8 @@ def Home():
     if request.args.get('url'):
         url = request.args.get('url')
 
-    form = FormLogin()
+    form = FormLogin(request.form)
+
     if form.validate_on_submit():
         try:
             password = hashlib.sha224(form.password.data).hexdigest()
@@ -219,7 +220,7 @@ def Dashboard():
             temp_dict = dict(zip(["travel", "currency"], key))
             temp_dict['price'] = 0
             for item in grp:
-                temp_dict['price'] += item['price']
+                temp_dict['price'] += item['amount']
             the_amount_foreign_sale.append(temp_dict)
 
         return render_template('/index/dashboard_pos.html', **locals())
@@ -239,26 +240,25 @@ def Dashboard():
         )
         the_ticket_agency_tab = []
         for ticket in ticket_agency:
-            if ticket.travel_ticket.get().destination_start == user_agency.destination:
-                tickets = {}
-                tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
-                tickets['departure'] = ticket.departure
-                tickets['departure_start'] = ticket.departure.get().destination.get().destination_start.get().name
-                tickets['departure_check'] = ticket.departure.get().destination.get().destination_check.get().name
-                tickets['heure'] = function.format_date(function.add_time(ticket.departure.get().schedule, ticket.departure.get().time_delay), "%H:%M:%S")
-                tickets['price'] = ticket.sellprice
-                tickets['currency'] = ticket.sellpriceCurrency.get().code
-                the_ticket_agency_tab.append(tickets)
-            else:
-                tickets = {}
-                tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
-                tickets['departure'] = '11111111111'
-                tickets['departure_start'] = "No destination start"
-                tickets['departure_check'] = "No destination check"
-                tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
-                tickets['price'] = 0
-                tickets['currency'] = user_agency.destination.get().currency.get().code
-                the_ticket_agency_tab.append(tickets)
+            tickets = {}
+            tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
+            tickets['departure'] = ticket.departure
+            tickets['departure_start'] = ticket.departure.get().destination.get().destination_start.get().name
+            tickets['departure_check'] = ticket.departure.get().destination.get().destination_check.get().name
+            tickets['heure'] = function.format_date(function.add_time(ticket.departure.get().schedule, ticket.departure.get().time_delay), "%H:%M:%S")
+            tickets['price'] = ticket.sellprice
+            tickets['currency'] = ticket.sellpriceCurrency.get().code
+            the_ticket_agency_tab.append(tickets)
+        else:
+            tickets = {}
+            tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
+            tickets['departure'] = '11111111111'
+            tickets['departure_start'] = "No destination start"
+            tickets['departure_check'] = "No destination check"
+            tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
+            tickets['price'] = 0
+            tickets['currency'] = user_agency.destination.get().currency.get().code
+            the_ticket_agency_tab.append(tickets)
 
         grouper = itemgetter("date", "heure", "departure", "currency")
 
@@ -364,7 +364,7 @@ def Dashboard():
         )
 
         for ticket in ticket_agency:
-            if ticket.travel_ticket.get().destination_start == agency.destination and agency.country == 'GB':
+            if agency.country == 'GB':
                 tickets = {}
                 tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
                 tickets['departure'] = ticket.departure
@@ -386,7 +386,7 @@ def Dashboard():
                 the_ticket_agency_gabon.append(tickets)
 
         for ticket in ticket_agency:
-            if ticket.travel_ticket.get().destination_start == agency.destination and (agency.country == 'CM' or agency.country == 'NGN'):
+            if agency.country == 'CM' or agency.country == 'NGN':
                 tickets = {}
                 tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
                 tickets['departure'] = ticket.departure
@@ -477,24 +477,30 @@ def Dashboard():
             TicketModel.selling == True,
             TicketModel.is_count == True
         )
+
         for ticket in ticket_agency:
             tickets = {}
             tickets['country'] = agency.country
+            tickets['fix'] = 1
             tickets['class'] = ticket.class_name.get().name
-            tickets['number'] = 1
             class_ticket_sold_tab.append(tickets)
 
-    groupers = itemgetter("country", "number")
-    class_ticket_sold = []
+    groupers = itemgetter("country", "fix")
 
+    class_ticket_sold = []
     for key, grp in groupby(sorted(class_ticket_sold_tab, key=groupers), groupers):
-        temp_dict = dict(zip(["country", "number"], key))
+        temp_dict = dict(zip(["country", "fix"], key))
         temp_dict['class_query'] = []
-        temp = {'numbers': 0}
-        for item in grp:
-            temp['numbers'] += 1
-            temp['classes'] = item['class']
-        temp_dict['class_query'].append(temp)
+
+        Under_groupers = itemgetter("country", "class")
+        for key, grp in groupby(sorted(grp, key=Under_groupers), Under_groupers):
+            temp_dict_under = dict(zip(["country", "class"], key))
+            temp_dict_under['numbers'] = 0
+            for item in grp:
+                temp_dict_under['classes'] = item['class']
+                temp_dict_under['numbers'] += 1
+            temp_dict['class_query'].append(temp_dict_under)
+
         class_ticket_sold.append(temp_dict)
 
     return render_template('/index/dashboard.html', **locals())

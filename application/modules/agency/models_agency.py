@@ -21,6 +21,10 @@ class AgencyModel(ndb.Model):
     is_achouka = ndb.BooleanProperty()
     is_coorporate = ndb.BooleanProperty()
 
+    def Key(self):
+        key = ndb.Key(AgencyModel, self.key.id())
+        return key.urlsafe()
+
     def TicketCount(self):
         from ..ticket.models_ticket import TicketModel
 
