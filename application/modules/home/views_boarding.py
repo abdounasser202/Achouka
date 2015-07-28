@@ -26,7 +26,7 @@ def Boarding():
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        DepartureModel.departure_date,
+        -DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -36,18 +36,14 @@ def Boarding():
         user_agence = AgencyModel.get_by_id(int(agence_id))
 
         for dep in departure:
-            if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
+            if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
                 current_departure = dep
                 break
     else:
-        current_departure = DepartureModel.query(
-                    DepartureModel.departure_date == datetime.date.today(),
-                    DepartureModel.schedule >= heure
-                ).order(
-                    DepartureModel.departure_date,
-                    DepartureModel.schedule,
-                    DepartureModel.time_delay
-                ).get()
+        for dep in departure:
+            if function.add_time(dep.schedule, dep.time_delay) >= heure:
+                current_departure = dep
+                break
 
     return render_template('/index/boarding.html', **locals())
 
@@ -176,8 +172,13 @@ def Update_Ticket_For_Boarding(ticket_id):
                     Answers.response = False
             Answers.put()
         ticket.is_boarding = True
-        if not ticket.journey_name.get().returned and not ticket.is_return:
+        # cas de ticket allee et retour qui a un journey type
+        if ticket.journey_name and not ticket.journey_name.get().returned and not ticket.is_return:
             ticket.statusValid = False
+        # cas de tricket return qui n'a pas de journey type
+        if not ticket.journey_name:
+            ticket.statusValid = False
+
         this_ticket = ticket.put()
 
         activity = ActivityModel()

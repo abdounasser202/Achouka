@@ -31,14 +31,14 @@ def Pos(departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        DepartureModel.departure_date,
+        -DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
 
     if not departure_id:
 
-        if current_user.have_agency():
+         if current_user.have_agency():
             agence_id = session.get('agence_id')
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
@@ -46,15 +46,11 @@ def Pos(departure_id=None):
                 if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
                     current_departure = dep
                     break
-        else:
-            current_departure = DepartureModel.query(
-                DepartureModel.departure_date == datetime.date.today(),
-                DepartureModel.schedule >= heure
-            ).order(
-                DepartureModel.departure_date,
-                DepartureModel.schedule,
-                DepartureModel.time_delay
-            ).get()
+         else:
+            for dep in departure:
+                if function.add_time(dep.schedule, dep.time_delay) >= heure:
+                    current_departure = dep
+                    break
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
@@ -86,9 +82,8 @@ def reset_current_departure(departure_id=None):
     heure = function.datetime_convert(date_auto_nows).time()
 
     departure = DepartureModel.query(
-        DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        DepartureModel.departure_date,
+        -DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -100,18 +95,14 @@ def reset_current_departure(departure_id=None):
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination and dep.schedule >= heure:
+                if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
                     current_departure = dep
                     break
         else:
-            current_departure = DepartureModel.query(
-                DepartureModel.departure_date == datetime.date.today(),
-                DepartureModel.schedule >= heure
-            ).order(
-                DepartureModel.departure_date,
-                DepartureModel.schedule,
-                DepartureModel.time_delay
-            ).get()
+             for dep in departure:
+                if function.add_time(dep.schedule, dep.time_delay) >= heure:
+                    current_departure = dep
+                    break
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
@@ -324,6 +315,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         new_ticket.is_count = False
         new_ticket.date_reservation = function.datetime_convert(date_auto_nows)
         new_ticket.datecreate = function.datetime_convert(date_auto_nows)
+        new_ticket.travel_ticket = departure_current.destination
 
         customer_ticket = CustomerModel.get_by_id(customer_save.id())
         new_ticket.customer = customer_ticket.key
