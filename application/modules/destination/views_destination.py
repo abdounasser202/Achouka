@@ -31,7 +31,10 @@ def Destination_Index():
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = DestinationModel.get_by_id(feed.identity)
-        feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+        if vess:
+            feed_list['data'] = vess.name+" ("+str(vess.code)+")"
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity

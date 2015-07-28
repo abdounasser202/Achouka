@@ -29,7 +29,10 @@ def Vessel_Index():
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = VesselModel.get_by_id(feed.identity)
-        feed_list['data'] = vess.name+" ("+str(vess.capacity)+")"
+        if vess:
+            feed_list['data'] = vess.name+" ("+str(vess.capacity)+")"
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity

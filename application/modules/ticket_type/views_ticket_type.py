@@ -33,7 +33,10 @@ def TicketType_Index():
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = TicketTypeModel.get_by_id(feed.identity)
-        feed_list['data'] = vess.name+" ("+vess.class_name.get().name+" - "+vess.type_name.get().name+" - "+vess.journey_name.get().name+")"
+        if vess:
+            feed_list['data'] = vess.name+" ("+vess.class_name.get().name+" - "+vess.type_name.get().name+" - "+vess.journey_name.get().name+")"
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity
@@ -327,7 +330,10 @@ def ClassType_Index(class_type_id=None):
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = ClassTypeModel.get_by_id(int(feed.identity))
-        feed_list['data'] = str(vess.name)
+        if vess:
+            feed_list['data'] = str(vess.name)
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity
@@ -494,7 +500,10 @@ def JourneyType_Index(journey_type_id=None):
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = JourneyTypeModel.get_by_id(feed.identity)
-        feed_list['data'] = vess.name
+        if vess:
+            feed_list['data'] = vess.name
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity
@@ -709,7 +718,10 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
         feed_list = {}
         feed_list['user'] = feed.user_modify
         vess = TicketTypeNameModel.get_by_id(feed.identity)
-        feed_list['data'] = vess.name
+        if vess:
+            feed_list['data'] = vess.name
+        else:
+            feed_list['data'] = feed.last_value
         feed_list['time'] = feed.time
         feed_list['nature'] = feed.nature
         feed_list['id'] = feed.identity
