@@ -16,11 +16,11 @@ La nature d'une modification peut etre:
     13: Suppression des roles profils
 """
 
-from google.appengine.ext import ndb
+from ..custom_model import *
 from ..user.models_user import UserModel
 
 
-class ActivityModel(ndb.Model):
+class ActivityModel(BaseModel):
     user_modify = ndb.KeyProperty(kind=UserModel) # utilisateur
     nature = ndb.IntegerProperty() # nature de la modification
     object = ndb.StringProperty() # type objet qui a ete modifie par exemple vessel

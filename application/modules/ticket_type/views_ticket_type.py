@@ -2,8 +2,8 @@ __author__ = 'wilrona'
 
 from ...modules import *
 
-from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel, TravelModel
-from ..agency.models_agency import AgencyModel, CurrencyModel
+from models_ticket_type import TicketTypeModel, TicketTypeNameModel, ClassTypeModel, JourneyTypeModel, TravelModel, CurrencyModel
+from ..agency.models_agency import AgencyModel
 from forms_ticket_type import FormTicketType, FormJourneyType, FormClassType, FormTicketTypeName
 
 

@@ -2,7 +2,8 @@ __author__ = 'wilrona'
 
 from ...modules import *
 
-from models_agency import AgencyModel, DestinationModel, CurrencyModel
+from models_agency import AgencyModel, DestinationModel
+from ..currency.models_currency import CurrencyModel
 
 from forms_agency import FormAgency
 

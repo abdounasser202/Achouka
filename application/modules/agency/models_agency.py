@@ -1,15 +1,15 @@
 __author__ = 'wilrona'
 
-from google.appengine.ext import ndb
+
+from ..custom_model import *
 from ..destination.models_destination import DestinationModel
-from ..currency.models_currency import CurrencyModel
 
 
 from itertools import groupby
 from operator import itemgetter
 
 
-class AgencyModel(ndb.Model):
+class AgencyModel(BaseModel):
     name = ndb.StringProperty()
     country = ndb.StringProperty()
     phone = ndb.StringProperty()
@@ -21,9 +21,19 @@ class AgencyModel(ndb.Model):
     is_achouka = ndb.BooleanProperty()
     is_coorporate = ndb.BooleanProperty()
 
-    def Key(self):
-        key = ndb.Key(AgencyModel, self.key.id())
-        return key.urlsafe()
+    def make_to_dict(self):
+        to_dict = {}
+        to_dict['agency_id'] = self.key.id()
+        to_dict['agency_name'] = self.name
+        to_dict['agency_country'] = self.country
+        to_dict['agency_phone'] = self.phone
+        to_dict['agency_fax'] = self.fax
+        to_dict['agency_address'] = self.address
+        to_dict['agency_reduction'] = self.reduction
+        to_dict['agency_status'] = self.status
+        to_dict['agency_is_achouka'] = self.is_achouka
+        return to_dict
+
 
     def TicketCount(self):
         from ..ticket.models_ticket import TicketModel

@@ -24,7 +24,7 @@
                                 <form method="post" class="form-horizontal">
                                     <fieldset><legend>Edit Agency</legend>
                                         {{ form.hidden_tag() }}
-                                    {% if agency_id %}
+                                    {% if agency_id and current_user.has_roles(('admin', 'super_admin'))%}
                                       <div class="form-group">
                                         <label class="col-sm-3 control-label">Local Token :</label>
                                         <div class="col-sm-9">

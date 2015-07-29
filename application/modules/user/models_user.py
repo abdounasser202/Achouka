@@ -57,15 +57,15 @@ class UserModel(ndb.Model):
 
     def make_to_dict(self):
         to_dict = {}
-        to_dict['id'] = self.key.id()
+        to_dict['user_id'] = self.key.id()
         to_dict['password'] = self.password
         to_dict['email'] = self.email
         to_dict['first_name'] = self.first_name
         to_dict['last_name'] = self.last_name
         to_dict['phone'] = self.phone
         to_dict['dial_code'] = self.dial_code
-        to_dict['agency'] = self.agency
-        to_dict['profil'] = self.profil
+        if self.agency:
+            to_dict['agency_id'] = self.agency.id()
         to_dict['enabled'] = self.is_active()
         return to_dict
 
@@ -424,9 +424,9 @@ class UserRoleModel(ndb.Model):
 
     def make_to_dict(self):
         to_dict = {}
-        to_dict['role_id'] = self.role_id.id()
-        to_dict['name'] = self.role_id.get().name
-        to_dict['visible'] = self.role_id.get().visible
+        to_dict['role_user_id'] = self.role_id.id()
+        to_dict['role_user_name'] = self.role_id.get().name
+        to_dict['role_user_visible'] = self.role_id.get().visible
         return to_dict
 
 

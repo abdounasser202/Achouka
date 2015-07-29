@@ -12,16 +12,20 @@ class ProfilModel(ndb.Model):
         from ..user.models_user import ProfilRoleModel
         to_dict = {}
 
-        to_dict['id'] = self.key.id()
-        to_dict['name'] = self.name
-        to_dict['standard'] = self.standard
-        to_dict['enable'] = self.enable
+        to_dict['profil_id'] = self.key.id()
+        to_dict['profil_name'] = self.name
+        to_dict['profil_standard'] = self.standard
+        to_dict['profil_enable'] = self.enable
 
         profil_role = ProfilRoleModel.query(
             ProfilRoleModel.profil_id == self.key
         )
 
-        roles = [role.role_id.id() for role in profil_role]
-        to_dict['roles'] = roles
+        roles = [{
+            'role_id': role.role_id.id(),
+            'role_name': role.role_id.get().name,
+            'role_visible': role.role_id.get().visible
+        } for role in profil_role]
+        to_dict['profil_roles'] = roles
 
         return to_dict
