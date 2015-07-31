@@ -58,3 +58,13 @@ def login_user_api(password, email, token):
             return not_found(error=403, message="Forbidden. you have not permission to access")
         else:
             return not_found(error=400, message="Bad Request. your token's agency is not correct")
+            
+@app.route("/get_user_api")
+def get_user_api():
+    
+    get_user = UserModel().query()
+    data = {}
+    for user in get_user:
+        data[user.key.id()] = user.make_to_dict()
+    resp = jsonify(data)
+    return resp

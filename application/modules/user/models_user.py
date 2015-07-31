@@ -416,6 +416,14 @@ class UserModel(ndb.Model):
 class RoleModel(ndb.Model):
     name = ndb.StringProperty()
     visible = ndb.BooleanProperty(default=True)
+    date_update = ndb.DateProperty(auto_now=True)
+    
+    def make_to_dict(self):
+        to_dict = {}
+        to_dict['role_id'] = self.key.id()
+        to_dict['role_visible'] = str(self.visible)
+        to_dict['role_name'] = str(self.name)        
+        return to_dict
 
 
 class UserRoleModel(ndb.Model):

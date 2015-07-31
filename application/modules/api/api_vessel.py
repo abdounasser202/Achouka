@@ -11,9 +11,10 @@ cache = Cache(app)
 @app.route('/get_vessel_api')
 def get_vessel_api():
 
-    get_vessel = VesselModel.query()
+    get_vessel = VesselModel().query()
+    data = {}
     for vessel in get_vessel:
-        data = vessel.make_to_dict()
-        resp = jsonify(data)
+        data[vessel.key.id()] = vessel.make_to_dict()
+    resp = jsonify(data)
     return resp
         
