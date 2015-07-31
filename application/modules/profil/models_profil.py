@@ -7,6 +7,7 @@ class ProfilModel(ndb.Model):
     name = ndb.StringProperty()
     standard = ndb.BooleanProperty(default=False)
     enable = ndb.BooleanProperty(default=True)
+    date_update = ndb.DateProperty(auto_now=True)
 
     def make_to_dict(self):
         from ..user.models_user import ProfilRoleModel

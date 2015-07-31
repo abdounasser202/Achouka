@@ -212,8 +212,6 @@ def Add_Role_Profil(profil_id):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-
-
     profil_update = ProfilModel.get_by_id(profil_id)
 
     profilrole = ProfilRoleModel.query(
@@ -255,6 +253,8 @@ def Add_Role_Profil(profil_id):
             flash('you have add '+str(nombre)+' Role for this profil', 'success')
         else:
             flash('you have add '+str(nombre)+' Role for this profil', 'danger')
+        # Mise a jour de la date de modification du profil
+        profil_update.put()
         return redirect(url_for('Profil_Edit', profil_id=profil_id))
 
     return render_template('/profil/list_role.html', **locals())
@@ -298,6 +298,8 @@ def Delete_Role_Profil(profilrole_id, profil_id):
     else:
         flash('Data not found', 'danger')
 
+    # Mise a jout de profil
+    profil.put()
     return redirect(url_for('Profil_Edit', profil_id=profil.key.id()))
 
 

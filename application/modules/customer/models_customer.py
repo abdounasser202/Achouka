@@ -16,3 +16,4 @@ class CustomerModel(ndb.Model):
     email = ndb.StringProperty()
     is_new = ndb.BooleanProperty(default=True)
     status = ndb.BooleanProperty(default=True)
+    date_update = ndb.DateProperty(auto_now=True)

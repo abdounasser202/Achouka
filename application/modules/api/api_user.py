@@ -9,7 +9,7 @@ from ..profil.models_profil import ProfilModel
 cache = Cache(app)
 
 
-@app.route('/login_user_api/<password>/<email>/<token>')
+@app.route('/login_user/get/<password>/<email>/<token>')
 def login_user_api(password, email, token):
 
     user_login = UserModel.query(
@@ -47,7 +47,7 @@ def login_user_api(password, email, token):
             return resp
 
         #Admin
-        if user_login.profil and tokens and not user_login.agency and user_login.is_active():
+        if user_login.profil and tokens and not user_login.agency and user_login.is_active(token):
             #prendre les utilisateurs de l'agence en cours
             user_profil = ProfilModel.get_by_id(user_login.profil.id())
             data['profil_user'] = user_profil.make_to_dict()
@@ -55,16 +55,23 @@ def login_user_api(password, email, token):
             return resp
 
         if tokens:
-            return not_found(error=403, message="Forbidden. you have not permission to access")
+            return not_found(error=403, message="Forbidden. you have not permission to access/<token>")
         else:
-            return not_found(error=400, message="Bad Request. your token's agency is not correct")
+            return not_found(error=400, message="Bad Request. your token's agency is not correct/<token>")
             
-@app.route("/get_user_api")
-def get_user_api():
-    
+@app.route("/user/get/<token>")
+def get_user_api(token):
+
+    get_agency = AgencyModel.get_by_key(token)
+    if not get_agency:
+        return not_found(message="Your token is not correct")
+
     get_user = UserModel().query()
     data = {}
+    data['status'] = 200
+    data['user'] = []
     for user in get_user:
-        data[user.key.id()] = user.make_to_dict()
+        user.make_to_dict()['profil_id'] = user.profil.id()
+        data['user'].append(user.make_to_dict())
     resp = jsonify(data)
     return resp

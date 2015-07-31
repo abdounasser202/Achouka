@@ -37,7 +37,6 @@ def Pos(departure_id=None):
     )
 
     if not departure_id:
-
          if current_user.have_agency():
             agence_id = session.get('agence_id')
             user_agence = AgencyModel.get_by_id(int(agence_id))
@@ -295,15 +294,28 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     ticket_update = None
 
     if form.validate_on_submit() and not obligated:
-        customer.first_name = form.first_name.data
-        customer.last_name = form.last_name.data
-        customer.birthday = function.date_convert(form.birthday.data)
-        customer.email = form.email.data
-        customer.nationality = form.nationality.data
-        customer.dial_code = form.dial_code.data
-        customer.phone = form.phone.data
-        customer.profession = form.profession.data
-        customer_save = customer.put()
+
+        if customer.first_name != form.first_name.data or\
+            customer.last_name != form.last_name.data and customer.birthday != function.date_convert(form.birthday.data)\
+            or customer.email != form.email.data or customer.nationality != form.nationality.data or\
+            customer.dial_code != form.dial_code.data or customer.phone != form.phone.data or\
+                        customer.profession != form.profession.data or customer.nic_number != form.nic_number.data or\
+                customer.passport_number != form.passport_number.data:
+
+            customer.first_name = form.first_name.data
+            customer.last_name = form.last_name.data
+            customer.birthday = function.date_convert(form.birthday.data)
+            customer.email = form.email.data
+            customer.nationality = form.nationality.data
+            customer.dial_code = form.dial_code.data
+            customer.phone = form.phone.data
+            customer.profession = form.profession.data
+            customer.nic_number = form.nic_number.data
+            customer.passport_number = form.passport_number.data
+            customer.is_new = False
+            customer_save = customer.put()
+        else:
+            customer_save = customer.key
 
         new_ticket = TicketModel()
 
@@ -449,17 +461,27 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
     if form.validate_on_submit() and not obligated:
 
-        customer.first_name = form.first_name.data
-        customer.last_name = form.last_name.data
-        customer.birthday = function.date_convert(form.birthday.data)
-        customer.email = form.email.data
-        customer.nationality = form.nationality.data
-        customer.dial_code = form.dial_code.data
-        customer.phone = form.phone.data
-        customer.profession = form.profession.data
-        if customer_id:
+        if customer.first_name != form.first_name.data or\
+            customer.last_name != form.last_name.data and customer.birthday != function.date_convert(form.birthday.data)\
+            or customer.email != form.email.data or customer.nationality != form.nationality.data or\
+            customer.dial_code != form.dial_code.data or customer.phone != form.phone.data or\
+                        customer.profession != form.profession.data or customer.nic_number != form.nic_number.data or\
+                customer.passport_number != form.passport_number.data:
+
+            customer.first_name = form.first_name.data
+            customer.last_name = form.last_name.data
+            customer.birthday = function.date_convert(form.birthday.data)
+            customer.email = form.email.data
+            customer.nationality = form.nationality.data
+            customer.dial_code = form.dial_code.data
+            customer.phone = form.phone.data
+            customer.profession = form.profession.data
+            customer.nic_number = form.nic_number.data
+            customer.passport_number = form.passport_number.data
             customer.is_new = False
-        customer_save = customer.put()
+            customer_save = customer.put()
+        else:
+            customer_save = customer.key
 
         # caracteristique des tickets
         journey_ticket_car = JourneyTypeModel.get_by_id(int(form.journey_name.data))
@@ -975,15 +997,27 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
 
     if form.validate_on_submit() and not obligated:
 
-        customer.first_name = form.first_name.data
-        customer.last_name = form.last_name.data
-        customer.birthday = function.date_convert(form.birthday.data)
-        customer.email = form.email.data
-        customer.nationality = form.nationality.data
-        customer.dial_code = form.dial_code.data
-        customer.phone = form.phone.data
-        customer.profession = form.profession.data
-        customer_save = customer.put()
+        if customer.first_name != form.first_name.data or\
+            customer.last_name != form.last_name.data and customer.birthday != function.date_convert(form.birthday.data)\
+            or customer.email != form.email.data or customer.nationality != form.nationality.data or\
+            customer.dial_code != form.dial_code.data or customer.phone != form.phone.data or\
+                        customer.profession != form.profession.data or customer.nic_number != form.nic_number.data or\
+                customer.passport_number != form.passport_number.data:
+
+            customer.first_name = form.first_name.data
+            customer.last_name = form.last_name.data
+            customer.birthday = function.date_convert(form.birthday.data)
+            customer.email = form.email.data
+            customer.nationality = form.nationality.data
+            customer.dial_code = form.dial_code.data
+            customer.phone = form.phone.data
+            customer.profession = form.profession.data
+            customer.nic_number = form.nic_number.data
+            customer.passport_number = form.passport_number.data
+            customer.is_new = False
+            customer_save = customer.put()
+        else:
+            customer_save = customer.key
 
         new_ticket = TicketModel()
 

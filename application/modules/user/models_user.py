@@ -28,6 +28,7 @@ class UserModel(ndb.Model):
     agency = ndb.KeyProperty(kind=AgencyModel)
     currency = ndb.KeyProperty(kind=CurrencyModel)
     profil = ndb.KeyProperty(kind=ProfilModel)
+    date_update = ndb.DateProperty(auto_now=True)
 
     def is_active(self):
         return self.is_enabled
@@ -421,8 +422,8 @@ class RoleModel(ndb.Model):
     def make_to_dict(self):
         to_dict = {}
         to_dict['role_id'] = self.key.id()
-        to_dict['role_visible'] = str(self.visible)
-        to_dict['role_name'] = str(self.name)        
+        to_dict['role_visible'] = self.visible
+        to_dict['role_name'] = self.name
         return to_dict
 
 
