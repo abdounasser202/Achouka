@@ -9,6 +9,7 @@ class DestinationModel(ndb.Model):
     code = ndb.StringProperty() # code de la ville
     name = ndb.StringProperty() # nom de la ville
     currency = ndb.KeyProperty(kind=CurrencyModel)
+    date_update = ndb.DateProperty(auto_now=True)
 
     def make_to_dict(self):
         to_dict = {}
