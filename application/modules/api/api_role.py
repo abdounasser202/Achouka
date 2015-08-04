@@ -12,11 +12,22 @@ cache = Cache(app)
 @app.route("/role/get/<token>")
 def get_role_api(token):
 
+    try:
+        date = function.date_convert(request.args.get('last_update'))
+    except:
+        date = None
+
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
         return not_found(message="Your token is not correct")
 
-    get_role = RoleModel().query()
+    if date:
+        get_role = RoleModel().query(
+            RoleModel.date_update >= date
+        )
+    else:
+        get_role = RoleModel().query()
+
     data = {}
     data['status'] = 200
     data['role'] = []

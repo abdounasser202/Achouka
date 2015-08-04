@@ -12,11 +12,22 @@ cache = Cache(app)
 @app.route("/currency/get/<token>")
 def get_currency_api(token):
 
+    try:
+        date = function.date_convert(request.args.get('last_update'))
+    except:
+        date = None
+
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
         return not_found(message="Your token is not correct")
 
-    get_currency = CurrencyModel().query()
+    if date:
+        get_currency = CurrencyModel().query(
+            CurrencyModel.date_update >= date
+        )
+    else:
+        get_currency = CurrencyModel().query()
+
     data = {}
     data['status'] = 200
     data['currency'] = []
