@@ -253,7 +253,7 @@ def Currency_Delete(currency_id=None):
         UserModel.currency == delete_currency.key
     ).count()
 
-    if equi_currency_exist >= 1 or ticket_type_currency_exist >= 1 or ticket_currency_exist >= 1 or user_currency_admin >=  1 or ticket_currency_exist2 >= 1:
+    if ticket_type_currency_exist >= 1 or ticket_currency_exist >= 1 or ticket_currency_exist2 >= 1:
         flash(u'You can\'t delete this currency', 'danger')
         return redirect(url_for("Currency_Index"))
 
