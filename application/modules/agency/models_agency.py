@@ -20,6 +20,7 @@ class AgencyModel(BaseModel):
     destination = ndb.KeyProperty(kind=DestinationModel)
     is_achouka = ndb.BooleanProperty()
     is_coorporate = ndb.BooleanProperty()
+    date_update = ndb.DateProperty(auto_now=True)
 
     def make_to_dict(self):
         to_dict = {}
