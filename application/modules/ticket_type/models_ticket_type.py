@@ -16,9 +16,10 @@ class TicketTypeNameModel(ndb.Model): # category of tickets
     def make_to_dict(self):
         to_dict = {}
         to_dict['category_id'] = self.key.id()
-        to_dict['category_is_child'] = str(self.is_child)
-        to_dict['category_default'] = str(self.default)
-        to_dict['category_special'] = str(self.special)        
+        to_dict['category_is_child'] = self.is_child
+        to_dict['category_default'] = self.default
+        to_dict['category_special'] = self.special
+        to_dict['category_name'] = self.name
         return to_dict
 
 
@@ -31,8 +32,8 @@ class JourneyTypeModel(ndb.Model):
     def make_to_dict(self):
         to_dict = {}
         to_dict['journey_id'] = self.key.id()
-        to_dict['journey_returned'] = str(self.returned)
-        to_dict['journey_default'] = str(self.default)
+        to_dict['journey_returned'] = self.returned
+        to_dict['journey_default'] = self.default
         to_dict['journey_name'] = self.name        
         return to_dict
 
@@ -45,7 +46,7 @@ class ClassTypeModel(ndb.Model):
     def make_to_dict(self):
         to_dict = {}
         to_dict['class_id'] = self.key.id()
-        to_dict['class_default'] = str(self.default)
+        to_dict['class_default'] = self.default
         to_dict['class_name'] = self.name        
         return to_dict
 
@@ -68,9 +69,9 @@ class TicketTypeModel(ndb.Model):
         to_dict['ticket_type_name'] = self.type_name.id()
         to_dict['ticket_journey_name'] = self.journey_name.id()
         to_dict['ticket_class_name'] = self.class_name.id()
-        to_dict['ticket_price'] = str(self.price)
+        to_dict['ticket_price'] = self.price
         to_dict['ticket_currency'] = self.currency.id()
-        to_dict['ticket_active'] = str(self.active)
+        to_dict['ticket_active'] = self.active
         to_dict['ticket_travel'] = self.travel.id()           
         return to_dict
 
