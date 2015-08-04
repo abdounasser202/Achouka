@@ -12,11 +12,22 @@ cache = Cache(app)
 @app.route("/class/get/<token>")
 def get_class_api(token):
 
+    try:
+        date = function.date_convert(request.args.get('last_update'))
+    except:
+        date = None
+
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
-        return not_found()
+        return not_found(message="Your token is not correct")
 
-    get_class = ClassTypeModel().query()
+    if date:
+        get_class = ClassTypeModel().query(
+            ClassTypeModel.date_update >= date
+        )
+    else:
+        get_class = ClassTypeModel().query()
+
     data = {}
     data['status'] = 200
     data['class'] = []

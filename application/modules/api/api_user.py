@@ -62,11 +62,25 @@ def login_user_api(password, email, token):
 @app.route("/user/get/<token>")
 def get_user_api(token):
 
+    try:
+        date = function.date_convert(request.args.get('last_update'))
+    except:
+        date = None
+
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
         return not_found(message="Your token is not correct")
 
-    get_user = UserModel().query()
+    if date:
+        get_user = UserModel().query(
+            UserModel.date_update >= date,
+            UserModel.agency == get_agency.key
+        )
+    else:
+        get_user = UserModel().query(
+            UserModel.agency == get_agency.key
+        )
+
     data = {}
     data['status'] = 200
     data['user'] = []

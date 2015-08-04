@@ -12,11 +12,22 @@ cache = Cache(app)
 @app.route("/tickets/get/<token>")
 def get_tickets_api(token):
 
+    try:
+        date = function.date_convert(request.args.get('last_update'))
+    except:
+        date = None
+
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
         return not_found(message="Your token is not correct")
 
-    get_tickets = TicketTypeModel().query()
+    if date:
+        get_tickets = TicketTypeModel().query(
+            TicketTypeModel.date_update >= date
+        )
+    else:
+        get_tickets = TicketTypeModel().query()
+
     data = {}
     data['status'] = 200
     data['tickets'] = []
