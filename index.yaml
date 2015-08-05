@@ -16,6 +16,11 @@ indexes:
   - name: time
     direction: desc
 
+- kind: AgencyModel
+  properties:
+  - name: __key__
+  - name: date_update
+
 - kind: DepartureModel
   properties:
   - name: departure_date
@@ -47,3 +52,13 @@ indexes:
   - name: is_count
   - name: selling
   - name: date_reservation
+
+- kind: TransactionModel
+  properties:
+  - name: agency
+  - name: destination
+
+- kind: UserModel
+  properties:
+  - name: agency
+  - name: date_update

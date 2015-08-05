@@ -1,7 +1,7 @@
 __author__ = 'Vercossa'
 
 from google.appengine.ext import ndb
-from google.appengine.api import datastore
+from google.appengine.api import datastore, datastore_errors
 
 
 class BaseModel(ndb.Model):
@@ -12,6 +12,9 @@ class BaseModel(ndb.Model):
 
     @classmethod
     def get_by_key(self, key):
-        key_instance = datastore.Key(key)
-        _id = self.get_by_id(key_instance.id())
+        try:
+            key_instance = datastore.Key(key)
+            _id = self.get_by_id(key_instance.id())
+        except datastore_errors.BadKeyError:
+            _id = None
         return _id

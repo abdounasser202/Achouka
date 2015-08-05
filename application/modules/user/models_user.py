@@ -56,7 +56,7 @@ class UserModel(ndb.Model):
             return True
         return False
 
-    def make_to_dict(self):
+    def make_to_dict(self, profil=False):
         to_dict = {}
         to_dict['user_id'] = self.key.id()
         to_dict['password'] = self.password
@@ -65,8 +65,13 @@ class UserModel(ndb.Model):
         to_dict['last_name'] = self.last_name
         to_dict['phone'] = self.phone
         to_dict['dial_code'] = self.dial_code
+
         if self.agency:
             to_dict['agency_id'] = self.agency.id()
+
+        if profil:
+            to_dict['profil_id'] = self.profil.id()
+
         to_dict['enabled'] = self.is_active()
         return to_dict
 

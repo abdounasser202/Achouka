@@ -18,11 +18,23 @@ def get_agency_api(token):
     if not get_agency:
         return not_found(message="Your token is not correct")
 
-    if get_agency.date_update >= date:
+    if date:
+        update_agency = AgencyModel.query(
+            AgencyModel.date_update >= date,
+            AgencyModel.key == get_agency.key
+        ).get()
+
+        if update_agency:
+            data = {}
+            data['status'] = 200
+            data['agency'] = update_agency.make_to_dict()
+            resp = jsonify(data)
+            return resp
+        else:
+            return not_found(message="Agency Not Updated")
+    else:
         data = {}
         data['status'] = 200
         data['agency'] = get_agency.make_to_dict()
         resp = jsonify(data)
         return resp
-    else:
-        return not_found(message="No Update")

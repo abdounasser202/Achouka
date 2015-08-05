@@ -18,7 +18,11 @@ class DepartureModel(ndb.Model):
         to_dict['departure_id'] = self.key.id()
         to_dict['departure_date'] = str(self.departure_date)
         to_dict['departure_schedule'] = str(self.schedule)
-        to_dict['departure_delay'] = str(self.time_delay)
+        if self.time_delay:
+            to_dict['departure_delay'] = str(self.time_delay)
+            to_dict['delay'] = True
+        else:
+            to_dict['delay'] = False
         to_dict['departure_destination'] = self.destination.id()
         to_dict['departure_vessel'] = self.vessel.id()
         return to_dict

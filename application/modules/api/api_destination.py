@@ -30,8 +30,8 @@ def get_destination_api(token):
 
     data = {}
     data['status'] = 200
-    data['departure'] = []
+    data['destination'] = []
     for destination in get_destination:
-        data['departure'].append(destination.make_to_dict())
+        data['destination'].append(destination.make_to_dict())
     resp = jsonify(data)
     return resp

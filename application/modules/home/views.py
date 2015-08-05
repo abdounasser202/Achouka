@@ -70,16 +70,18 @@ def Home():
                 flash('Your account is disabled. Contact Administrator', 'danger')
                 return redirect(url_for('Home', url=url))
 
-            session['user_id'] = user_login.key.id()
             agency = 0
             if user_login.agency:
                 agency = user_login.agency.get().key.id()
+                if not agency.status:
+                    flash('Your agency is disabled. Contact Administrator', 'danger')
+                    return redirect(url_for('Home', url=url))
 
             #implementation de l'heure local
             time_zones = pytz.timezone('Africa/Douala')
             date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-
+            session['user_id'] = user_login.key.id()
             session['agence_id'] = agency
             user_login.logged = True
             user_login.date_last_logged = function.datetime_convert(date_auto_nows)
@@ -352,6 +354,9 @@ def Dashboard():
 
         return render_template('/index/dashboard_manager.html', **locals())
 
+    # Redirection d'un utilisateur employe boarding
+    if not current_user.has_roles(('admin', 'manager_agency', 'super_admin', 'employee_POS')) and current_user.has_roles('employee_Boarding'):
+        return redirect(url_for('Boarding'))
 
     # TRAITEMENT DU DASHBOARD DES ADMINISTRATEURS
     for agency in all_agency:

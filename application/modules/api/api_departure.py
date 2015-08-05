@@ -10,7 +10,7 @@ from ..departure.models_departure import DepartureModel
 cache = Cache(app)
 
 @app.route('/departure/get/<token>')
-def get_departure_api():
+def get_departure_api(token):
     
     try:
         date = function.date_convert(request.args.get('last_update'))

@@ -58,7 +58,8 @@ def login_user_api(password, email, token):
             return not_found(error=403, message="Forbidden. you have not permission to access/<token>")
         else:
             return not_found(error=400, message="Bad Request. your token's agency is not correct/<token>")
-            
+
+
 @app.route("/user/get/<token>")
 def get_user_api(token):
 
@@ -85,7 +86,6 @@ def get_user_api(token):
     data['status'] = 200
     data['user'] = []
     for user in get_user:
-        user.make_to_dict()['profil_id'] = user.profil.id()
-        data['user'].append(user.make_to_dict())
+        data['user'].append(user.make_to_dict(True))
     resp = jsonify(data)
     return resp

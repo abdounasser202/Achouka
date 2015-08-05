@@ -278,6 +278,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     customer = CustomerModel.get_by_id(Ticket_Return.customer.get().key.id())
     form = FormCustomerPOS(obj=customer)
 
+    # Envoie des informations par default sur la vue
     form.type_name.data = Ticket_Return.type_name.get().key.id()
     form.class_name.data = Ticket_Return.class_name.get().key.id()
     form.journey_name.data = Ticket_Return.journey_name.get().key.id()
@@ -317,32 +318,23 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
         else:
             customer_save = customer.key
 
-        new_ticket = TicketModel()
+        child_ticket = TicketModel.query(
+            TicketModel.parent_return == Ticket_Return.key.id()
+        ).get()
 
-        new_ticket.type_name = Ticket_Return.type_name
-        new_ticket.class_name = Ticket_Return.class_name
-
-        new_ticket.selling = True
-        new_ticket.is_ticket = True
-        new_ticket.is_count = False
-        new_ticket.date_reservation = function.datetime_convert(date_auto_nows)
-        new_ticket.datecreate = function.datetime_convert(date_auto_nows)
-        new_ticket.travel_ticket = departure_current.destination
-
-        customer_ticket = CustomerModel.get_by_id(customer_save.id())
-        new_ticket.customer = customer_ticket.key
+        child_ticket.selling = True
+        child_ticket.date_reservation = function.datetime_convert(date_auto_nows)
+        child_ticket.travel_ticket = departure_current.destination
 
         user = UserModel.get_by_id(int(session.get('user_id')))
-        new_ticket.ticket_seller = user.key
-
-        new_ticket.parent_return = Ticket_Return.key
+        child_ticket.ticket_seller = user.key
 
         #sauvegarde de l'agence de l'utilisateur courant
-        new_ticket.agency = agency_current_user.key
+        child_ticket.agency = agency_current_user.key
 
-        new_ticket.departure = departure_current.key
+        child_ticket.departure = departure_current.key
 
-        ticket_update = new_ticket.put()
+        ticket_update = child_ticket.put()
 
         Ticket_Return.statusValid = False
         this_ticket = Ticket_Return.put()
@@ -525,6 +517,21 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         Ticket_To_Sell.sellprice = priceticket.price
         Ticket_To_Sell.sellpriceCurrency = priceticket.currency
 
+        if Ticket_To_Sell.is_return:
+            duplicate_ticket = TicketModel()
+            duplicate_ticket.type_name = Ticket_To_Sell.type_name
+            duplicate_ticket.class_name = Ticket_To_Sell.class_name
+            duplicate_ticket.is_ticket = True
+            duplicate_ticket.is_count = False
+            duplicate_ticket.datecreate = function.datetime_convert(date_auto_nows)
+
+            customer_ticket = CustomerModel.get_by_id(customer_save.id())
+            duplicate_ticket.customer = customer_ticket.key
+
+            duplicate_ticket.parent_return = Ticket_To_Sell.key
+
+            duplicate_ticket.put()
+
         customer_ticket = CustomerModel.get_by_id(customer_save.id())
         Ticket_To_Sell.customer = customer_ticket.key
 
@@ -536,6 +543,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
         from ..transaction.models_transaction import TransactionModel, ExpensePaymentTransactionModel
 
+        # Prise en compte des variations de prix des tickets avec les types de tickets
         last_transaction = None
         amount_different = 0
         if priceticket.price > Ticket_To_Sell.sellpriceAg:
@@ -1019,37 +1027,35 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
         else:
             customer_save = customer.key
 
-        new_ticket = TicketModel()
+        child_ticket = TicketModel.query(
+            TicketModel.parent_return == Ticket_Return.key.id()
+        ).get()
 
-        new_ticket.type_name = ticket_type_choice_get.type_name
-        new_ticket.class_name = ticket_type_choice_get.class_name
-        new_ticket.journey_name = ticket_type_choice_get.journey_name
+        child_ticket.type_name = ticket_type_choice_get.type_name
+        child_ticket.class_name = ticket_type_choice_get.class_name
+        child_ticket.journey_name = ticket_type_choice_get.journey_name
 
-        new_ticket.selling = True
-        new_ticket.is_ticket = True
-        new_ticket.date_reservation = function.datetime_convert(date_auto_nows)
-        new_ticket.datecreate = function.datetime_convert(date_auto_nows)
-        new_ticket.sellprice = Amount
-        new_ticket.sellpriceAg = Amount
+        child_ticket.selling = True
+        child_ticket.is_ticket = True
+        child_ticket.date_reservation = function.datetime_convert(date_auto_nows)
+        child_ticket.sellprice = Amount
+        child_ticket.sellpriceAg = Amount
 
-        new_ticket.sellpriceCurrency = ticket_type_choice_get.currency
-        new_ticket.sellpriceAgCurrency = ticket_type_choice_get.currency
+        child_ticket.sellpriceCurrency = ticket_type_choice_get.currency
+        child_ticket.sellpriceAgCurrency = ticket_type_choice_get.currency
 
-        new_ticket.travel_ticket = ticket_type_choice_get.travel
+        child_ticket.travel_ticket = ticket_type_choice_get.travel
 
         user = UserModel.get_by_id(int(session.get('user_id')))
-        new_ticket.ticket_seller = user.key
-        new_ticket.agency = user.agency
+        child_ticket.ticket_seller = user.key
+        child_ticket.agency = user.agency
 
-        customer_ticket = CustomerModel.get_by_id(customer_save.id())
-        new_ticket.customer = customer_ticket.key
+        child_ticket.upgrade_parent = Ticket_Return.key
+        child_ticket.is_upgrade = True
+        child_ticket.departure = departure_current.key
 
-        new_ticket.upgrade_parent = Ticket_Return.key
-        new_ticket.is_upgrade = True
-
-        new_ticket.departure = departure_current.key
-
-        ticket_update = new_ticket.put()
+        # Modification du ticket enfant
+        ticket_update = child_ticket.put()
 
         Ticket_Return.statusValid = False
         this_ticket = Ticket_Return.put()
