@@ -57,6 +57,15 @@ indexes:
   - name: agency
   - name: class
   - name: is_count
+  - name: is_upgrade
+  - name: datecreate
+    direction: desc
+
+- kind: TicketPoly
+  properties:
+  - name: agency
+  - name: class
+  - name: is_count
   - name: selling
   - name: date_reservation
 
