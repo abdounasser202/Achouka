@@ -343,6 +343,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     )
 
     # information du depart pour le ticket a afficher sur le template
+    #print_departure = None
     if departure_id:
         print_depature = DepartureModel.get_by_id(int(departure_id))
     else:
@@ -417,6 +418,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     )
 
     warning = False
+    """
     if current_user.have_agency():
             agence_id = session.get('agence_id')
             user_agence = AgencyModel.get_by_id(int(agence_id))
@@ -427,8 +429,9 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
                 if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
                     current_departure = dep
                     break
-            if current_departure and current_departure.key.id() != departure_id:
+            if current_departure != print_departure:
                 warning = True
+    """
 
     modal = 'false'
     ticket_update = None

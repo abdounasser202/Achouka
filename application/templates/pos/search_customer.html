@@ -58,7 +58,7 @@
         url = $(this).attr('href');
         $.ajax({
             url: url,
-            type: 'POST',
+            type: 'GET',
             success: function(data) {
                 $('#ScreenIndexPos').hide();
                 $('#ScreenCreateTicket').removeClass('hidden').html(data);
