@@ -73,7 +73,7 @@ def Home():
             agency = 0
             if user_login.agency:
                 agency = user_login.agency.get().key.id()
-                if not agency.status:
+                if not user_login.agency.get().status:
                     flash('Your agency is disabled. Contact Administrator', 'danger')
                     return redirect(url_for('Home', url=url))
 
