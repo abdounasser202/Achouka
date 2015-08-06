@@ -215,6 +215,24 @@
     </div>
   </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal_Reservation" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header bg-warning">
+            <h4 class="modal-title">WARNING</h4>
+        </div>
+        <div class="modal-body">
+            <h2>This journey accept reservation only</h2>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-succes" data-dismiss="modal">Accept</button>
+            <a href="{{ url_for('Pos') }}" class="btn btn-danger">Refuse</a>
+        </div>
+    </div>
+  </div>
+</div>
 <script>
     $('#datepickerbirth').inputmask("date", { placeholder:"__/__/____"});
 
@@ -230,7 +248,13 @@
             $('#ScreenCreateTicket').addClass('hidden').html('');
     });
 
-
+    /* affichage de l'alerte danger */
+    {% if warning %}
+        $('#myModal_Reservation').modal({
+             show: true,
+             backdrop:"static"
+        });
+    {% endif %}
 
     var modals = '{{ modal }}';
 

@@ -35,7 +35,7 @@ def Super_Admin_Create():
 
         if not currency:
             CurrencyCreate = CurrencyModel()
-            CurrencyCreate.code = form.currency.data
+            CurrencyCreate.code = "XAF"
             CurrencyCreate.name = 'Franc CFA'
             currencyCreate = CurrencyCreate.put()
             currencyCreate = CurrencyModel.get_by_id(currencyCreate.id())

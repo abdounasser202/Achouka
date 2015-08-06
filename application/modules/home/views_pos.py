@@ -26,7 +26,7 @@ def Pos(departure_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-    heure = function.datetime_convert(date_auto_nows).time()
+    today = function.datetime_convert(date_auto_nows)
 
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
@@ -37,17 +37,21 @@ def Pos(departure_id=None):
     )
 
     if not departure_id:
-         if current_user.have_agency():
+        if current_user.have_agency():
             agence_id = session.get('agence_id')
             user_agence = AgencyModel.get_by_id(int(agence_id))
 
             for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
                     current_departure = dep
                     break
-         else:
+        else:
             for dep in departure:
-                if function.add_time(dep.schedule, dep.time_delay) >= heure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+                if departure_datetime > today:
                     current_departure = dep
                     break
     else:
@@ -66,78 +70,6 @@ def reset_remaining_ticket():
         number = 'No Ticket'
 
     return number+' Available'
-
-
-@app.route('/reset_current_departure/<int:departure_id>')
-@app.route('/reset_current_departure')
-def reset_current_departure(departure_id=None):
-    from ..agency.models_agency import AgencyModel
-    from ..departure.models_departure import DepartureModel
-
-    #implementation de l'heure local
-    time_zones = pytz.timezone('Africa/Douala')
-    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
-
-    heure = function.datetime_convert(date_auto_nows).time()
-
-    departure = DepartureModel.query(
-    ).order(
-        -DepartureModel.departure_date,
-        DepartureModel.schedule,
-        DepartureModel.time_delay
-    )
-    current_departure = None
-
-    if not departure_id:
-        if current_user.have_agency():
-            agence_id = session.get('agence_id')
-            user_agence = AgencyModel.get_by_id(int(agence_id))
-
-            for dep in departure:
-                if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
-                    current_departure = dep
-                    break
-        else:
-             for dep in departure:
-                if function.add_time(dep.schedule, dep.time_delay) >= heure:
-                    current_departure = dep
-                    break
-    else:
-        current_departure = DepartureModel.get_by_id(departure_id)
-
-    if current_departure:
-
-        element = """<br/><br/>
-            <span id="current_departure_id" class="hidden">"""+ str(current_departure.key.id()) +""""</span>
-            <span id="current_departure_start" class="hidden"> """+str(current_departure.destination.get().destination_start.get().key.id()) +"""</span>
-            <span id="current_departure_check" class="hidden">"""+str(current_departure.destination.get().destination_check.get().key.id())+"""</span>
-            <table class="table text-center">
-                <tbody>
-                    <tr>
-                        <td><strong>Journey</strong></td>
-                        <td>"""+current_departure.destination.get().destination_start.get().name+""" - """+current_departure.destination.get().destination_check.get().name +"""
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Date</strong></td>
-                        <td>"""+str(function.format_date(current_departure.departure_date,"%A %d %B  %Y")) +"""</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Time</strong></td>
-                        <td>"""+str(function.format_date(function.add_time(current_departure.schedule, current_departure.time_delay), "%H:%M")) +"""</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-        """
-    else:
-        element = """<br/><br/>
-          <div class="panel-body text-center">
-            <h3>No next journey</h3>
-          </div>"""
-
-    return element
 
 
 @app.route('/search_customer_pos', methods=['GET', 'POST'])
@@ -290,6 +222,31 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     class_ticket = ClassTypeModel.query()
     ticket_type_name = TicketTypeNameModel.query()
 
+    #Traitement de l'affichage d'une attention sur la vente a effectuer
+    today = function.datetime_convert(date_auto_nows)
+
+    #liste des departs supperieur a la date du jour
+    departure = DepartureModel.query(
+        DepartureModel.departure_date >= datetime.date.today()
+    ).order(
+        -DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    warning = False
+    if current_user.have_agency():
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
+            current_departure = None
+            for dep in departure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
+                    current_departure = dep
+                    break
+            if current_departure and current_departure.key.id() != departure_id:
+                warning = True
 
     modal = 'false'
     ticket_update = None
@@ -370,6 +327,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+
     number_list = global_dial_code_custom
     nationalList = global_nationality_contry
 
@@ -446,7 +404,31 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     class_ticket = ClassTypeModel.query()
     ticket_type_name = TicketTypeNameModel.query()
 
+    #Traitement de l'affichage d'une attention sur la vente a effectuer
+    today = function.datetime_convert(date_auto_nows)
 
+    #liste des departs supperieur a la date du jour
+    departure = DepartureModel.query(
+        DepartureModel.departure_date >= datetime.date.today()
+    ).order(
+        -DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    warning = False
+    if current_user.have_agency():
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
+            current_departure = None
+            for dep in departure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
+                    current_departure = dep
+                    break
+            if current_departure and current_departure.key.id() != departure_id:
+                warning = True
 
     modal = 'false'
     ticket_update = None
@@ -999,6 +981,31 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
     class_ticket = ClassTypeModel.query()
     ticket_type_name = TicketTypeNameModel.query()
 
+    #Traitement de l'affichage d'une attention sur la vente a effectuer
+    today = function.datetime_convert(date_auto_nows)
+
+    #liste des departs supperieur a la date du jour
+    departure = DepartureModel.query(
+        DepartureModel.departure_date >= datetime.date.today()
+    ).order(
+        -DepartureModel.departure_date,
+        DepartureModel.schedule,
+        DepartureModel.time_delay
+    )
+
+    warning = False
+    if current_user.have_agency():
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
+            current_departure = None
+            for dep in departure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
+                    current_departure = dep
+                    break
+            if current_departure and current_departure.key.id() != departure_id:
+                warning = True
 
     modal = 'false'
     ticket_update = None

@@ -21,7 +21,7 @@ def Boarding():
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-    heure = function.datetime_convert(date_auto_nows).time()
+    today = function.datetime_convert(date_auto_nows)
 
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
@@ -36,12 +36,16 @@ def Boarding():
         user_agence = AgencyModel.get_by_id(int(agence_id))
 
         for dep in departure:
-            if dep.destination.get().destination_start == user_agence.destination and function.add_time(dep.schedule, dep.time_delay) >= heure:
+            departure_time = function.add_time(dep.schedule, dep.time_delay)
+            departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+            if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
                 current_departure = dep
                 break
     else:
         for dep in departure:
-            if function.add_time(dep.schedule, dep.time_delay) >= heure:
+            departure_time = function.add_time(dep.schedule, dep.time_delay)
+            departure_datetime = datetime.datetime(departure.departure_date.year, departure.departure_date.month, departure.departure_date.day, departure.departure_date.year, departure_time.hour, departure_time.minute, departure_time.second)
+            if departure_datetime > today:
                 current_departure = dep
                 break
 
@@ -101,6 +105,7 @@ def Search_Ticket_Boarding(ticket_id=None):
         find_ticket_sold = function.find(str(ticket.key.id())+" ", str(number_ticket))
         if find_ticket_sold:
             list_ticket_sold.append(ticket.key.id())
+
     return render_template('/boarding/search_ticket.html', **locals())
 
 
