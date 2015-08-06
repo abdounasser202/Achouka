@@ -343,7 +343,6 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     )
 
     # information du depart pour le ticket a afficher sur le template
-    print_depature = None
     if departure_id:
         print_depature = DepartureModel.get_by_id(int(departure_id))
     else:
@@ -419,17 +418,17 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
 
     warning = False
     if current_user.have_agency():
-        agence_id = session.get('agence_id')
-        user_agence = AgencyModel.get_by_id(int(agence_id))
-        current_departure = None
-        for dep in departure:
-            departure_time = function.add_time(dep.schedule, dep.time_delay)
-            departure_datetime = datetime.datetime(dep.departure_date.year, dep.departure_date.month, dep.departure_date.day, departure_time.hour, departure_time.minute, departure_time.second)
-            if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
-                current_departure = dep
-                break
-        if current_departure and current_departure != print_depature:
-            warning = True
+            agence_id = session.get('agence_id')
+            user_agence = AgencyModel.get_by_id(int(agence_id))
+            current_departure = None
+            for dep in departure:
+                departure_time = function.add_time(dep.schedule, dep.time_delay)
+                departure_datetime = datetime.datetime(dep.departure_date.year, dep.departure_date.month, dep.departure_date.day, departure_time.hour, departure_time.minute, departure_time.second)
+                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
+                    current_departure = dep
+                    break
+            if current_departure and current_departure.key.id() != departure_id:
+                warning = True
 
     modal = 'false'
     ticket_update = None
