@@ -12,6 +12,13 @@ indexes:
 
 - kind: ActivityModel
   properties:
+  - name: identity
+  - name: object
+  - name: time
+    direction: desc
+
+- kind: ActivityModel
+  properties:
   - name: object
   - name: time
     direction: desc

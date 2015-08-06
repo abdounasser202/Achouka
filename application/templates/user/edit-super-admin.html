@@ -9,7 +9,6 @@
                 {% include 'includes/flash_message.html' %}
                 <form class="form-horizontal form-signin" method="post" action="">
                         {{ form.hidden_tag() }}
-						<input type="hidden" name="currency" value="XAF"/>
                         <img src="/static/img/Comatrans-Transparent-Black-H.png" alt=""/>
                         <h2 class="form-signin-heading text-center">Register Super Admin</h2>
                         {% if form.first_name.errors %}

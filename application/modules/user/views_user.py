@@ -30,7 +30,7 @@ def Super_Admin_Create():
         UserRole = UserRoleModel()
 
         currency = CurrencyModel.query(
-            CurrencyModel.code == form.currency.data
+            CurrencyModel.code == "XAF"
         ).get()
 
         if not currency:
@@ -111,42 +111,15 @@ def User_Admin_Index():
         return render_template('/user/all_feed.html', **locals())
 
 
-    admin_role = RoleModel.query(
-        RoleModel.name == 'admin'
-    ).get()
+    User = UserRoleModel.query()
 
     user_admin = []
-    if admin_role:
-        user_admin = UserRoleModel.query(
-                UserRoleModel.role_id == admin_role.key
-        )
+    for user in User:
+        if (user.role_id.get().name == "admin" or user.role_id.get().name == "super_admin") and current_user.has_roles('super_admin'):
+            user_admin.append(user)
 
-    if current_user.has_roles('super_admin'):
-        super_admin_role = RoleModel.query(
-            RoleModel.name == 'super_admin'
-        ).get()
-
-        super_admin_role_id = UserRoleModel.query(
-            UserRoleModel.role_id == super_admin_role.key
-        )
-        super_admin_id = [users.user_id for users in super_admin_role_id]
-
-        if admin_role:
-            user_admin = UserRoleModel.query(
-                ndb.OR(
-                    UserRoleModel.role_id == super_admin_role.key,
-                    UserRoleModel.role_id == admin_role.key
-                )
-            )
-
-    user_admins = [users.user_id for users in user_admin]
-
-
-
-    user = UserRoleModel.query(
-        projection=[UserRoleModel.user_id],
-        group_by=[UserRoleModel.user_id]
-    )
+        if user.role_id.get().name == "admin" and not current_user.has_roles('super_admin'):
+            user_admin.append(user)
 
     return render_template('/user/index.html', **locals())
 
