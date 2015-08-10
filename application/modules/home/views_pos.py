@@ -215,6 +215,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     form.class_name.data = Ticket_Return.class_name.get().key.id()
     form.journey_name.data = Ticket_Return.journey_name.get().key.id()
 
+    # information du depart courant
     departure_current = DepartureModel.get_by_id(departure_id)
     form.current_departure.data = str(departure_current.key.id())
 
@@ -245,7 +246,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
                 if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
                     current_departure = dep
                     break
-            if current_departure and current_departure.key.id() != departure_id:
+            if current_departure and current_departure.key.id() != departure_current.key.id():
                 warning = True
 
     modal = 'false'
@@ -374,7 +375,6 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     else:
         if question_request:
             count = 0
-
             #boucle la liste des questions envoyees et verifie si c'est dans la liste des questions obligatoires
             for quest in question_request:
                 ks = QuestionModel.get_by_id(int(quest))
@@ -427,7 +427,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
                 if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
                     current_departure = dep
                     break
-            if current_departure and current_departure.key.id() != departure_id:
+            if current_departure and current_departure.key.id() != print_depature.key.id():
                 warning = True
 
     modal = 'false'
@@ -995,17 +995,17 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
 
     warning = False
     if current_user.have_agency():
-            agence_id = session.get('agence_id')
-            user_agence = AgencyModel.get_by_id(int(agence_id))
-            current_departure = None
-            for dep in departure:
-                departure_time = function.add_time(dep.schedule, dep.time_delay)
-                departure_datetime = datetime.datetime(dep.departure_date.year, dep.departure_date.month, dep.departure_date.day, departure_time.hour, departure_time.minute, departure_time.second)
-                if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
-                    current_departure = dep
-                    break
-            if current_departure and current_departure.key.id() != departure_id:
-                warning = True
+        agence_id = session.get('agence_id')
+        user_agence = AgencyModel.get_by_id(int(agence_id))
+        current_departure = None
+        for dep in departure:
+            departure_time = function.add_time(dep.schedule, dep.time_delay)
+            departure_datetime = datetime.datetime(dep.departure_date.year, dep.departure_date.month, dep.departure_date.day, departure_time.hour, departure_time.minute, departure_time.second)
+            if dep.destination.get().destination_start == user_agence.destination and departure_datetime > today:
+                current_departure = dep
+                break
+        if current_departure and current_departure.key.id() != departure_current.key.id():
+            warning = True
 
     modal = 'false'
     ticket_update = None
