@@ -28,9 +28,7 @@ def get_role_api(token):
     else:
         get_role = RoleModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['role'] = []
+    data = {'status': 200, 'role': []}
     for role in get_role:
         data['role'].append(role.make_to_dict())
     resp = jsonify(data)

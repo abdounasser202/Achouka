@@ -28,9 +28,7 @@ def get_travel_api(token):
     else:
         get_travel = TravelModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['travel'] = []
+    data = {'status': 200, 'travel': []}
     for travel in get_travel:
         data['travel'].append(travel.make_to_dict())
     resp = jsonify(data)

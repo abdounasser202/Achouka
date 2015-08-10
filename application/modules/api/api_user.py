@@ -1,6 +1,5 @@
 __author__ = 'Vercossa'
 
-
 from api_function import *
 from ..user.models_user import UserModel, AgencyModel, UserRoleModel
 from ..profil.models_profil import ProfilModel
@@ -11,7 +10,6 @@ cache = Cache(app)
 
 @app.route('/login_user/get/<password>/<email>/<token>')
 def login_user_api(password, email, token):
-
     user_login = UserModel.query(
         UserModel.email == email,
         UserModel.password == password
@@ -28,16 +26,16 @@ def login_user_api(password, email, token):
             tokens = agency_exist.Key()
             data['current_agency'] = agency_exist.make_to_dict()
             from ..destination.models_destination import DestinationModel
+
             destination_agency = DestinationModel.get_by_id(agency_exist.destination.id())
             data['current_agency']['agency_destination'] = destination_agency.make_to_dict()
-
 
         data['user'] = user_login.make_to_dict()
         data['status'] = 200
 
-        #super_admin
+        # super_admin
         if not user_login.profil and tokens:
-            #prendre le super admin
+            # prendre le super admin
             role_user = UserRoleModel.query(
                 UserRoleModel.user_id == user_login.key
             ).get()
@@ -46,7 +44,7 @@ def login_user_api(password, email, token):
             resp = jsonify(data)
             return resp
 
-        #Admin
+        # Admin
         if user_login.profil and tokens and not user_login.agency and user_login.is_active(token):
             #prendre les utilisateurs de l'agence en cours
             user_profil = ProfilModel.get_by_id(user_login.profil.id())
@@ -62,7 +60,6 @@ def login_user_api(password, email, token):
 
 @app.route("/user/get/<token>")
 def get_user_api(token):
-
     try:
         date = function.date_convert(request.args.get('last_update'))
     except:
@@ -82,9 +79,7 @@ def get_user_api(token):
             UserModel.agency == get_agency.key
         )
 
-    data = {}
-    data['status'] = 200
-    data['user'] = []
+    data = {'status': 200, 'user': []}
     for user in get_user:
         data['user'].append(user.make_to_dict(True))
     resp = jsonify(data)

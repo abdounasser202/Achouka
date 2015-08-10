@@ -28,9 +28,7 @@ def get_tickets_api(token):
     else:
         get_tickets = TicketTypeModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['tickets'] = []
+    data = {'status': 200, 'tickets': []}
     for tickets in get_tickets:
         data['tickets'].append(tickets.make_to_dict())
     resp = jsonify(data)

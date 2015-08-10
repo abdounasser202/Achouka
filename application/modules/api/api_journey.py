@@ -28,9 +28,7 @@ def get_journey_api(token):
     else:
         get_journey = JourneyTypeModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['journey'] = []
+    data = {'status': 200, 'journey': []}
     for journey in get_journey:
         data['journey'].append(journey.make_to_dict())
     resp = jsonify(data)

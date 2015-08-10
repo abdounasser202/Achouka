@@ -28,9 +28,7 @@ def get_destination_api(token):
     else:
         get_destination = DestinationModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['destination'] = []
+    data = {'status': 200, 'destination': []}
     for destination in get_destination:
         data['destination'].append(destination.make_to_dict())
     resp = jsonify(data)

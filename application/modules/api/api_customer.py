@@ -25,9 +25,7 @@ def get_customer_api(token):
     else:
         get_customer = CustomerModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['customer'] = []
+    data = {'status': 200, 'customer': []}
     for customer in get_customer:
         data['customer'].append(customer.make_to_dict())
     resp = jsonify(data)

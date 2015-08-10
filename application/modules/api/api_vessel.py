@@ -28,9 +28,7 @@ def get_vessel_api(token):
     else:
         get_vessel = VesselModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['vessel'] = []
+    data = {'status': 200, 'vessel': []}
     for vessel in get_vessel:
         data['vessel'].append(vessel.make_to_dict())
     resp = jsonify(data)

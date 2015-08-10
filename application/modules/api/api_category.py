@@ -29,9 +29,7 @@ def get_category_api(token):
     else:
         get_category = TicketTypeNameModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['category'] = []
+    data = {'status': 200, 'category': []}
     for category in get_category:
         data['category'].append(category.make_to_dict())
     resp = jsonify(data)

@@ -28,9 +28,7 @@ def get_profil_api(token):
     else:
         get_profil = ProfilModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['profils'] = []
+    data = {'status': 200, 'profils': []}
     for profil in get_profil:
         data['profils'].append(profil.make_to_dict())
     resp = jsonify(data)

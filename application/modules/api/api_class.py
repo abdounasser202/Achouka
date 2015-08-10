@@ -28,9 +28,7 @@ def get_class_api(token):
     else:
         get_class = ClassTypeModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['class'] = []
+    data = {'status': 200, 'class': []}
     for _class in get_class:
         data['class'].append(_class.make_to_dict())
     resp = jsonify(data)

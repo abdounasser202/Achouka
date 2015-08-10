@@ -28,9 +28,7 @@ def get_departure_api(token):
     else:
         get_departure = DepartureModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['departure'] = []
+    data = {'status': 200, 'departure': []}
     for departure in get_departure:
         data['departure'].append(departure.make_to_dict())
     resp = jsonify(data)

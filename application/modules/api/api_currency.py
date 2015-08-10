@@ -28,9 +28,7 @@ def get_currency_api(token):
     else:
         get_currency = CurrencyModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['currency'] = []
+    data = {'status': 200, 'currency': []}
     for currency in get_currency:
         data['currency'].append(currency.make_to_dict())
     resp = jsonify(data)

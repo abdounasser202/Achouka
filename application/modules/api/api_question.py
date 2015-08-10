@@ -28,9 +28,7 @@ def get_question_api(token):
     else:
         get_question = QuestionModel().query()
 
-    data = {}
-    data['status'] = 200
-    data['question'] = []
+    data = {'status': 200, 'question': []}
     for question in get_question:
         data['question'].append(question.make_to_dict())
     resp = jsonify(data)
