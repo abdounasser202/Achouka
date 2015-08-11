@@ -27,7 +27,7 @@ class TicketPoly(polymodel.PolyModel):
     is_return = ndb.BooleanProperty(default=False)
 
     selling = ndb.BooleanProperty(default=False)
-    is_ticket = ndb.BooleanProperty()
+    is_ticket = ndb.BooleanProperty(default=True)
     date_reservation = ndb.DateTimeProperty()
     sellprice = ndb.FloatProperty()
     sellpriceCurrency = ndb.KeyProperty(kind=CurrencyModel)
@@ -65,6 +65,8 @@ class TicketPoly(polymodel.PolyModel):
         if self.departure:
             to_dict['departure'] = self.departure.id()
 
+        to_dict['datecreate'] = str(self.datecreate)
+
         return to_dict
 
 
@@ -83,29 +85,12 @@ class TicketModel(TicketPoly):
     def make_to_dict(self):
         to_dict = self.make_to_dict_poly()
 
-        to_dict['child_upgrade'] = []
-        if self.is_upgrade:
-            to_dict['is_upgrade'] = self.is_upgrade
-            to_dict['upgrade_parent'] = self.upgrade_parent.id()
-        else:
-
-            child = TicketModel.query(
-                TicketModel.upgrade_parent == self.key.id()
-            )
-            for child in child:
-                to_dict['child_upgrade'].append(child.make_to_dict())
-
         to_dict['child_return'] = []
-        if self.parent_return:
-            to_dict['parent_return'] = self.parent_return.id()
-            to_dict['is_count'] = self.is_count
-        else:
-            if not self.is_upgrade:
-                child = TicketModel.query(
-                    TicketModel.parent_return == self.key.id()
-                )
-                for child in child:
-                    to_dict['child_return'].append(child.make_to_dict())
+        child = self.query(
+            self.parent_return == self.key.id()
+        )
+        for child in child:
+            to_dict['child_return'].append(child.make_to_dict())
 
         return to_dict
 

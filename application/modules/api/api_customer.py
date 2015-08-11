@@ -85,6 +85,6 @@ def put_customer_api(token):
         count += 1
 
     if save:
-        return not_found(error=200, message="You have send "+str(count)+" customer(s) in online apps")
+        return not_found(error=200, message="You have send "+str(count)+" customers in online apps")
     else:
-        return not_found(error=404, message="You have send "+str(count)+" customer(s) in online apps")
+        return not_found(error=404, message="You have send "+str(count)+" customer in online apps")

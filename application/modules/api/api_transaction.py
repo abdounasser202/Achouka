@@ -12,7 +12,7 @@ cache = Cache(app)
 def get_transaction_api(token):
 
     try:
-        date = function.datetime_convert(request.args.get('last_update'))
+       date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
     except:
         date = None
 
