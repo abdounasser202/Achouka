@@ -369,7 +369,7 @@ def Dashboard():
         )
 
         for ticket in ticket_agency:
-            if agency.country == 'GB':
+            if agency.country == 'GA':
                 tickets = {}
                 tickets['date'] = function.format_date(ticket.departure.get().departure_date, "%Y-%m-%d")
                 tickets['departure'] = ticket.departure

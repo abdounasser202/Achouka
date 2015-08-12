@@ -192,3 +192,37 @@ def ticket_local_sale_put(token):
         return not_found(error=200, message="You have send "+str(count)+" tickets sales in online apps")
     else:
         return not_found(error=404, message="You have send "+str(count)+" ticket sale in online apps")
+
+
+@app.route('/get_ticket_online/get/<token>')
+def get_ticket_online(token):
+
+    try:
+        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
+    except:
+        date = None
+
+    get_agency = AgencyModel.get_by_key(token)
+    if not get_agency:
+        return not_found(message="Your token is not correct")
+
+    if date:
+        ticket_sale = TicketModel.query(
+            TicketModel.date_reservation >= date,
+            TicketModel.selling == True,
+            TicketModel.is_return == False,
+            TicketModel.is_boarding == False,
+        )
+    else:
+        ticket_sale = TicketModel.query(
+            TicketModel.selling == True,
+            TicketModel.is_boarding == False,
+            TicketModel.is_return == False
+        )
+
+    data = {'status': 200, 'tickets_sale': []}
+    for ticket in ticket_sale:
+        if not ticket.parent_return or not ticket.is_upgrade:
+            data['tickets_sale'].append(ticket.make_to_dict())
+    resp = jsonify(data)
+    return resp

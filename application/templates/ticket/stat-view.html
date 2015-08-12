@@ -11,7 +11,7 @@
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
-                          <li><a href="{{ url_for('Ticket_Index') }}">Ticket purchase</a></li>
+                          <li><a href="{{ url_for('Ticket_Index') }}">Ticket Allocated</a></li>
                           <li class="active">Statistics</li>
                         </ol>
                         <div class="row">
@@ -106,7 +106,7 @@
                             <div class="col-lg-4">
 
                                 {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') %}
-                                        <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-info btn-block"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Purchase</a>
+                                        <a href="{{ url_for('Select_Travel', agency_id=agency_id) }}" class="btn btn-info btn-block"  data-toggle="modal" data-target="#myModal" data-backdrop="static">Allocate Ticket</a>
                                         <br/>
                                 {% endif %}
                                 <div class="well text-center">

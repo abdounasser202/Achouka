@@ -67,6 +67,16 @@ class TicketPoly(polymodel.PolyModel):
 
         to_dict['datecreate'] = str(self.datecreate)
 
+        # pour un ticket vendu en ligne
+        if self.ticket_seller:
+            to_dict['ticket_seller'] = self.ticket_seller.id()
+
+        to_dict['date_reservation'] = str(self.date_reservation)
+        to_dict['sellprice'] = self.sellprice
+
+        if self.sellpriceCurrency:
+            to_dict['sellpriceCurrency'] = self.sellpriceCurrency.id()
+
         return to_dict
 
 
@@ -86,8 +96,8 @@ class TicketModel(TicketPoly):
         to_dict = self.make_to_dict_poly()
 
         to_dict['child_return'] = []
-        child = self.query(
-            self.parent_return == self.key.id()
+        child = TicketModel.query(
+            TicketModel.parent_return == self.key
         )
         for child in child:
             to_dict['child_return'].append(child.make_to_dict())

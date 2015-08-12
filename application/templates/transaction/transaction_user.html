@@ -101,6 +101,7 @@
       </div>
     </div>
 {% endif %}
+
 <script>
     $('#dataTable1').dataTable({
         "paging": true,
@@ -119,9 +120,25 @@
         ]
     });
     {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') %}
+
+        $('#amount_received').autoNumeric("init",{
+            aSep: ' ',
+            aDec: '.'
+        });
+
         $('#submit').on('click', function(e){
             e.preventDefault();
-            if($('#amount_received').val() != "" && $.isNumeric($('#amount_received').val()) && $('#amount_received').val() > 0){
+
+            var number = $('#amount_received').val();
+            var number = number.split(" ");
+            var amount = "";
+            for (i = 0; i < number.length; i++){
+                amount += number[i];
+            }
+
+            var amount_received = Math.floor(amount);
+
+            if(amount_received != "" && $.isNumeric(amount_received) && amount_received > 0){
                 $('#modal2').attr({style:'display:block;padding-right: 17px;background-color: rgba(255,255,255,0.5);padding-top: 275px;'}).addClass('in');
                 $('.modal-backdrop').after('<div class="modal-backdrop fade in"></div>');
                 $(this).addClass('disabled');
@@ -147,6 +164,16 @@
             var btn = $(this);
             btn.button('loading');
             $('#CloseModal2').addClass('hidden');
+
+            var number = $('#amount_received').val();
+            var number = number.split(" ");
+            var amount = "";
+            for (i = 0; i < number.length; i++){
+                amount += number[i];
+            }
+
+            $('#amount_received').val(Math.floor(amount));
+
             $.ajax({
                 url: "{{ url_for('Transaction_user', user_id=user_get_id.key.id()) }}",
                 type: 'POST',

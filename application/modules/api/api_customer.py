@@ -42,7 +42,7 @@ def put_customer_api(token):
     for customer in customer:
         unicodedata.normalize('NFKD', customer).encode('ascii', 'ignore')
     #transformation de notre unicode en dictionnaire
-    customer = ast.literal_eval(customer)
+    customers = ast.literal_eval(customer)
 
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
@@ -51,7 +51,7 @@ def put_customer_api(token):
     save = None
     count = 0
 
-    for data_get in customer:
+    for data_get in customers:
         old_data = CustomerModel.get_by_id(int(data_get['customer_id']))
         if old_data:
             old_data.first_name = data_get['customer_first_name']
@@ -66,7 +66,7 @@ def put_customer_api(token):
             old_data.email = data_get['customer_email']
             old_data.is_new = data_get['customer_is_new']
             old_data.status = data_get['customer_status']
-            save = old_data.put()
+            old_data.put()
         else:
             data_save = CustomerModel(id=int(data_get['customer_id']))
             data_save.first_name = data_get['customer_first_name']
@@ -82,7 +82,7 @@ def put_customer_api(token):
             data_save.is_new = data_get['customer_is_new']
             data_save.status = data_get['customer_status']
             save = data_save.put()
-        count += 1
+            count += 1
 
     if save:
         return not_found(error=200, message="You have send "+str(count)+" customers in online apps")
