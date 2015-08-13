@@ -6,7 +6,7 @@
             <div class="col-lg-2">
                     {% include 'includes/menu-recording.html' %}
             </div>
-            <div class="col-lg-10">
+            <div class="col-lg-7">
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
@@ -22,94 +22,101 @@
                         <br/>
 
                     <div class="row">
-                        <div class="col-lg-9"><div id="myTabContent" class="tab-content">
-                            <div class="tab-pane fade active in" id="local">
-                                <table class="table table-hover"  id="dataTableDeparture1">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th class="text-center">Scheduled time</th>
-                                            <th class="text-center">Expected time (delay)</th>
-                                            <th>Travel Line</th>
-                                            <th>Vessel</th>
-                                            <th class="nosort"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for local_travel in departure_locals %}
-                                        <tr>
-                                            <td>{{ local_travel.departure_date|format_date("%Y-%m-%d") }}</td>
-                                            <td class="text-center">{{ local_travel.schedule|format_date("%H:%M") }}</td>
-                                            <td class="text-center">{{ local_travel.schedule|add_time(local_travel.time_delay)|format_date("%H:%M") }} {% if local_travel.time_delay %} ( {{ local_travel.time_delay }} ) {% endif %}</td>
-                                            <td>{{ local_travel.destination.get().destination_start.get().name }}
-                                                - {{ local_travel.destination.get().destination_check.get().name }}</td>
-                                            <td>{{ local_travel.vessel.get().name }} {{ local_travel.vessel.get().capacity }}</td>
-                                            <td>
-                                                {% if local_travel.departure_date >= date_day  and local_travel.schedule|add_time(local_travel.time_delay) >= time_now %}
-                                                    <a class="btn btn-link btn-xs" href="{{ url_for('Time_Delay_Edit',departure_id = local_travel.key.id()) }}"  data-toggle="modal" data-target="#myModal">Edit delay</a>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                        <div class="col-lg-12">
+                            <div id="myTabContent" class="tab-content">
+                                <div class="tab-pane fade active in" id="local">
+                                    <table class="table table-hover"  id="dataTableDeparture1">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th class="text-center">Scheduled time</th>
+                                                <th class="text-center">Expected time (delay)</th>
+                                                <th>Travel Line</th>
+                                                <th>Vessel</th>
+                                                <th class="nosort"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for local_travel in departure_locals %}
+                                            <tr>
+                                                <td>{{ local_travel.departure_date|format_date("%Y-%m-%d") }}</td>
+                                                <td class="text-center">{{ local_travel.schedule|format_date("%H:%M") }}</td>
+                                                <td class="text-center">{{ local_travel.schedule|add_time(local_travel.time_delay)|format_date("%H:%M") }} {% if local_travel.time_delay %} ( {{ local_travel.time_delay }} ) {% endif %}</td>
+                                                <td>{{ local_travel.destination.get().destination_start.get().name }}
+                                                    - {{ local_travel.destination.get().destination_check.get().name }}</td>
+                                                <td>{{ local_travel.vessel.get().name }} {{ local_travel.vessel.get().capacity }}</td>
+                                                <td>
+                                                    {% if local_travel.departure_date >= date_day  and local_travel.schedule|add_time(local_travel.time_delay) >= time_now %}
+                                                        <a class="btn btn-link btn-xs" href="{{ url_for('Time_Delay_Edit',departure_id = local_travel.key.id()) }}"  data-toggle="modal" data-target="#myModal">Edit delay</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
 
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="incomming">
-                                <table class="table table-hover"  id="dataTableDeparture2">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th class="text-center">Scheduled time</th>
-                                            <th class="text-center">Expected time (delay)</th>
-                                            <th>Journey</th>
-                                            <th>Vessel</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for in_comming_travel in departure_in_commings %}
-                                        <tr>
-                                            <td>{{ in_comming_travel.departure_date|format_date("%Y-%m-%d") }}</td>
-                                            <td class="text-center">{{ in_comming_travel.schedule|format_date("%H:%M") }}</td>
-                                            <td class="text-center">{{ in_comming_travel.schedule|add_time(in_comming_travel.time_delay)|format_date("%H:%M") }} {% if in_comming_travel.time_delay %} ( {{ in_comming_travel.time_delay }} ) {% endif %}</td>
-                                            <td>{{ in_comming_travel.destination.get().destination_start.get().name }}
-                                                - {{ in_comming_travel.destination.get().destination_check.get().name }}</td>
-                                            <td>{{ in_comming_travel.vessel.get().name }} {{ in_comming_travel.vessel.get().capacity }}</td>
-                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade" id="incomming">
+                                    <table class="table table-hover"  id="dataTableDeparture2">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th class="text-center">Scheduled time</th>
+                                                <th class="text-center">Expected time (delay)</th>
+                                                <th>Journey</th>
+                                                <th>Vessel</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for in_comming_travel in departure_in_commings %}
+                                            <tr>
+                                                <td>{{ in_comming_travel.departure_date|format_date("%Y-%m-%d") }}</td>
+                                                <td class="text-center">{{ in_comming_travel.schedule|format_date("%H:%M") }}</td>
+                                                <td class="text-center">{{ in_comming_travel.schedule|add_time(in_comming_travel.time_delay)|format_date("%H:%M") }} {% if in_comming_travel.time_delay %} ( {{ in_comming_travel.time_delay }} ) {% endif %}</td>
+                                                <td>{{ in_comming_travel.destination.get().destination_start.get().name }}
+                                                    - {{ in_comming_travel.destination.get().destination_check.get().name }}</td>
+                                                <td>{{ in_comming_travel.vessel.get().name }} {{ in_comming_travel.vessel.get().capacity }}</td>
+                                            </tr>
 
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="foreign">
-                                <table class="table table-hover"  id="dataTableDeparture3">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th class="text-center">Scheduled time</th>
-                                            <th class="text-center">Expected time (delay)</th>
-                                            <th>Journey</th>
-                                            <th>Vessel</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for foreign_travel in foreign_departures %}
-                                        <tr>
-                                            <td>{{ foreign_travel.departure_date|format_date("%Y-%m-%d") }}</td>
-                                            <td class="text-center">{{ foreign_travel.schedule|format_date("%H:%M") }}</td>
-                                            <td class="text-center">{{ foreign_travel.schedule|add_time(foreign_travel.time_delay)|format_date("%H:%M") }} {% if foreign_travel.time_delay %} ( +{{ foreign_travel.time_delay }} ) {% endif %}</td>
-                                            <td>{{ foreign_travel.destination.get().destination_start.get().name }}
-                                                - {{ foreign_travel.destination.get().destination_check.get().name }}</td>
-                                            <td>{{ foreign_travel.vessel.get().name }} {{ foreign_travel.vessel.get().capacity }}</td>
-                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade" id="foreign">
+                                    <table class="table table-hover"  id="dataTableDeparture3">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th class="text-center">Scheduled time</th>
+                                                <th class="text-center">Expected time (delay)</th>
+                                                <th>Journey</th>
+                                                <th>Vessel</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for foreign_travel in foreign_departures %}
+                                            <tr>
+                                                <td>{{ foreign_travel.departure_date|format_date("%Y-%m-%d") }}</td>
+                                                <td class="text-center">{{ foreign_travel.schedule|format_date("%H:%M") }}</td>
+                                                <td class="text-center">{{ foreign_travel.schedule|add_time(foreign_travel.time_delay)|format_date("%H:%M") }} {% if foreign_travel.time_delay %} ( +{{ foreign_travel.time_delay }} ) {% endif %}</td>
+                                                <td>{{ foreign_travel.destination.get().destination_start.get().name }}
+                                                    - {{ foreign_travel.destination.get().destination_check.get().name }}</td>
+                                                <td>{{ foreign_travel.vessel.get().name }} {{ foreign_travel.vessel.get().capacity }}</td>
+                                            </tr>
 
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
                         <div class="col-lg-3">
-                            <h4>Last Activity</h4>
+                            <section>
+                                <h4>Last Activity</h4>
                                     <hr/>
                                     {% for feed in feed_tab %}
                                         <blockquote style="padding: 10px 6px;">
@@ -130,10 +137,8 @@
                                     {% if count > 5 %}
                                         <a href="{{ url_for('Question_Index', modal="1") }}" class="btn btn-link pull-right" data-toggle="modal" data-target="#myModal" data-backdrop="static">view more</a>
                                     {% endif %}
+                            </section>
                         </div>
-                    </div>
-                </section>
-            </div>
         </div>
     </div>
     <!-- Modal -->

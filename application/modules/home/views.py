@@ -379,16 +379,16 @@ def Dashboard():
                 tickets['price'] = ticket.sellprice
                 tickets['currency'] = ticket.sellpriceCurrency.get().code
                 the_ticket_agency_gabon.append(tickets)
-            else:
-                tickets = {}
-                tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
-                tickets['departure'] = '11111111111'
-                tickets['departure_start'] = "No destination start"
-                tickets['departure_check'] = "No destination check"
-                tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
-                tickets['price'] = 0
-                tickets['currency'] = agency.destination.get().currency.get().code
-                the_ticket_agency_gabon.append(tickets)
+        else:
+            tickets = {}
+            tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
+            tickets['departure'] = '11111111111'
+            tickets['departure_start'] = "No destination start"
+            tickets['departure_check'] = "No destination check"
+            tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
+            tickets['price'] = 0
+            tickets['currency'] = agency.destination.get().currency.get().code
+            the_ticket_agency_gabon.append(tickets)
 
         for ticket in ticket_agency:
             if agency.country == 'CM' or agency.country == 'NGN':
@@ -401,16 +401,16 @@ def Dashboard():
                 tickets['price'] = ticket.sellprice
                 tickets['currency'] = ticket.sellpriceCurrency.get().code
                 the_ticket_agency_cm_ngn.append(tickets)
-            else:
-                tickets = {}
-                tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
-                tickets['departure'] = '11111111111'
-                tickets['departure_start'] = "No destination start"
-                tickets['departure_check'] = "No destination check"
-                tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
-                tickets['price'] = 0
-                tickets['currency'] = agency.destination.get().currency.get().code
-                the_ticket_agency_cm_ngn.append(tickets)
+        else:
+            tickets = {}
+            tickets['date'] = function.format_date(datetime.datetime.now(), "%Y-%m-%d")
+            tickets['departure'] = '11111111111'
+            tickets['departure_start'] = "No destination start"
+            tickets['departure_check'] = "No destination check"
+            tickets['heure'] = function.format_date(datetime.datetime.now().time(), "%H:%M:%S")
+            tickets['price'] = 0
+            tickets['currency'] = agency.destination.get().currency.get().code
+            the_ticket_agency_cm_ngn.append(tickets)
 
 
     grouper = itemgetter("date", "heure", "departure", "currency")

@@ -16,7 +16,8 @@ class CustomerModel(ndb.Model):
     email = ndb.StringProperty()
     is_new = ndb.BooleanProperty(default=True)
     status = ndb.BooleanProperty(default=True)
-    date_update = ndb.DateProperty(auto_now=True)
+    date_create = ndb.DateTimeProperty()
+    date_update = ndb.DateTimeProperty(auto_now=True)
 
     def make_to_dict(self):
         to_dict = {}

@@ -10,7 +10,7 @@ cache = Cache(app)
 def get_customer_api(token):
 
     try:
-        date = function.date_convert(request.args.get('last_update'))
+        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.now().time())
     except:
         date = None
 

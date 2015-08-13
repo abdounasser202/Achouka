@@ -7,7 +7,7 @@
             <div class="col-lg-2">
                     {% include 'includes/menu-settings.html' %}
             </div>
-            <div class="col-lg-10">
+            <div class="col-lg-7">
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Settings') }}">Settings</a></li>
@@ -19,7 +19,7 @@
                             {% endif %}
                         </ol>
                         <div class="row">
-                            <div class="col-lg-8">
+                            <div class="col-lg-12">
                                 <form class="form-horizontal" role="form" method="post">
                                     <fieldset><legend>Edit Vessel</legend>
 
@@ -61,8 +61,13 @@
                                 </form>
 
                             </div>
-                            <div class="col-lg-4">
-                                    <h4>Last Activity</h4>
+                        </div>
+
+                </section>
+            </div>
+        <div class="col-lg-3">
+                                    <section>
+                                        <h4>Last Activity</h4>
                                     <hr/>
                                     {% for feed in feed_tab %}
                                             <blockquote style="padding: 10px 6px;">
@@ -75,11 +80,8 @@
                                             <footer style="font-size: 65%;">{{ feed['time']|format_date("%d-%m-%Y %H:%M") }}</footer>
                                         </blockquote>
                                     {% endfor %}
+                                    </section>
                             </div>
-                        </div>
-
-                </section>
-            </div>
         </div>
     </div>
 

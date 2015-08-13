@@ -6,7 +6,7 @@
             <div class="col-lg-2">
                     {% include 'includes/menu-recording.html' %}
             </div>
-            <div class="col-lg-10">
+            <div class="col-lg-7">
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
@@ -23,8 +23,8 @@
                         </nav>
                         {% include 'includes/flash_message.html' %}
                     <div class="row">
-                        <div class="col-lg-9">
-                            <table class="table table-hover" id="dataTable">
+                        <div class="col-lg-12">
+                            <table class="table table-hover table-condensed" id="dataTable">
                                 <thead>
                                 <tr>
                                     <th>Name</th>
@@ -39,27 +39,38 @@
                                 {% if not current_user.has_roles('manager_agency') %}
                                     {% for user in user %}
                                         {% if user.user_id not in user_admins and user_admins %}
-                                            <tr>
+                                            <tr {% if user.user_id.get().is_enabled %} class="success" {% else %} class="danger" {% endif %}>
                                                 <td>{{ user.user_id.get().first_name }} {{ user.user_id.get().last_name }}</td>
                                                 <td>{{ user.user_id.get().email }} </td>
                                                 <td>{{ user.user_id.get().profil.get().name }} </td>
                                                 <td>{{ user.user_id.get().agency.get().name }} </td>
                                                 <td>{{ user.user_id.get().date_last_logged }} </td>
-                                                <td class="text-right">
-                                                    <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
-                                                       class="btn btn-link btn-xs">Edit </a><br/>
+                                                <td>
 
-                                                    <a href="" class="btn btn-link btn-xs">Change email </a><br/>
-                                                    <a href="" class="btn btn-link btn-xs">Reset password </a><br/>
+
+                                                    <div class="btn-group">
+                                                      <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
+                                                      </button>
+                                                      <ul class="dropdown-menu" role="menu">
+                                                        <li><a href="" class="btn btn-link btn-xs">Reset password </a></li>
+                                                        <li><a href="" class="btn btn-link btn-xs">Change email </a></li>
+                                                        <li><a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
+                                                       class="btn btn-link btn-xs">Edit </a></li>
+                                                          <li>
+
                                                     {% if current_user.key != user.user_id %}
                                                         {% if user.user_id.get().is_enabled %}
                                                             <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="btn btn-danger btn-xs">Disable</a><br/>
+                                                               class="label label-danger btn-xs">Disable</a>
                                                         {% else %}
                                                             <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="btn btn-success btn-xs">Activate</a>
+                                                               class="label label-success btn-xs">Activate</a>
                                                         {% endif %}
                                                     {% endif %}
+                                                          </li>
+                                                      </ul>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         {% endif %}
@@ -68,28 +79,38 @@
                                 {% else %}
                                     {% for user in user %}
                                         {% if user.user_id not in user_admins and user_admins and user.user_id.get().agency == agency_user.key %}
-                                            <tr>
+                                            <tr {% if user.user_id.get().is_enabled %} class="success" {% else %} class="danger" {% endif %}>
                                                 <td>{{ user.user_id.get().first_name }} {{ user.user_id.get().last_name }}</td>
                                                 <td>{{ user.user_id.get().email }} </td>
                                                 <td>{{ user.user_id.get().profil.get().name }} </td>
                                                 <td>{{ user.user_id.get().agency.get().name }} </td>
                                                 <td>{{ user.user_id.get().date_last_logged }} </td>
-                                                <td class="text-right">
-                                                    <a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
-                                                       class="btn btn-link btn-xs">Edit </a><br/>
-
-                                                    <a href="" class="btn btn-link btn-xs">Change email </a><br/>
-                                                    <a href="" class="btn btn-link btn-xs">Reset password </a><br/>
-
-                                                    {% if current_user.key != user.user_id %}
+                                                <td>
+                                                    <div class="btn-group">
+                                                      <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
+                                                      </button>
+                                                      <ul class="dropdown-menu" role="menu">
+                                                        <li><a href="" class="btn btn-link btn-xs">Reset password </a></li>
+                                                        <li><a href="" class="btn btn-link btn-xs">Change email </a></li>
+                                                        <li><a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
+                                                       class="btn btn-link btn-xs">Edit </a></li>
+                                                          <li>
+                                                               {% if current_user.key != user.user_id %}
                                                         {% if user.user_id.get().is_enabled %}
                                                             <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="btn btn-danger btn-xs">Disable</a>
+                                                               class="label label-danger btn-xs">Disable</a>
                                                         {% else %}
                                                             <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="btn btn-success btn-xs">Activate</a>
+                                                               class="label label-success btn-xs">Activate</a>
                                                         {% endif %}
                                                     {% endif %}
+                                                          </li>
+                                                      </ul>
+                                                    </div>
+
+
+
                                                 </td>
                                             </tr>
                                         {% endif %}
@@ -99,8 +120,14 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-lg-3">
-                            <h4>Last Activity</h4>
+
+                    </div>
+
+                </section>
+            </div>
+        <div class="col-lg-3">
+                            <section>
+                                <h4>Last Activity</h4>
                                     <hr/>
                                     {% for feed in feed_tab %}
                                         <blockquote style="padding: 10px 6px;">
@@ -135,11 +162,8 @@
                         {% if count > 5 %}
                             <a href="{{ url_for('User_Index', modal="1") }}" class="btn btn-link pull-right" data-toggle="modal" data-target="#myModal" data-backdrop="static">view more</a>
                         {% endif %}
+                            </section>
                         </div>
-                    </div>
-
-                </section>
-            </div>
         </div>
     </div>
  <!-- Modal -->

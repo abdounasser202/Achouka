@@ -7,7 +7,7 @@
             <div class="col-lg-2">
                     {% include 'includes/menu-recording.html' %}
             </div>
-            <div class="col-lg-10">
+            <div class="col-lg-7">
                 <section>
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Recording') }}">Recording</a></li>
@@ -19,7 +19,7 @@
                             {% endif %}
                         </ol>
                         <div class="row">
-                            <div class="col-lg-8">
+                            <div class="col-lg-12">
                                 {% include 'includes/flash_message.html' %}
 
                                 {% if customer_count >= 1 %}
@@ -158,11 +158,13 @@
                                     </fieldset>
                                 </form>
                             </div>
-                            <div class="col-lg-4">
-
-                            </div>
                         </div>
 
+                </section>
+            </div>
+            <div class="col-lg-3">
+                <section>
+                    ok
                 </section>
             </div>
         </div>
