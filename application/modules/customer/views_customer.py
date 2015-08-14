@@ -29,66 +29,29 @@ def Customer_Edit(customer_id=None):
     menu = 'recording'
     submenu = 'customer'
 
-    from ..activity.models_activity import ActivityModel
-
-    time_zones = pytz.timezone('Africa/Douala')
-    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
-
-    activity = ActivityModel()
-    activity.user_modify = current_user.key
-    activity.object = "DepartureModel"
-    activity.time = function.datetime_convert(date_auto_nows)
-
     number_list = global_dial_code_custom
     nationalList = global_nationality_contry
 
-    if customer_id:
-        customer = CustomerModel.get_by_id(customer_id)
-        form = FormCustomer(obj=customer)
+    customer = CustomerModel.get_by_id(customer_id)
+    form = FormCustomer(obj=customer)
 
-    else:
-        customer = CustomerModel()
-        form = FormCustomer(request.form)
+    # Nbre de voyage
+    num_journey = journey_number(customer)
 
-    customer_count = 0
-    if form.validate_on_submit():
+    #Nbre de voyage
+    nbr_travels = nbr_travel(customer)
 
-        customer_exist = CustomerModel.query(
-            CustomerModel.first_name == form.first_name.data,
-            CustomerModel.last_name == form.last_name.data,
-            CustomerModel.birthday == function.date_convert(form.birthday.data)
-        )
-        customer_count = customer_exist.count()
+    #Pour chaque trajet son nombre
+    travel_line = travel_number(customer)
 
-        if customer_count >= 1 and not customer_id:
-            customer_view = customer_exist.get()
-            flash(u' This customer exist. ', 'danger')
-        else:
-            customer.first_name = form.first_name.data
-            customer.last_name = form.last_name.data
-            customer.birthday = function.date_convert(form.birthday.data)
-            customer.passport_number = form.passport_number.data
-            customer.nic_number = form.nic_number.data
-            customer.profession = form.profession.data
-            customer.email = form.email.data
-            customer.nationality = form.nationality.data
-            customer.phone = form.phone.data
-            customer.dial_code = form.dial_code.data
+    #Nombre de ticket vendu en cours
+    ticket_num = ticket_number(customer)
 
-            custom = customer.put()
+    #Nre de ticket deja achete
+    nbr_tickets = nbr_ticket(customer)
 
-            if customer_id:
-                activity.identity = custom.id()
-                activity.nature = 4
-                activity.put()
-                flash(u'Customer Updated!', 'success')
-            else:
-                activity.identity = custom.id()
-                activity.nature = 1
-                activity.put()
-                flash(u'Customer Saved!', 'success')
-
-            return redirect(url_for('Customer_Index'))
+    # Nbre de ticket par class
+    ticket_type = ticket_type_number(customer)
 
     return render_template('customer/edit.html', **locals())
 
@@ -108,3 +71,144 @@ def Active_Customer(customer_id):
 
     flash(u' Customer Updated. ', 'success')
     return redirect(url_for("Customer_Index"))
+
+
+def journey_number(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_journey = TicketModel.query(
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True,
+            TicketModel.is_boarding == True
+        ).count()
+    else:
+        journey_num = 0
+        return journey_num
+
+    return customer_journey
+
+
+def ticket_number(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_journey = TicketModel.query(
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True,
+            TicketModel.is_boarding == False
+        ).count()
+    else:
+        journey_num = 0
+        return journey_num
+
+    return customer_journey
+
+
+def nbr_travel(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_travel_line = TicketModel.query(
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True,
+            TicketModel.is_boarding == True
+        ).count()
+    else:
+        user_travel = 0
+        return user_travel
+
+    return customer_travel_line
+
+
+def travel_number(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_travel_line = TicketModel.query(
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True,
+            TicketModel.is_boarding == True
+        )
+    else:
+        user_travel = 0
+        return user_travel
+
+    travel_line_tab = []
+    for travel in customer_travel_line:
+        trav = {}
+        trav['travel_ticket'] = travel.travel_ticket
+        trav['departure'] = travel.departure
+        travel_line_tab.append(trav)
+
+    grouper = itemgetter("travel_ticket", "departure")
+
+    user_travel = []
+    for key, grp in groupby(sorted(travel_line_tab, key=grouper), grouper):
+        temp_dict = dict(zip(["travel_ticket", "departure"], key))
+        temp_dict['number'] = 0
+        for item in grp:
+            temp_dict['number'] += 1
+        user_travel.append(temp_dict)
+
+    return user_travel
+
+# Nombre de ticket achete
+def nbr_ticket(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_travel_line = TicketModel.query(
+            TicketModel.customer == customer_key.key
+        ).count()
+    else:
+        user_travel = 0
+        return user_travel
+
+    return customer_travel_line
+
+
+def ticket_type_number(customer_key=None):
+    from ..ticket.models_ticket import TicketModel
+
+    if customer_key:
+        customer_travel_line = TicketModel.query(
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True
+        )
+    else:
+        user_travel = 0
+        return user_travel
+
+    travel_line_tab = []
+    for travel in customer_travel_line:
+        trav = {}
+        trav['travel_number'] = 1
+        trav['class_name'] = travel.class_name.get().name
+        trav['journey_name'] = travel.journey_name.get().name
+        travel_line_tab.append(trav)
+
+    grouper = itemgetter("class_name", "travel_number")
+
+    user_travel = []
+    for key, grp in groupby(sorted(travel_line_tab, key=grouper), grouper):
+        temp_dict = dict(zip(["class_name", "travel_number"], key))
+        temp_dict['number'] = 0
+
+        temp_dict['journey_query'] = []
+        under_grouper = itemgetter("class_name", "journey_name")
+
+        for key, grp in groupby(sorted(grp, key=under_grouper), under_grouper):
+            temp_dict_under = dict(zip(["class_name", "journey_name"], key))
+            temp_dict['number'] += 1
+            temp_dict_under['numbers'] = 0
+            for item in grp:
+                temp_dict_under['journey'] = item['journey_name']
+                temp_dict_under['numbers'] += 1
+            temp_dict['journey_query'].append(temp_dict_under)
+
+        user_travel.append(temp_dict)
+
+    return user_travel
+
+

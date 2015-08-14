@@ -74,6 +74,12 @@ indexes:
   - name: agency
   - name: destination
 
+- kind: TransactionModel
+  properties:
+  - name: agency
+  - name: transaction_admin
+  - name: transaction_date
+
 - kind: UserModel
   properties:
   - name: agency

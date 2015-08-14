@@ -40,6 +40,7 @@ class TicketPoly(polymodel.PolyModel):
     is_boarding = ndb.BooleanProperty(default=False)
 
     datecreate = ndb.DateTimeProperty()
+    date_update = ndb.DateTimeProperty(auto_now=True)
 
     def make_to_dict_poly(self):
         to_dict = {}

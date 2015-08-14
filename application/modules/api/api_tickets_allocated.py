@@ -98,7 +98,7 @@ def ticket_local_sale_put(token):
         unicodedata.normalize('NFKD', ticket_sale).encode('ascii', 'ignore')
 
     # transformation de notre unicode en dictionnaire
-    ticket_sale = ast.literal_eval(ticket_sale)
+    ticket_sales = ast.literal_eval(ticket_sale)
 
     get_agency = AgencyModel.get_by_key(token)
     if not get_agency:
@@ -107,7 +107,7 @@ def ticket_local_sale_put(token):
     save = None
     count = 0
 
-    for data_get in ticket_sale:
+    for data_get in ticket_sales:
         old_data = TicketModel.get_by_id(int(data_get['ticket_id']))
         if old_data:
             old_data.date_reservation = function.datetime_convert(data_get['date_reservation'])
@@ -154,6 +154,13 @@ def ticket_local_sale_put(token):
 
                 upgrade_parent = TicketModel.get_by_id(data_get['upgrade_parent'])
                 old_data.upgrade_parent = upgrade_parent.key
+                upgrade_parent.statusValid = False
+                upgrade_parent.put()
+
+            if data_get['parent_return']:
+                parent_return = TicketModel.get_by_id(data_get['parent_return'])
+                parent_return.statusValid = False
+                parent_return.put()
 
             from ..transaction.models_transaction import ExpensePaymentTransactionModel,TransactionModel
 
@@ -224,5 +231,72 @@ def get_ticket_online(token):
     for ticket in ticket_sale:
         if not ticket.parent_return or not ticket.is_upgrade:
             data['tickets_sale'].append(ticket.make_to_dict())
+    resp = jsonify(data)
+    return resp
+
+
+@app.route('/ticket_disable_api/get/<token>', methods=['POST'])
+def ticket_disable_api(token):
+    import unicodedata, ast
+
+    # recuperation de nos valeurs envoye par POST
+    ticket_valis = request.form.getlist('ticket_status')
+
+    # convertion du tableau en Unicode
+    for ticket_valis in ticket_valis:
+        unicodedata.normalize('NFKD', ticket_valis).encode('ascii', 'ignore')
+
+    # transformation de notre unicode en dictionnaire
+    ticket_valid = ast.literal_eval(ticket_valis)
+
+    get_agency = AgencyModel.get_by_key(token)
+    if not get_agency:
+        return not_found(message="Your token is not correct")
+
+    save = None
+    count = 0
+    for data_get in ticket_valid:
+        old_data = TicketModel.get_by_id(int(data_get))
+        if old_data:
+            old_data.statusValid = False
+            save = old_data.put()
+            count += 1
+
+    if save:
+        return not_found(error=200, message="You have send "+str(count)+" tickets to disable in online apps")
+    else:
+        return not_found(error=404, message="You have send "+str(count)+" ticket to disable in online apps")
+
+
+@app.route('/get_ticket_return_foreign_disabled/get/<token>')
+def get_ticket_return_foreign_disabled(token):
+
+    try:
+        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
+    except:
+        date = None
+
+    get_agency = AgencyModel.get_by_key(token)
+    if not get_agency:
+        return not_found(message="Your token is not correct")
+
+    if date:
+        ticket_sale = TicketModel.query(
+            TicketModel.selling == True,
+            TicketModel.is_return == True,
+            TicketModel.statusValid == False,
+            TicketModel.date_update >= date
+        )
+    else:
+        ticket_sale = TicketModel.query(
+            TicketModel.selling == True,
+            TicketModel.is_return == True,
+            TicketModel.statusValid == False
+        )
+
+    data = {'status': 200, 'tickets_return_disabled': []}
+    for ticket in ticket_sale:
+        if ticket.travel.destination_check == get_agency.destination:
+            data['tickets_return_disabled'].append(ticket.key.id())
     resp = jsonify(data)
     return resp

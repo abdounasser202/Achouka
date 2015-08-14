@@ -22,21 +22,13 @@
                             <div class="col-lg-12">
                                 {% include 'includes/flash_message.html' %}
 
-                                {% if customer_count >= 1 %}
-                                    <div class="alert alert-warning">
-                                        <a class="close" data-dismiss="alert">×</a>
-                                        Click here to update this customer <a href="{{ url_for('Customer_Edit', customer_id=customer_view.key.id()) }}"> {{ customer_view.first_name }} {{ customer_view.last_name }}</a>
-                                    </div>
-
-                                {% endif %}
-
                                 <form method="post" class="form-horizontal">
                                     <fieldset><legend>Edit Customer {{ success }}</legend>
                                         {{ form.hidden_tag() }}
                                         <div class="form-group {% if form.first_name.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.first_name.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.first_name(class_='form-control')|safe }}
+                                              {{ form.first_name(class_='form-control', disabled="disabled")|safe }}
                                               {% for message in form.first_name.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -46,7 +38,7 @@
                                         <div class="form-group {% if form.last_name.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.last_name.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.last_name(class_='form-control')|safe }}
+                                              {{ form.last_name(class_='form-control', disabled="disabled")|safe }}
                                               {% for message in form.last_name.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -56,7 +48,7 @@
                                         <div class="form-group {% if form.birthday.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.birthday.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.birthday(class_='form-control', id="datepickerbirth")|safe }}
+                                              {{ form.birthday(class_='form-control', id="datepickerbirth", disabled="disabled")|safe }}
                                               {% for message in form.birthday.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -66,7 +58,7 @@
                                         <div class="form-group {% if form.passport_number.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.passport_number.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.passport_number(class_='form-control', id="passport")|safe }}
+                                              {{ form.passport_number(class_='form-control disabled', id="passport", disabled="disabled")|safe }}
                                               {% for message in form.passport_number.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -76,7 +68,7 @@
                                         <div class="form-group {% if form.nic_number.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.nic_number.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.nic_number(class_='form-control', id="nic")|safe }}
+                                              {{ form.nic_number(class_='form-control disabled', id="nic", disabled="disabled")|safe }}
                                               {% for message in form.nic_number.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -86,7 +78,7 @@
                                         <div class="form-group {% if form.profession.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.profession.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.profession(class_='form-control')|safe }}
+                                              {{ form.profession(class_='form-control disabled', disabled="disabled")|safe }}
                                               {% for message in form.profession.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -96,7 +88,7 @@
                                        <div class="form-group {% if form.email.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">{{ form.email.label }} :</label>
                                             <div class="col-sm-9">
-                                              {{ form.email(class_='form-control')|safe }}
+                                              {{ form.email(class_='form-control disabled', disabled="disabled")|safe }}
                                               {% for message in form.email.errors %}
                                                 <span class="help-block text-danger">{{ message }}</span>
                                               {% endfor %}
@@ -109,7 +101,7 @@
                                             <div class="col-sm-9">
                                             <div class="row">
                                                 <div class="col-lg-6">
-                                                    <select name="dial_code" id="" class="form-control g-select input-lg">
+                                                    <select name="dial_code" id="" class="form-control g-select input-lg disabled" disabled="disabled">
                                                         <option value="">{{ form.dial_code.label }}</option>
                                                         {% for key, val in number_list.items() %}
                                                             <option value="{{ val }}" {% if form.dial_code.data == val %} selected {% endif %}>{{ key }} ({{ val }})</option>
@@ -120,7 +112,7 @@
                                                   {% endfor %}
                                                 </div>
                                                 <div class="col-lg-6">
-                                                    {{ form.phone(class_='form-control')|safe }}
+                                                    {{ form.phone(class_='form-control', disabled="disabled")|safe }}
                                                   {% for message in form.phone.errors %}
                                                     <span class="help-block text-danger">{{ message }}</span>
                                                   {% endfor %}
@@ -134,7 +126,7 @@
                                         <div class="form-group {% if form.nationality.errors %} has-error {% endif %} has-feedback">
                                             <label class="col-sm-3 control-label">Nationality :</label>
                                             <div class="col-sm-9">
-                                                <select name="nationality" id="" class="form-control g-select input-lg">
+                                                <select name="nationality" id="" class="form-control g-select input-lg disabled" disabled="disabled">
                                                     <option value="">{{ form.nationality.label }}</option>
                                                     {% for key, val in nationalList.items() %}
                                                         <option value="{{ key }}" {% if form.nationality.data == key %} selected {% endif %}>{{ val }}</option>
@@ -149,8 +141,6 @@
 
                                           <div class="form-group">
                                             <div class="col-sm-offset-3 col-sm-10">
-
-                                              <button type="submit" class="btn btn-primary">Save</button>
                                                 <a href="{{ url_for('Customer_Index') }}" class="btn btn-default">Return</a>
                                             </div>
                                           </div>
@@ -164,7 +154,104 @@
             </div>
             <div class="col-lg-3">
                 <section>
-                    ok
+                     <h4>Statistic</h4>
+                     <hr/>
+                        <div class="list-group">
+                          <p class="list-group-item">
+                            <span class="badge">{{ ticket_num }}</span>
+                            <strong>Last Ticket Purchase</strong>
+                          </p>
+                        </div>
+                        <div class="list-group">
+                            <p class="list-group-item">
+                                <span class="badge">{{ num_journey }}</span>
+                                <strong>Journey</strong>
+                            </p>
+                        </div>
+                        <div class="list-group">
+                            <ul class="list-unstyled">
+                                <li>
+                                    <p class="list-group-item">
+                                        <span class="badge">{{ nbr_travels }}</span>
+                                        <strong>Travel line</strong>
+                                    </p>
+                                    <ul class="list-group" style="border: 1px solid #e5e5e5;">
+                                        {% for travel in travel_line %}
+                                        <li class="list-group-item list-group-item-info" style="padding: 10px; padding-left: 15px;">
+                                            <span class="badge">{{ travel['number'] }}</span>
+                                            <i class="glyphicon  glyphicon-asterisk"></i> {{ travel['travel_ticket'].get().destination_start.get().name }} - {{ travel['travel_ticket'].get().destination_check.get().name }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </div>
+
+                        <div class="list-group">
+                            <ul class="list-unstyled">
+                                <li>
+                                    <p class="list-group-item">
+                                        <span class="badge">{{ nbr_tickets }}</span>
+                                        <strong>All Tickets</strong>
+                                    </p>
+                                    <ul class="list-unstyled">
+                                    {% for class in ticket_type %}
+                                        <li>
+                                            <p class="list-group-item">
+                                                <span class="badge">{{ class['number'] }}</span>
+                                                <i class="glyphicon glyphicon-asterisk"></i> {{ class['class_name'] }}
+                                            </p>
+                                            <ul class="list-group" style="border: 1px solid #e5e5e5;">
+                                                {% for travel in class['journey_query'] %}
+                                                <li class="list-group-item list-group-item-info" style="padding: 10px; padding-left: 29px;  padding-right: 14px;">
+                                                    <span class="badge">{{ travel['numbers'] }}</span>
+                                                    <i class="glyphicon  glyphicon-chevron-right"></i> <i>{{ travel['journey_name'] }}</i>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </div>
+                    <hr/>
+{#                {% if travel_line  %}#}
+{#                        <ul id="myTab" class="nav nav-tabs">#}
+{#                              <li class="active"><a href="#num" data-toggle="tab"><small>Travel line Number</small></a></li>#}
+{#                              <li ><a href="#amount" data-toggle="tab"><small>Travel line Amount</small></a></li>#}
+{#                        </ul>#}
+{#                        <br/>#}
+{#                        <div id="myTabContent" class="tab-content">#}
+{#                                <div class="tab-pane fade active in" id="num">#}
+{#                                    <div class="list-group">#}
+{#                                        {% for travel in travel_line %}#}
+{#                                              <p class="list-group-item">#}
+{#                                                <span class="badge">{{ travel['number'] }}</span>#}
+{#                                                <strong>{{ travel['travel_ticket'].get().destination_start.get().name }} - {{ travel['travel_ticket'].get().destination_check.get().name }}</strong>#}
+{#                                              </p>#}
+{#                                        {% endfor %}#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            <div class="tab-pane fade" id="amount">#}
+{#                                <div class="list-group">#}
+{#                                        {% for travel in travel_line %}#}
+{#                                              <p class="list-group-item">#}
+{#                                                <span class="badge">{{ travel['amount']|format_price() }} {{ travel['currency'].get().code }}</span>#}
+{#                                                <strong>{{ travel['travel_ticket'].get().destination_start.get().name }} - {{ travel['travel_ticket'].get().destination_check.get().name }}</strong>#}
+{#                                              </p>#}
+{#                                        {% endfor %}#}
+{#                                </div>#}
+{#                                    </div>#}
+{#                        </div>#}
+{##}
+{#                    <hr/>#}
+{#                {% endif %}#}
+
+
+
                 </section>
             </div>
         </div>
