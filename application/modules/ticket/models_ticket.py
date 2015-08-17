@@ -38,6 +38,7 @@ class TicketPoly(polymodel.PolyModel):
     ticket_seller = ndb.KeyProperty(kind=UserModel)
     e_ticket_seller = ndb.KeyProperty(kind=UserModel)
     is_boarding = ndb.BooleanProperty(default=False)
+    generate_boarding = ndb.BooleanProperty(default=False)
 
     datecreate = ndb.DateTimeProperty()
     date_update = ndb.DateTimeProperty(auto_now=True)
@@ -60,6 +61,7 @@ class TicketPoly(polymodel.PolyModel):
 
         to_dict['selling'] = self.selling
         to_dict['is_ticket'] = self.is_ticket
+        to_dict['is_boarding'] = self.is_boarding
 
         if self.customer:
             to_dict['customer'] = self.customer.id()
