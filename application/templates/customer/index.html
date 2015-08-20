@@ -6,10 +6,10 @@
             <div class="col-lg-2">
                     {% include 'includes/menu-recording.html' %}
             </div>
-            <div class="col-lg-7">
-                <section>
+            <div class="col-lg-10">
+                <section class="clearfix">
                         <ol class="breadcrumb">
-                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('Recording') }}">Manage</a></li>
                           <li class="active">Customer</li>
                         </ol>
                         {% include 'includes/flash_message.html' %}
@@ -44,12 +44,12 @@
 
                 </section>
             </div>
-            <div class="col-lg-3">
-                <section>
-                    <h4>Last Activity</h4>
-                    <hr/>
-                </section>
-            </div>
+{#            <div class="col-lg-3">#}
+{#                <section class="clearfix">#}
+{#                    <h4>Last Activity</h4>#}
+{#                    <hr/>#}
+{#                </section>#}
+{#            </div>#}
         </div>
     </div>
 

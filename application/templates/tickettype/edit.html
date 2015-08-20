@@ -8,7 +8,7 @@
                     {% include 'includes/menu-settings.html' %}
             </div>
             <div class="col-lg-7">
-                <section>
+                <section class="clearfix">
                         <ol class="breadcrumb">
                           <li><a href="{{ url_for('Settings') }}">Settings</a></li>
                           <li><a href="{{ url_for('TicketType_Index') }}">Tickets</a></li>
@@ -154,7 +154,7 @@
             </div>
 
                             <div class="col-lg-3">
-                                <section>
+                                <section class="clearfix">
                                     <h4>Last Activity</h4>
                                     <hr/>
                                     {% for feed in feed_tab %}

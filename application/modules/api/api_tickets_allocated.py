@@ -92,6 +92,7 @@ def ticket_local_sale_put(token):
 
     # recuperation de nos valeurs envoye par POST
     ticket_sale = request.form.getlist('ticket_sale')
+    transaction = request.form.getlist('transaction')
     # convertion du tableau en Unicode
 
     for ticket_sale in ticket_sale:
@@ -133,7 +134,9 @@ def ticket_local_sale_put(token):
 
             old_data.is_prepayment = data_get['is_prepayment']
             old_data.statusValid = data_get['statusValid']
+            old_data.generate_boarding = data_get['generate_boarding']
             old_data.is_boarding = data_get['is_boarding']
+            old_data.selling = data_get['selling']
 
 
             old_data.is_return = data_get['is_return']
@@ -162,25 +165,26 @@ def ticket_local_sale_put(token):
                 parent_return.statusValid = False
                 parent_return.put()
 
-            from ..transaction.models_transaction import ExpensePaymentTransactionModel,TransactionModel
+            if transaction:
+                from ..transaction.models_transaction import ExpensePaymentTransactionModel,TransactionModel
 
-            for transaction in data_get['transaction']:
-                new_transaction = TransactionModel()
-                new_transaction.agency = agency_ticket.key
-                new_transaction.amount = transaction['amount']
-                new_transaction.destination = travel_ticket.destination_start
-                new_transaction.is_payment = transaction['is_payment']
-                new_transaction.reason = transaction['reason']
-                new_transaction.transaction_date = function.datetime_convert(data_get['date_reservation'])
-                new_transaction.user = user_seller.key
-                put_transaction = new_transaction.put()
+                for transaction in data_get['transaction']:
+                    new_transaction = TransactionModel()
+                    new_transaction.agency = agency_ticket.key
+                    new_transaction.amount = transaction['amount']
+                    new_transaction.destination = travel_ticket.destination_start
+                    new_transaction.is_payment = transaction['is_payment']
+                    new_transaction.reason = transaction['reason']
+                    new_transaction.transaction_date = function.datetime_convert(data_get['date_reservation'])
+                    new_transaction.user = user_seller.key
+                    put_transaction = new_transaction.put()
 
-                new_transaction_line = ExpensePaymentTransactionModel()
-                new_transaction_line.amount = transaction['amount']
-                new_transaction_line.is_difference = True
-                new_transaction_line.ticket = old_data.key
-                new_transaction_line.transaction = put_transaction
-                new_transaction_line.put()
+                    new_transaction_line = ExpensePaymentTransactionModel()
+                    new_transaction_line.amount = transaction['amount']
+                    new_transaction_line.is_difference = True
+                    new_transaction_line.ticket = old_data.key
+                    new_transaction_line.transaction = put_transaction
+                    new_transaction_line.put()
 
             from ..question.models_question import QuestionModel
             for question in data_get['ticket_question']:

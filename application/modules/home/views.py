@@ -520,7 +520,7 @@ def Settings():
     return render_template('/index/settings.html', **locals())
 
 
-@app.route('/recording')
+@app.route('/manage')
 @login_required
 @roles_required(('manager_agency', 'super_admin'))
 def Recording():

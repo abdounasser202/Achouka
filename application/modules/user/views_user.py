@@ -293,7 +293,7 @@ def activate_user_admin(user_id=None):
     return redirect(url_for("User_Admin_Index"))
 
 
-@app.route('/recording/user')
+@app.route('/manage/user')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def User_Index():
@@ -374,8 +374,8 @@ def User_Index():
 
 
 
-@app.route('/recording/user/edit', methods=['GET', 'POST'])
-@app.route('/recording/user/edit/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/manage/user/edit', methods=['GET', 'POST'])
+@app.route('/manage/user/edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def User_Edit(user_id=None):
@@ -520,7 +520,7 @@ def User_Edit(user_id=None):
     return render_template('/user/edit-user.html', **locals())
 
 
-@app.route('/recording/user/status/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/manage/user/status/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Activate_User(user_id=None):

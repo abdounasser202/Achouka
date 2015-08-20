@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block layout_content %}
+
+<div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2">
+                    {% include 'includes/menu-recording.html' %}
+            </div>
+            <div class="col-lg-7">
+                <section class="clearfix">
+                        <ol class="breadcrumb">
+                          <li><a href="{{ url_for('Recording') }}">Manage</a></li>
+                          <li><a href="{{ url_for('Departure_Index') }}">Journeys</a></li>
+                          <li class="active">Details</li>
+                        </ol>
+                    <div class="page-header">
+                      <h3>{{ departure_get.destination.get().destination_start.get().name }} - {{ departure_get.destination.get().destination_check.get().name }} <small>{{ departure_get.departure_date|format_date("%d-%m-%Y") }} ( {{ departure_get.schedule|add_time(departure_get.time_delay)|format_date("%H:%M") }} )</small></h3>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12" id="FindTicketBoarding">
+                            {% if printer %}
+                                <div class="text-center">
+                                    <h3 style="margin: 0; margin-bottom:20px;">Journey Information</h3>
+                                </div>
+
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td><strong>Journey</strong>: {{ departure_get.destination.get().destination_start.get().name }} - {{ departure_get.destination.get().destination_check.get().name }} </td>
+                                        <td><strong>Date</strong>: {{ departure_get.departure_date }}</td>
+                                        <td><strong>Time</strong>: {{ departure_get.schedule|add_time(departure_get.time_delay)|format_date('%H:%M') }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <hr/>
+                                <div class="text-center">
+                                    <h3 style="margin: 0; margin-bottom: 20px;">Passengers Onboard</h3>
+                                </div>
+
+                           {% endif %}
+                            <table class="table table-hover table-condensed" {% if not printer %} id="dataTableDeparture" {% endif %}>
+                                <thead>
+                                <tr>
+                                    {% if printer %}
+                                        <th>No</th>
+                                    {% endif %}
+                                    <th>Ticket ID</th>
+                                    <th>Class</th>
+                                    <th>ID Card/Passport</th>
+                                    <th>Customer Name</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% set num = 1 %}
+                                    {% for ticket in all_ticket %}
+                                        <tr id="{{ ticket.key.id() }}" {% if not ticket.is_boarding and ticket.generate_boarding %} class="ValidTicket info" {% endif %}>
+                                            {% if printer %}
+                                                <td>{{ num }}</td>
+                                            {% endif %}
+                                            <td>{{ ticket.key.id() }}</td>
+                                            <td>{{ ticket.class_name.get().name }}</td>
+                                            <td>
+                                                {% if ticket.customer.get().nic_number %}
+                                                    {{ ticket.customer.get().nic_number }}
+                                                {% else %}
+                                                    {{ ticket.customer.get().passport_number }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ ticket.customer.get().last_name }} {{ ticket.customer.get().first_name }}</td>
+                                            <td>
+                                                {% if ticket.generate_boarding and not ticket.is_boarding %}
+                                                    not onboard
+                                                {% elif ticket.is_boarding %}
+                                                    onboard
+                                                {% else %}
+                                                    reserved
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% if printer %}
+                                               {% set num = num + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+                        <div class="col-lg-3">
+                            <section class="clearfix">
+                                <h4>Add customer onboard</h4>
+                                <hr/>
+                                <form class="form-horizontal clearfix" id="FormTicketNumberGenerated">
+                                  <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" placeholder="Enter ticket number" name="number_ticket_generated" id="number_ticket_generated" autocomplete="false" >
+
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <button type="submit" class="btn btn-success hidden btn-block" id="SubmitTicketNumberGenerated"><i class="fa fa-plus"></i> Add</button>
+                                        <button class="btn btn-danger reset btn-block" id="customer_aboards" disabled="disabled">Reset list</button>
+                                    </div>
+                                  </div>
+                              </form>
+                                <hr/>
+                                <button class="btn btn-danger btn-block" id="print_customer_aboard">Print passenger onboard</button>
+
+                            </section>
+                        </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+{% endblock %}
+{% block footer_script %}
+    <script>
+        $('body #dataTableDeparture').dataTable({
+            'aoColumnDefs': [
+                {'bSortable': false, 'aTargets': ['nosort']},
+                {'bSearchable': false, "aTargets": ['nosort']}
+            ],
+             "order": [[ 0, "desc" ], [ 1, "desc" ]]
+        }).columnFilter({
+          sPlaceHolder: "head:before",
+          aoColumns: [
+              null,
+              { type: "select" },
+              null,
+              null,
+              { type: "select" }
+          ]
+        });
+
+        $('#number_ticket_generated').inputmask("9999999999999999", { placeholder:"****************"});
+
+        $('body').on('click', '#SubmitTicketNumberGenerated', function(e) {
+            e.preventDefault()
+            $.ajax({
+                url: "{{ url_for('search_customer_to_board', departure_id=departure_id) }}",
+                data: $('#FormTicketNumberGenerated').serialize(),
+                type: 'POST',
+                success: function (data) {
+                    $('#FindTicketBoarding').empty().html(data);
+                    $('#customer_aboards.reset').removeAttr("disabled");
+                    $('#print_customer_aboard').attr({disabled:"disabled"});
+                }
+            });
+        });
+
+        $('body').on('click', "#customer_aboards.reset", function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ url_for('Departure_details', departure_id=departure_id) }}"+"?reset=1",
+                    type: 'GET',
+                    success: function(data) {
+                        $('#NoFoundTicketBoarding').addClass('hidden');
+                        $('#FindTicketBoarding').removeClass('hidden').empty().html(data);
+                        $('#print_customer_aboard').removeClass('hidden');
+                        $('#number_ticket_generated').val("");
+                    }
+                });
+        });
+
+        $('body').on('click', ".ValidTicket", function(e){
+                e.preventDefault();
+                var _id = $(this).attr("id");
+                var url_modal = "{{ url_for('ticket_information') }}"+_id;
+                $('#myModal').modal({
+                     show: true,
+                     backdrop:"static"
+                });
+                $.get(url_modal, function(data) {
+                  $('.modal-content').empty().html(data);
+                });
+
+        });
+
+        $('body').on('click', '#print_customer_aboard', function(){
+            $.ajax({
+                url: "{{ url_for('Departure_details', departure_id=departure_id) }}?printer=1",
+                type: 'GET',
+                success: function(data) {
+
+                    var $response = $(data);
+                    var test = $response.find('#FindTicketBoarding').html();
+                    var printContents = test;
+
+                    var originalContents = document.body.innerHTML;
+
+                    document.body.innerHTML = printContents;
+
+                    window.print();
+
+                    document.body.innerHTML = originalContents;
+                }
+            });
+        });
+    </script>
+{% endblock %}

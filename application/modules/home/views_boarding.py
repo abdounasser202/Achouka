@@ -357,15 +357,22 @@ def customer_aboard(departure_id):
 
     departure_get = DepartureModel.get_by_id(departure_id)
 
+    ticket_user_query = TicketPoly.query(
+        TicketPoly.selling == True,
+        TicketPoly.departure == departure_get.key,
+        TicketPoly.generate_boarding == True
+    )
+
     printer = False
     if request.args.get('printer'):
         printer = True
 
-    ticket_user_query = TicketModel.query(
-        TicketModel.selling == True,
-        TicketModel.departure == departure_get.key,
-        TicketModel.is_boarding == True
-    )
+        ticket_user_query = TicketPoly.query(
+            TicketPoly.selling == True,
+            TicketPoly.departure == departure_get.key,
+            TicketPoly.generate_boarding == True,
+            TicketPoly.is_boarding == True
+        )
 
     return render_template('/boarding/customer_aboard.html', **locals())
 

@@ -9,7 +9,7 @@ from forms_departure import FormDeparture
 cache = Cache(app)
 
 
-@app.route('/recording/journey')
+@app.route('/manage/journey')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Departure_Index():
@@ -133,8 +133,8 @@ def Departure_manager_agency(agency_id):
 
 
 
-@app.route('/recording/journey/edit', methods=['GET', 'POST'])
-@app.route('/recording/journey/edit/<int:departure_id>', methods=['GET', 'POST'])
+@app.route('/manage/journey/edit', methods=['GET', 'POST'])
+@app.route('/manage/journey/edit/<int:departure_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
 def Departure_Edit(departure_id=None):
@@ -305,3 +305,80 @@ def Time_Delay_Edit(departure_id):
         flash(u' Delay add successfully. ', 'success')
         return redirect(url_for('Departure_Index'))
     return render_template('/departure/edit-delay.html', **locals())
+
+
+@app.route('/manage/journey/details/<int:departure_id>')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
+def Departure_details(departure_id):
+    menu = 'recording'
+    submenu = 'departure'
+
+
+    from ..ticket.models_ticket import TicketModel
+    departure_get = DepartureModel.get_by_id(departure_id)
+
+    all_ticket = TicketModel.query(
+        TicketModel.departure == departure_get.key
+    )
+    printer = False
+    if request.args.get('printer'):
+        printer = True
+        all_ticket = TicketModel.query(
+            TicketModel.departure == departure_get.key,
+            TicketModel.selling == True,
+            TicketModel.generate_boarding == True,
+            TicketModel.is_boarding == True
+        )
+
+    if request.args.get('reset'):
+        return render_template('/departure/list_ticket_found_unboard.html', **locals())
+
+    return render_template('/departure/details.html', **locals())
+
+
+@app.route('/search_customer_to_board/<int:departure_id>', methods=['POST'])
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
+def search_customer_to_board(departure_id):
+    from ..ticket.models_ticket import TicketPoly
+
+    departure_get = DepartureModel.get_by_id(departure_id)
+
+    number_ticket = str(request.form['number_ticket_generated'])
+    number_ticket = ''.join(number_ticket.split('*'))
+
+    ticket_sold = TicketPoly.query(
+        TicketPoly.selling == True,
+        TicketPoly.statusValid == False,
+        TicketPoly.generate_boarding == True,
+        TicketPoly.is_boarding == False,
+        TicketPoly.departure == departure_get.key
+    )
+
+    all_ticket = []
+    for ticket in ticket_sold:
+        find_ticket_sold = function.find(str(ticket.key.id())+" ", str(number_ticket))
+        if find_ticket_sold:
+            all_ticket.append(ticket)
+
+    return render_template('/departure/list_ticket_found_unboard.html', **locals())
+
+
+@app.route('/ticket_information/<int:ticket_id>')
+@app.route('/ticket_information/')
+@login_required
+@roles_required(('super_admin', 'manager_agency'))
+def ticket_information(ticket_id=None):
+    from ..ticket.models_ticket import TicketPoly
+
+    ticket = TicketPoly.get_by_id(ticket_id)
+
+    confirm = request.args.get('confirm')
+    close = False
+    if confirm:
+        ticket.is_boarding = True
+        ticket.put()
+        close = True
+
+    return render_template('/departure/ticket_information_validation.html', **locals())

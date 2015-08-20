@@ -7,9 +7,9 @@
                     {% include 'includes/menu-recording.html' %}
             </div>
             <div class="col-lg-7">
-                <section>
+                <section class="clearfix">
                         <ol class="breadcrumb">
-                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('Recording') }}">Manage</a></li>
                           <li class="active">Journeys</li>
                         </ol>
 
@@ -46,9 +46,17 @@
                                                     - {{ local_travel.destination.get().destination_check.get().name }}</td>
                                                 <td>{{ local_travel.vessel.get().name }} {{ local_travel.vessel.get().capacity }}</td>
                                                 <td>
-                                                    {% if local_travel.departure_date >= date_day  and local_travel.schedule|add_time(local_travel.time_delay) >= time_now %}
-                                                        <a class="btn btn-link btn-xs" href="{{ url_for('Time_Delay_Edit',departure_id = local_travel.key.id()) }}"  data-toggle="modal" data-target="#myModal">Edit delay</a>
-                                                    {% endif %}
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
+                                                        </button>
+                                                          <ul class="dropdown-menu" role="menu">
+                                                            {% if local_travel.departure_date >= date_day  and local_travel.schedule|add_time(local_travel.time_delay) >= time_now %}
+                                                                <li><a class="btn btn-link btn-xs" href="{{ url_for('Time_Delay_Edit',departure_id = local_travel.key.id()) }}"  data-toggle="modal" data-target="#myModal">Edit delay</a></li>
+                                                            {% endif %}
+                                                            <li><a class="btn btn-link btn-xs"  href="{{ url_for('Departure_details', departure_id=local_travel.key.id()) }}">Vews details</a></li>
+                                                            </ul>
+                                                    </div>
                                                 </td>
                                             </tr>
 
@@ -115,7 +123,7 @@
             </div>
 
                         <div class="col-lg-3">
-                            <section>
+                            <section class="clearfix">
                                 <h4>Last Activity</h4>
                                     <hr/>
                                     {% for feed in feed_tab %}

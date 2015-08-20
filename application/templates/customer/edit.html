@@ -8,9 +8,9 @@
                     {% include 'includes/menu-recording.html' %}
             </div>
             <div class="col-lg-7">
-                <section>
+                <section class="clearfix">
                         <ol class="breadcrumb">
-                          <li><a href="{{ url_for('Recording') }}">Recording</a></li>
+                          <li><a href="{{ url_for('Recording') }}">Manage</a></li>
                           <li><a href="{{ url_for('Customer_Index') }}">Customer</a></li>
                             {% if customer_id %}
                                 <li class="active">Edit</li>
@@ -153,7 +153,7 @@
                 </section>
             </div>
             <div class="col-lg-3">
-                <section>
+                <section class="clearfix">
                      <h4>Statistic</h4>
                      <hr/>
                         <div class="list-group">
