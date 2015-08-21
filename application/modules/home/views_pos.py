@@ -57,6 +57,7 @@ def Pos(departure_id=None):
     else:
         current_departure = DepartureModel.get_by_id(departure_id)
 
+    age = date_age
     return render_template('/index/pos.html', **locals())
 
 

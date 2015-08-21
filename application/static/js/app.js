@@ -8,7 +8,7 @@ $(document).ready(function() {
     $("select.g-select").each(function() {
         var e = $(this)
         e.select2()
-    })
+    });
 
     $('#datepicker').datepicker({
         format: "dd/mm/yyyy",
@@ -28,7 +28,7 @@ $(document).ready(function() {
         clearbtn: true
     }); */
 
-    $('#datepickerbirth').inputmask("date", { placeholder:"__/__/____"})
+    $('#datepickerbirth').inputmask("date", { placeholder:"__/__/____"});
 
 
     $('#datepickeryear').datepicker({

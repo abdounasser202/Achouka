@@ -47,6 +47,10 @@ from lib.pytz.gae import pytz
 from itertools import groupby
 from operator import itemgetter
 
+date_age = {
+    'min':7,
+    'max':17
+}
 
 global_current_country = {
     "CM": "Cameroon",

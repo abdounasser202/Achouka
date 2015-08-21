@@ -785,20 +785,39 @@ def Ticket_Type_Name_Index(ticket_type_name_id=None):
 @login_required
 @roles_required(('admin', 'super_admin'))
 def Ticket_Type_Name_Child(ticket_type_name_id):
-    ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
 
-    if not ticket.is_child:
-        is_child_exist = TicketTypeNameModel.query(
-            TicketTypeNameModel.is_child == True,
-            TicketTypeNameModel.key != ticket.key
+    category = TicketTypeNameModel.get_by_id(ticket_type_name_id)
+
+    if not category.is_child:
+        categorie_exist = TicketTypeNameModel.query(
+            TicketTypeNameModel.is_child == True
         ).count()
-        if is_child_exist >= 1:
-            flash(u"you can not define two type of ticket as a criterion 'is child'!", "danger")
+
+        if categorie_exist >= 1:
+            flash(u"you can not define two type of ticket as a criterion 'Used to category child the tickets'!", "danger")
         else:
-            ticket.is_child = True
+            flash(u"Category Updated!", "success")
+            category.is_child = True
     else:
-        ticket.is_child = False
-    ticket.put()
+
+        category_used_ticket_type = TicketTypeModel.query(
+            TicketTypeModel.type_name == category.key
+        ).count()
+
+        from ..ticket.models_ticket import TicketModel
+        category_used_ticket = TicketModel.query(
+            TicketModel.type_name == category.key
+        ).count()
+
+        if category_used_ticket >= 1 or category_used_ticket_type >= 1:
+
+            flash(u"you can not disabled the child function for this category", "danger")
+
+        else:
+            flash(u"Category Updated!", "success")
+            category.returned = False
+
+    category.put()
 
     return redirect(url_for("Ticket_Type_Name_Index"))
 
@@ -849,8 +868,6 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
 
     ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
 
-    ticket = TicketTypeNameModel.get_by_id(ticket_type_name_id)
-
     from ..activity.models_activity import ActivityModel
 
     time_zones = pytz.timezone('Africa/Douala')
@@ -872,12 +889,13 @@ def Ticket_Type_Name_Special(ticket_type_name_id):
             activity.nature = 9
             flash(u"Category Updated!", "success")
             ticket.special = False
+            activity.put()
     else:
         activity.nature = 8
         flash(u"Category Updated!", "success")
         ticket.special = True
+        activity.put()
 
-    activity.put()
     ticket.put()
     return redirect(url_for("Ticket_Type_Name_Index"))
 

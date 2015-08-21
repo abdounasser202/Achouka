@@ -47,6 +47,7 @@
                                     <th>Name</th>
                                     <th class="nosort">Is it default?</th>
                                     <th class="nosort">Is it special?</th>
+                                    <th class="nosort">Use for children?</th>
                                     <th class="nosort"></th>
                                 </tr>
                                 </thead>
@@ -69,6 +70,15 @@
                                                    class="btn btn-danger btn-xs"> No </a>
                                             {% else %}
                                                 <a href="{{ url_for('Ticket_Type_Name_Special', ticket_type_name_id=ticket.key.id()) }}"
+                                                   class="btn btn-success btn-xs"> Yes </a>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if ticket.is_child == False %}
+                                                <a href="{{ url_for('Ticket_Type_Name_Child', ticket_type_name_id=ticket.key.id()) }}"
+                                                   class="btn btn-danger btn-xs"> No </a>
+                                            {% else %}
+                                                <a href="{{ url_for('Ticket_Type_Name_Child', ticket_type_name_id=ticket.key.id()) }}"
                                                    class="btn btn-success btn-xs"> Yes </a>
                                             {% endif %}
                                         </td>
