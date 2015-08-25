@@ -214,7 +214,8 @@
             // Traitement de la recherche de ticket
             $('#SubmitTicket').click(function(e){
                 e.preventDefault();
-                url = $(this).attr('href');
+                departure = $('#SearchCustomer #CurrentDeparture').val();
+                url = $(this).attr('href')+"?departure="+departure;
                 $.ajax({
                     url: url,
                     data: $('#SearchTicket').serialize(),
@@ -237,7 +238,6 @@
             today = new Date();
             dateMax = new Date(today.getFullYear() - {{ age['max'] }}, today.getMonth(), today.getDate());
             dateUser = Date.parse(dtVal);
-
                 if (ValidateDate(dtVal)){
                      if (dateUser < dateMax){
                          if (departure != ''){

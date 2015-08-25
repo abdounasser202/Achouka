@@ -90,6 +90,7 @@ def Transaction_user(user_id=None):
     #implementation de l'heure local
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+    received = False
 
     # TRAITEMENT DE LA REQUETE POST
     if request.method == "POST":
@@ -139,24 +140,24 @@ def Transaction_user(user_id=None):
         if not user_tickets_tab:
             for unsold in user_tickets_tab_unsolved_payment:
                 if (amount - unsold['balance']) > 0:
-                    amount -= unsold['balance']
-            amount_to_save = amount_to_save - amount
+                    amount_to_save -= unsold['balance']
 
         #Traitement de la transaction parente
 
         parent_transaction = TransactionModel()
         parent_transaction.reason = "Ticket Sale"
         parent_transaction.amount = amount_to_save
+        parent_transaction.pre_amount = user_get_id.escrow_amount(full=True)
         parent_transaction.agency = user_get_id.agency
         parent_transaction.is_payment = True
         parent_transaction.destination = user_get_id.agency.get().destination
         parent_transaction.transaction_date = function.datetime_convert(date_auto_nows)
+        parent_transaction.employe = user_get_id.key
 
         user_current_id = UserModel.get_by_id(int(session.get('user_id')))
         parent_transaction.user = user_current_id.key
 
         parent_transaction = parent_transaction.put()
-        parent_transaction = TransactionModel.get_by_id(parent_transaction.id())
 
         # TRAITEMENT DES TICKETS NON SOLDE
         for unsold in user_tickets_tab_unsolved_payment:
@@ -165,7 +166,7 @@ def Transaction_user(user_id=None):
 
                 link_ticket_transaction_line = ExpensePaymentTransactionModel()
                 link_ticket_transaction_line.ticket = ticket_unsold.key
-                link_ticket_transaction_line.transaction = parent_transaction.key
+                link_ticket_transaction_line.transaction = parent_transaction
 
                 # verifie si le montant est tjrs decrementable
                 if amount > unsold['balance']:
@@ -186,7 +187,7 @@ def Transaction_user(user_id=None):
 
                 link_ticket_transaction_line = ExpensePaymentTransactionModel()
                 link_ticket_transaction_line.ticket = ticket_sold.key
-                link_ticket_transaction_line.transaction = parent_transaction.key
+                link_ticket_transaction_line.transaction = parent_transaction
 
                 #verifie si le montant est tjrs decrementable
                 if amount_to_save > ticket_sold.sellprice:
@@ -199,9 +200,78 @@ def Transaction_user(user_id=None):
                 link_ticket_transaction_line.put()
             else:
                 break
+        received = True
+
+    # Traitement de l'envoie d'email et de la facture
+    if received:
+        transaction_get = TransactionModel.get_by_id(int(parent_transaction.id()))
+        detail_transaction = calcul_transaction(transaction_get)
+
+        #content = StringIO('contenu')
+        content = render_template('/transaction/facture.html', **locals())
+        output = StringIO()
+        pisa.log.setLevel('DEBUG')
+        pdf = pisa.CreatePDF(content, output, encoding='utf-8')
+        pdf_data = pdf.dest.getvalue()
+        output.close()
+        name_pdf = str(parent_transaction.id())+"_received.pdf"
+
+        from google.appengine.api import mail
+        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+                   to=user_get_id.email,
+                   subject="Your received for transaction "+str(parent_transaction.id()),
+                   body="Your message for your received",
+                   attachments=[(name_pdf, pdf_data)])
+
+        detail_transaction = calcul_transaction(transaction_get)
 
     return render_template('/transaction/transaction_user.html', **locals())
 
+
+@app.route('/print_received/<int:transaction_id>')
+def print_received(transaction_id):
+
+    transaction_get = TransactionModel.get_by_id(transaction_id)
+    detail_transaction = calcul_transaction(transaction_get)
+
+    content = render_template('/transaction/recu.html', **locals())
+    output = StringIO()
+    pisa.log.setLevel('DEBUG')
+    pdf = pisa.CreatePDF(content, output, encoding='utf-8')
+    pdf_data = pdf.dest.getvalue()
+    output.close()
+
+    response = make_response(pdf_data)
+    response.headers['Content-Type'] = "application/pdf"
+
+    return response
+
+# fonction de regroupement des tickets payes
+def calcul_transaction(transaction_get):
+    transaction_detail = []
+    for transaction in transaction_get.relation_parent_child():
+        transactions = {}
+        transactions['type'] = transaction.ticket.get().type_name
+        transactions['journey'] = transaction.ticket.get().journey_name
+        transactions['class'] = transaction.ticket.get().class_name
+        transactions['travel'] = transaction.ticket.get().travel_ticket
+        transactions['amount'] = transaction.amount
+        transactions['currency'] = transaction.ticket.get().sellpriceAgCurrency.get().code
+        transaction_detail.append(transactions)
+
+    grouper = itemgetter("type", "class", "journey", "travel", "currency")
+
+    detail_transaction = []
+    for key, grp in groupby(sorted(transaction_detail, key=grouper), grouper):
+        temp_dict = dict(zip(["type", "class", "journey", "travel", "currency"], key))
+        temp_dict['number'] = 0
+        temp_dict['amount'] = 0
+        for item in grp:
+            temp_dict['number'] += 1
+            temp_dict['amount'] += item['amount']
+        detail_transaction.append(temp_dict)
+
+    return detail_transaction
 
 @app.route('/Transaction_foreign_user', methods=["GET", "POST"])
 @app.route('/Transaction_foreign_user/<int:user_id>/<int:travel_id>', methods=["GET", "POST"])

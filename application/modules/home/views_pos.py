@@ -113,9 +113,17 @@ def search_customer_pos():
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
 def search_ticket_pos():
+
+    from ..departure.models_departure import DepartureModel
     number_ticket = request.form['number_ticket']
 
     number_ticket = ''.join(number_ticket.split('*'))
+
+    departure_get = None
+    departure_id = request.args.get('departure')
+    if departure_id:
+        departure_find = DepartureModel.get_by_id(int(departure_id))
+        departure_get = departure_find.key
 
     if len(number_ticket) < 16:
         ticket_sold = TicketModel.query(
@@ -136,7 +144,16 @@ def search_ticket_pos():
 @login_required
 @roles_required(('employee_POS', 'super_admin'))
 def Ticket_found(ticket_id):
+    from ..departure.models_departure import DepartureModel
+
     ticket = TicketModel.get_by_id(ticket_id)
+
+    departure_get = None
+    departure_id = request.args.get('departure')
+    if departure_id:
+        departure_find = DepartureModel.get_by_id(int(departure_id))
+        departure_get = departure_find.key
+
     return render_template('/pos/ticket_found.html', **locals())
 
 
@@ -402,9 +419,21 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     if departure_id:
         form.current_departure.data = str(departure_id)
 
-    journey_ticket = JourneyTypeModel.query()
     class_ticket = ClassTypeModel.query()
     ticket_type_name = TicketTypeNameModel.query()
+
+    child = request.args.get('child')
+    parent_ticket = int(request.args.get('parent_ticket'))
+    if child:
+        parent = TicketModel.get_by_id(parent_ticket)
+        class_ticket = ClassTypeModel.query(
+            ClassTypeModel.key == parent.class_name
+        )
+        ticket_type_name = TicketTypeNameModel.query(
+            TicketTypeNameModel.is_child == True
+        )
+    journey_ticket = JourneyTypeModel.query()
+
 
     #Traitement de l'affichage d'une attention sur la vente a effectuer
     today = function.datetime_convert(date_auto_nows)
@@ -505,6 +534,9 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
         Ticket_To_Sell.date_reservation = function.datetime_convert(date_auto_nows)
         Ticket_To_Sell.sellprice = priceticket.price
         Ticket_To_Sell.sellpriceCurrency = priceticket.currency
+
+        if parent_ticket:
+            Ticket_To_Sell.parent_child = parent.key
 
         if Ticket_To_Sell.is_return:
             duplicate_ticket = TicketModel()

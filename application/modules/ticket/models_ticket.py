@@ -88,6 +88,7 @@ class TicketModel(TicketPoly):
     is_upgrade = ndb.BooleanProperty(default=False)
     is_count = ndb.BooleanProperty(default=True)
     parent_return = ndb.KeyProperty(kind=TicketPoly)
+    parent_child = ndb.KeyProperty(kind=TicketPoly)
 
     def answer_question(self):
         answer = TicketQuestion.query(
@@ -104,6 +105,10 @@ class TicketModel(TicketPoly):
         )
         for child in child:
             to_dict['child_return'].append(child.make_to_dict())
+
+        to_dict['parent_child'] = None
+        if self.parent_child:
+            to_dict['parent_child'] = self.parent_child.id()
 
         return to_dict
 

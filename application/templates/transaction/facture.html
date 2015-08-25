@@ -1,0 +1,113 @@
+<html>
+<head>
+<style>
+    @page {
+        @frame header_frame {           /* Static Frame */
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 512pt; top: 50pt; height: 150pt;
+            text-align: center;
+        }
+        
+        @frame content_frame {          /* Content Frame */
+            left: 50pt; width: 512pt; top: 180pt; height: 632pt;
+        }
+    }
+    
+    @page regular_template { 
+        @frame header_frame {           /* Static Frame */
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 512pt; top: 50pt; height: 150pt;
+            text-align: center;
+        }
+        
+        @frame content_frame {         /* Content Frame */
+            left: 50pt; width: 512pt; top: 180pt; height: 632pt;
+        }   
+    }
+    
+</style>
+</head>
+
+<body>
+    <div id="header_content">
+    <table >
+            <tr>
+                <td></td>
+                <td><img src="{{url_for('static', filename='img/Comatrans-Transparent-Black-H.jpg', _external=True)}}"/></td>
+                <td></td>
+            </tr>
+            
+            <tr style="padding-top: 10px;">
+                <td></td>
+                <td><h1 style="text-align:center; font-size:24px">{{ transaction_get.agency.get().name }}</h1></td>
+                <td></td>
+            </tr>
+
+    </table>
+    <table>
+        <tr style="font-size:16px; padding-top: 10px;">
+            <td>Transaction: {{ transaction_get.key.id() }}</td>
+            <td></td>
+            <td>Date transaction: {{ transaction_get.transaction_date|format_date("%Y-%m-%d %H:%M:%S") }}</td>
+        </tr>
+    </table>
+    </div>
+    <h1 style="font-size: 18px; margin-top: 20px;">Ticket paid</h1>
+    <table style="border: 1px solid #ddd; line-height:1.4">
+            <thead>
+                <tr style="padding:2px 0 0 0; font-size:13px">
+                    <th>Travel line</th>
+                    <th>Ticket type</th>
+                    <th>Number</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for transaction in detail_transaction %}
+                    <tr style="text-align:center; padding:3px 0 0 0; font-size:12px">
+                        <td>{{ transaction['travel'].get().destination_start.get().name }}
+                        -
+                        {{ transaction['travel'].get().destination_check.get().name }}</td>
+                        <td>{{ transaction['class'].get().name }}
+                            -
+                            {{ transaction['type'].get().name }}
+                            -
+                            {{ transaction['journey'].get().name }}</td>
+                        <td>{{ transaction['number']|format_price() }}</td>
+                        <td>{{ transaction['amount']|format_price() }} {{ transaction['currency'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+
+    <h1 style="font-size: 18px; margin-top: 20px;">Detail transaction</h1>
+    <table style="border: 1px solid #ddd; line-height:1.4; margin-top: 20px;">
+
+            <tfoot>
+                <tr style="text-align:center; padding:3px 0 0 0; font-size:12px;">
+                    <td colspan="3" style="text-align:left; border:0; font-weight:bold; padding-left:3px;">Escrow:</td>
+                    <td>{{ transaction_get.pre_amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                <tr style="text-align:center; padding:3px 0px 0 0; font-size:12px;">
+                    <td colspan="3" style="text-align:left; border:0; font-weight:bold; padding-left:3px;">Amount received:</td>
+                    <td>{{ transaction_get.amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+
+                 <tr style="text-align:center; padding:3px 0 0 0; font-size:12px;">
+                    <td colspan="3" style="text-align:left; border:0; font-weight:bold; padding-left:3px;">Outstanding payment:</td>
+                    <td style="color:red">{{ (transaction_get.pre_amount - transaction_get.amount)|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                
+            </tfoot>
+    </table>
+    
+    <table style="margin-top:50px; text-align:center; font-size:16px">
+        <tr>
+            <td>Manager <p style="font-size: 12px;">{{ transaction_get.user.get().last_name }} {{ transaction_get.user.get().first_name }}</p></td>
+            <td>Seller <p style="font-size: 12px;">{{ transaction_get.employe.get().last_name }} {{ transaction_get.employe.get().first_name }}</p></td>
+        </tr>
+    </table>
+    
+</body>
+</html>

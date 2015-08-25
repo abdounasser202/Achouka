@@ -43,6 +43,7 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+   <a href="{{ url_for('print_received', transaction_id=transaction_id) }}" target="_blank" class="btn btn-danger">Print received</a>
 </div>
 <script>
     $('#dataTable1').dataTable({

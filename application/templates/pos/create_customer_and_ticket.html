@@ -22,7 +22,12 @@
                 </div>
                 <div class="form-group {% if form.birthday.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.birthday.label }} :</label>
-                    {{ form.birthday(class_='form-control', id="datepickerbirth")|safe }}
+                    {% if child %}
+                        {{ form.birthday(class_='form-control', id="datepickerbirth", disabled="disabled")|safe }}
+                        <input type="hidden" name="birthday" value="{{ form.birthday.data|format_date("%d/%m/%Y") }}"/>
+                    {% else %}
+                        {{ form.birthday(class_='form-control', id="datepickerbirth")|safe }}
+                    {% endif %}
                     {% for message in form.birthday.errors %}
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
@@ -96,6 +101,7 @@
               <div class="panel-body text-center">
                   <div class="alert alert-danger hidden" id="alert"> </div>
                   <div class="row">
+                  {% if not child %}
                       {% for type_name in ticket_type_name %}
                           {% if not type_name.special and not type_name.is_child %}
                               <div class="col-lg-6">
@@ -137,6 +143,18 @@
                                 </div>
                             </div>
                       </div>
+                  {% else %}
+                    {% for type_name in ticket_type_name %}
+                              <div class="col-lg-6">
+                                    <div class="radio">
+                                      <label>
+                                        <input type="radio" name="type_name" class="TicketTypeName" value="{{ type_name.key.id() }}"  checked >
+                                        {{ type_name.name }}
+                                      </label>
+                                    </div>
+                              </div>
+                      {% endfor %}
+                  {% endif %}
                   </div>
 
                   <hr/>
@@ -252,7 +270,7 @@
                 </div>
             <div class="col-lg-12">
                 <br/>
-                <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id) }}" class="btn btn-success pull-right" data-loading-text="Confirmation..." id="submit" data-backdrop="static" disabled="disabled">Sell Ticket</a>
+                <a href="{{ url_for('create_customer_and_ticket_pos', customer_id=customer_id, departure_id=departure_id, parent_ticket=parent_ticket) }}" class="btn btn-success pull-right" data-loading-text="Confirmation..." id="submit" data-backdrop="static" disabled="disabled">Sell Ticket</a>
             </div>
             </div>
         </div>

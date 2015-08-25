@@ -47,6 +47,9 @@ from lib.pytz.gae import pytz
 from itertools import groupby
 from operator import itemgetter
 
+from cStringIO import StringIO
+from xhtml2pdf import pisa
+
 date_age = {
     'min':7,
     'max':13

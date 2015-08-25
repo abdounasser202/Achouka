@@ -132,6 +132,10 @@ def ticket_local_sale_put(token):
             travel_ticket = TravelModel.get_by_id(data_get['travel_ticket'])
             old_data.travel_ticket = travel_ticket.key
 
+            if data_get['parent_child']:
+                parent_child = TicketModel.get_by_id(data_get['parent_child'])
+                old_data.parent_child = parent_child.key
+
             old_data.is_prepayment = data_get['is_prepayment']
             old_data.statusValid = data_get['statusValid']
             old_data.generate_boarding = data_get['generate_boarding']

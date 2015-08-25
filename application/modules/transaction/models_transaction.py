@@ -9,11 +9,13 @@ from ..ticket.models_ticket import TicketModel, UserModel
 class TransactionModel(ndb.Model):
     reason = ndb.StringProperty()
     amount = ndb.FloatProperty()
+    pre_amount = ndb.FloatProperty()
     is_payment = ndb.BooleanProperty()
     agency = ndb.KeyProperty(kind=AgencyModel)
     destination = ndb.KeyProperty(kind=DestinationModel)
     transaction_date = ndb.DateTimeProperty()
     user = ndb.KeyProperty(kind=UserModel)
+    employe = ndb.KeyProperty(kind=UserModel)
     transaction_admin = ndb.BooleanProperty(default=False)
 
     def relation_parent_child(self):
@@ -31,11 +33,13 @@ class TransactionModel(ndb.Model):
         to_dict['agency'] = self.agency.id()
         to_dict['destination'] = self.destination.id()
         to_dict['transaction_date'] = str(self.transaction_date)
+        to_dict['pre_amount'] = self.pre_amount
         to_dict['user'] = {
             'user_id': self.user.id(),
             'email': self.user.get().email,
             'password': self.user.get().password
         }
+        to_dict['employe'] = self.user.id()
         to_dict['transaction_admin'] = self.transaction_admin
 
         to_dict['relation_parent_child'] = []

@@ -307,7 +307,7 @@ class UserModel(ndb.Model):
 
 
     # Montant des tickets vendus et des restes a payer de l'utilisateur
-    def escrow_amount(self):
+    def escrow_amount(self, full=False):
         from ..ticket.models_ticket import TicketModel
 
         user_ticket_query = TicketModel.query(
@@ -325,11 +325,14 @@ class UserModel(ndb.Model):
         # sommes des montants retournes
         escrow = ticket_no_transaction_amount + ticket_transaction_amount
 
-        if escrow != 0:
-            escrow = '{:,}'.format(escrow).replace(',', ' ')
-            return str(escrow)+" "+self.agency.get().destination.get().currency.get().code
+        if full:
+            return escrow
         else:
-            return None
+            if escrow != 0:
+                escrow = '{:,}'.format(escrow).replace(',', ' ')
+                return str(escrow)+" "+self.agency.get().destination.get().currency.get().code
+            else:
+                return None
 
 
     #Liste des Tickets a solder par l'utilisateur
