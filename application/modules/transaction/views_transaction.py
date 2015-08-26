@@ -350,6 +350,8 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
             temp_dict['amount'] += item['amount']
         user_tickets.append(temp_dict)
 
+    received = False
+    # Traitement du POST
     if request.method == "POST":
         amount = float(request.form['amount'])
 
@@ -357,14 +359,15 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
         if not user_tickets_tab:
             for unsold in user_tickets_tab_unsolved_payment:
                 if (amount - unsold['balance']) > 0:
-                    amount -= unsold['balance']
-            amount_to_save = amount_to_save - amount
+                    amount_to_save -= unsold['balance']
 
         #Traitement de la transaction parente
         parent_transaction = TransactionModel()
         parent_transaction.reason = "Payment"
         parent_transaction.amount = amount_to_save
+        parent_transaction.pre_amount = user_get_id.escrow_amount(True)
         parent_transaction.agency = user_get_id.agency
+        parent_transaction.employe = user_get_id.key
         parent_transaction.is_payment = True
         parent_transaction.destination = travel_get_id.destination_start
         parent_transaction.transaction_date = function.datetime_convert(date_auto_nows)
@@ -373,7 +376,6 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
         parent_transaction.user = user_current_id.key
 
         parent_transaction = parent_transaction.put()
-        parent_transaction = TransactionModel.get_by_id(parent_transaction.id())
 
         # TRAITEMENT DES TICKETS NON SOLDE
         for unsold in user_tickets_tab_unsolved_payment:
@@ -382,7 +384,7 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
 
                 link_ticket_transaction_line = ExpensePaymentTransactionModel()
                 link_ticket_transaction_line.ticket = ticket_unsold.key
-                link_ticket_transaction_line.transaction = parent_transaction.key
+                link_ticket_transaction_line.transaction = parent_transaction
 
                 # verifie si le montant est tjrs decrementable
                 if amount_to_save > unsold['balance']:
@@ -403,7 +405,7 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
 
                 link_ticket_transaction_line = ExpensePaymentTransactionModel()
                 link_ticket_transaction_line.ticket = ticket_sold.key
-                link_ticket_transaction_line.transaction = parent_transaction.key
+                link_ticket_transaction_line.transaction = parent_transaction
 
                 #verifie si le montant est tjrs decrementable
                 if amount_to_save > ticket_sold.sellprice:
@@ -416,6 +418,31 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
                 link_ticket_transaction_line.put()
             else:
                 break
+
+        received = True
+
+    # Traitement de l'envoie d'email et de la facture
+    if received:
+        transaction_get = TransactionModel.get_by_id(int(parent_transaction.id()))
+        detail_transaction = calcul_transaction(transaction_get)
+
+        #content = StringIO('contenu')
+        content = render_template('/transaction/facture.html', **locals())
+        output = StringIO()
+        pisa.log.setLevel('DEBUG')
+        pdf = pisa.CreatePDF(content, output, encoding='utf-8')
+        pdf_data = pdf.dest.getvalue()
+        output.close()
+        name_pdf = str(parent_transaction.id())+"_received.pdf"
+
+        from google.appengine.api import mail
+        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+                   to=user_get_id.email,
+                   subject="Your received for transaction "+str(parent_transaction.id()),
+                   body="Your message for your received",
+                   attachments=[(name_pdf, pdf_data)])
+
+        detail_transaction = calcul_transaction(transaction_get)
 
     return render_template('/transaction/transaction_foreign_user.html', **locals())
 

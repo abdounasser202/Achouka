@@ -33,6 +33,7 @@ class AgencyModel(BaseModel):
         to_dict['agency_reduction'] = self.reduction
         to_dict['agency_status'] = self.status
         to_dict['agency_is_achouka'] = self.is_achouka
+        to_dict['agency_destination'] = self.destination.id()
         return to_dict
 
 
