@@ -150,24 +150,25 @@ def Dashboard():
         user_ticket_tab = []
         for ticket in user_ticket:
             tickets = {}
+            tickets['date'] = str(ticket.date_reservation.date())
             tickets['class'] = ticket.class_name
             tickets['journey'] = ticket.journey_name
             tickets['type'] = ticket.type_name
             tickets['travel'] = ticket.travel_ticket
-            tickets['price'] = ticket.sellprice
+            tickets['prices'] = ticket.sellprice
             tickets['currency'] = ticket.sellpriceCurrency.get().code
             user_ticket_tab.append(tickets)
 
-        groupers = itemgetter("class", "type", "journey", "travel")
+        groupers = itemgetter("date","class", "type", "journey", "travel","prices")
 
         the_ticket_sale = []
         for key, grp in groupby(sorted(user_ticket_tab, key=groupers), groupers):
-            temp_dict = dict(zip(["class", "type", "journey", "travel"], key))
+            temp_dict = dict(zip(["date","class", "type", "journey", "travel", "prices"], key))
             temp_dict['number'] = 0
             temp_dict['price'] = 0
             for item in grp:
                 temp_dict['number'] += 1
-                temp_dict['price'] += item['price']
+                temp_dict['price'] += item['prices']
                 temp_dict['currency'] = item['currency']
             the_ticket_sale.append(temp_dict)
 

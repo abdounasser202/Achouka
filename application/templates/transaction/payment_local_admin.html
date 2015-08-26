@@ -2,8 +2,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <div class="pull-right text-right bg-info text-danger" style="margin-right:40px; margin-top: -6px; padding: 10px;">
             <strong>AMOUNT : </strong>
-            {% set price = agency_get_id.escrow_amount(true)*-1 %}
-            {{ price|format_price() }}
+            {{ (agency_get_id.escrow_amount(true)*-1)|format_price() }}
             {{ agency_get_id.destination.get().currency.get().code }}
 
         </div>
@@ -36,8 +35,8 @@
 </div>
 <div class="modal-footer bg-info">
     <form class="form-horizontal" id="formulaires">
-            <div class="col-lg-7">
-                {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
+        {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
+            <div class="col-lg-6">
                     <div class="form-group text-left" id="form-input">
                         <label for="amount_received" class="col-sm-6 control-label">Amount received ({{ agency_get_id.destination.get().currency.get().code }}) :</label>
                         <div class="col-sm-6">
@@ -45,10 +44,19 @@
                             <span class="help-block hidden text-danger" id="help-error">Amount required or the data is not numeric and greater than zero</span>
                         </div>
                     </div>
-                {% endif %}
-             </div>
+            </div>
+            <div class="col-lg-3">
+                    <div class="form-group text-left" id="form-input">
+                        <div class="col-sm-12">
+                          <input type="text" class="form-control" id="amount_received" name="amount">
+                          <span class="help-block hidden text-danger" id="help-error">Amount required or the data is not numeric and greater than zero</span>
+                        </div>
+                    </div>
+            </div>
+            <div class="col-lg-3"></div>
+        {% endif %}
     </form>
-    <div class="col-lg-5">
+    <div class="col-lg-12">
         <button type="button" class="btn" data-dismiss="modal">Close</button>
         {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
             <button type="button" class="btn btn-primary" id="submit">Valid payment</button>

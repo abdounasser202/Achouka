@@ -21,7 +21,9 @@
                                  <table class="table table-hover" id="dataTableDash">
                                     <thead>
                                     <tr>
+                                        <th>Date</th>
                                         <th>Name</th>
+                                        <th>U.P</th>
                                         <th class="nosort text-center">Number</th>
                                         <th class="nosort text-center">Amount</th>
                                     </tr>
@@ -30,11 +32,13 @@
                                         {% for type in the_ticket_sale %}
                                            {% if type['travel'].get().destination_start == agency_user.destination %}
                                                 <tr>
+                                                    <td>{{ type['date'] }}</td>
                                                     <td>
                                                         <strong>{{ type['travel'].get().destination_start.get().name }} - {{ type['travel'].get().destination_check.get().name }} </strong> <br/>
                                                         <small>{{ type['class'].get().name }} - {{ type['type'].get().name }} - {{ type['journey'].get().name }}</small>
 
                                                     </td>
+                                                    <td>{{ type['prices']|format_price() }} {{ type['currency'] }}</td>
                                                     <td class="text-center">{{ type['number'] }}</td>
                                                     <td class="text-center">{{ type['price']|format_price() }} {{ type['currency'] }}</td>
                                                 </tr>
@@ -53,7 +57,9 @@
                                  <table class="table table-hover" id="dataTableDash2">
                                     <thead>
                                     <tr>
+                                        <th>Date</th>
                                         <th>Name</th>
+                                        <th>U.P</th>
                                         <th class="nosort text-center">Number</th>
                                         <th class="nosort text-center">Amount</th>
                                     </tr>
@@ -62,11 +68,13 @@
                                         {% for type in the_ticket_sale %}
                                            {% if type['travel'].get().destination_start != agency_user.destination %}
                                                 <tr>
+                                                    <td>{{ type['date'] }}</td>
                                                     <td>
                                                         <strong>{{ type['travel'].get().destination_start.get().name }} - {{ type['travel'].get().destination_check.get().name }} </strong> <br/>
                                                         <small>{{ type['class'].get().name }} - {{ type['type'].get().name }} - {{ type['journey'].get().name }}</small>
 
                                                     </td>
+                                                    <td>{{ type['prices']|format_price() }} {{ type['currency'] }}</td>
                                                     <td class="text-center">{{ type['number'] }}</td>
                                                     <td class="text-center">{{ type['price']|format_price() }} {{ type['currency'] }}</td>
                                                 </tr>
@@ -110,7 +118,7 @@
             "paging": true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 25,
-            "bFilter": false,
+            "bFilter": true,
             'aoColumnDefs': [
                 {'bSortable': false, 'aTargets': ['nosort']},
                 {'bSearchable': false, "aTargets": ['nosort']}
@@ -122,7 +130,7 @@
             "paging": true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 25,
-            "bFilter": false,
+            "bFilter": true,
             'aoColumnDefs': [
                 {'bSortable': false, 'aTargets': ['nosort']},
                 {'bSearchable': false, "aTargets": ['nosort']}
