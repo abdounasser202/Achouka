@@ -301,7 +301,7 @@ def User_Index():
     submenu='user'
 
     agency_user = None
-    if current_user.has_roles('manager_agency'):
+    if current_user.has_roles('manager_agency') and not current_user.has_roles(('admin', 'super_admin')):
         agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
 
     from ..activity.models_activity import ActivityModel
