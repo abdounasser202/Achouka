@@ -122,16 +122,17 @@
 
     {% endif %}
             </div>
-</form>
     <div class="col-lg-5">
         <button type="button" class="btn" {% if received %} onclick="window.location.replace(window.location.origin+'{{ url_for('Transaction_Agency', agency_id=user_get_id.agency.get().key.id() ) }}')" {% else %} data-dismiss="modal" {% endif %}>Close</button>
         {% if received %}
-            <a href="{{ url_for('print_received', transaction_id=parent_transaction.id()) }}" target="_blank" class="btn btn-danger">Print received</a>
+            <a href="{{ url_for('print_receipt', transaction_id=parent_transaction.id()) }}" target="_blank" class="btn btn-danger">Print receipt</a>
         {% endif %}
         {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') and not received %}
-            <button type="button" class="btn btn-primary" id="submit">Valid payment</button>
+            <button type="submit" class="btn btn-primary" id="submit">Valid payment</button>
         {% endif %}
     </div>
+</form>
+
 
 
 </div>

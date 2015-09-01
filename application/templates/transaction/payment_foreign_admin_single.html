@@ -7,15 +7,42 @@
 
         <h4 class="modal-title">Transaction foreign </h4>
 </div>
+{% if received %}
+<div class="modal-body">
+        <h3 class="text-primary">Transaction ID: {{ parent_transaction.id() }}</h3>
+        <hr/>
+        <h4 class="text-primary"> Details Transaction</h4>
+        <table class="table table-hover table-stripped">
+            <tbody>
+                <tr>
+                    <td><strong>Escrow:</strong></td>
+                    <td>{{ transaction_get.pre_amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Amount Received:</strong></td>
+                    <td> {{ transaction_get.amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Outstanding payment:</strong></td>
+                    <td><span class="text-danger">{{ (transaction_get.pre_amount - transaction_get.amount)|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</span></td>
+                </tr>
+            </tbody>
+        </table>
+    <br/>
+</div>
+{% else %}
 <div class="modal-body scrollable-shadow" style="height: 500px; overflow-y: auto">
      <h3 class="text-primary">Agency : {{ agency_get_id.name }} to {{ destination_get_id.name }}</h3>
      <hr/>
      <table class="table table-hover" id="dataTables">
         <thead>
         <tr>
-            <th>Date transaction</th>
+            <th>Transaction Date </th>
+            <th>Transaction ID </th>
             <th>Amount</th>
             <th>User</th>
+            <th>Manager</th>
+            <th class="nosort"></th>
         </tr>
         </thead>
         <tbody>
@@ -23,18 +50,24 @@
                 <tr>
 
                     <td>{{ transaction.transaction_date }}</td>
+                    <td>{{ transaction.key.id() }}</td>
                     <td>{{ transaction.amount|format_price() }} {{ transaction.destination.get().currency.get().code }}</td>
                     <td>{{ transaction.user.get().last_name }} {{ transaction.user.get().first_name }}</td>
+                    <td>{{ transaction.employe.get().last_name }} {{ transaction.employe.get().first_name }}</td>
+                    <td><a href="{{ url_for('print_receipt', transaction_id=transaction.key.id()) }}?admin=1" target="_blank" class="btn btn-danger btn-xs">Print</a></td>
+
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
 </div>
+{% endif %}
 <div class="modal-footer bg-info">
     <form class="form-horizontal" id="formulaires">
-            <div class="col-lg-7">
-                {% if amount < 0 and amount_agency > amount %}
+
+        {% if amount < 0 and amount_agency > amount and not received %}
+            <div class="col-lg-6">
                     <div class="form-group text-left" id="form-input">
                         <label for="amount_received" class="col-sm-6 control-label">Amount received ({{ destination_get_id.currency.get().code }}) :</label>
                         <div class="col-sm-6">
@@ -42,19 +75,39 @@
                             <span class="help-block hidden text-danger" id="help-error">Amount required or the data is not numeric and greater than zero</span>
                         </div>
                     </div>
-                {% endif %}
              </div>
+            <div class="col-lg-4">
+                    <div class="form-group text-left" id="form-select">
+                        <div class="col-sm-12">
+                            <select name="employe" id="employe" class="form-control g-select" required="required">
+                                    <option value="">Select manager</option>
+                                    {% for user in user_manager %}
+                                        {% if user.has_roles('manager_agency') %}
+                                            <option value="{{ user.key.id() }}">{{ user.last_name }} {{ user.first_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                            </select>
+                        <span class="help-block hidden text-danger" id="help-error-employe">Name of the user manager is required</span>
+                        </div>
+                    </div>
+            </div>
+            <div class="col-lg-2"></div>
+
+            {% endif %}
+            <div class="col-lg-12">
+                <a href="{{ url_for('Payment_admin_foreign', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
+                <button type="button" class="btn" {% if received %} onclick="window.location.replace(window.location.origin+'{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}')" {% else %} data-dismiss="modal" {% endif %}>Close</button>
+                {% if received %}
+                    <a href="{{ url_for('print_receipt', transaction_id=parent_transaction.id()) }}?admin=1" target="_blank" class="btn btn-danger">Print receipt</a>
+                {% endif %}
+                {% if amount < 0 and amount_agency > amount and not received %}
+                    <button type="submit" class="btn btn-primary" id="submit_foreign">Valid payment</button>
+                {% endif %}
+            </div>
     </form>
-    <div class="col-lg-5">
-        <a href="{{ url_for('Payment_admin_foreign', agency_id=agency_id) }}" class="btn btn-danger" id="return">Return</a>
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
-        {% if amount < 0 and amount_agency > amount %}
-            <button type="button" class="btn btn-primary" id="submit_foreign">Valid payment</button>
-        {% endif %}
-    </div>
 
 </div>
-{% if amount < 0 and amount_agency > amount %}
+{% if amount < 0 and amount_agency > amount and received %}
 <!-- Modal -->
 <div class="modal fade modal2" id="modal2" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -87,10 +140,28 @@
       });
     });
 
-    {% if amount < 0 and amount_agency > amount %}
+    {% if amount < 0 and amount_agency > amount and not received %}
+
+        $('#amount_received').autoNumeric("init",{
+            aSep: ' ',
+            aDec: '.'
+        });
+
         $('#submit_foreign').on('click', function(e){
             e.preventDefault();
-            if($('#amount_received').val() != "" && $.isNumeric($('#amount_received').val()) && $('#amount_received').val() > 0){
+
+            var number = $('#amount_received').val();
+            var number = number.split(" ");
+            var amount = "";
+            for (var i = 0; i < number.length; i++){
+                amount += number[i];
+            }
+
+            var amount_received = Math.floor(amount);
+
+            var employe = $('#employe').val();
+
+            if($('#amount_received').val() != "" && $.isNumeric($('#amount_received').val()) && amount_received > 0 && employe != ""){
                 $('#modal2').attr({style:'display:block;padding-right: 17px;background-color: rgba(255,255,255,0.5);padding-top: 275px;'}).addClass('in');
                 $('.modal-backdrop').after('<div class="modal-backdrop fade in"></div>');
                 $(this).addClass('disabled');
@@ -99,8 +170,22 @@
                 $('#amr').text($('#amount_received').val());
 
             }else{
-                $('#help-error').removeClass('hidden');
-                $('#form-input').addClass('has-error');
+                if(amount_received == "") {
+                    $('#help-error').removeClass('hidden');
+                    $('#form-input').addClass('has-error');
+                    if(employe != ""){
+                        $('#form-select').removeClass('has-error');
+                        $('#help-error-employe').addClass('hidden');
+                    }
+                }
+                if(employe == ""){
+                    $('#form-select').addClass('has-error');
+                    $('#help-error-employe').removeClass('hidden');
+                    if(amount_received != ""){
+                        $('#help-error').addClass('hidden');
+                        $('#form-input').removeClass('has-error');
+                    }
+                }
             }
         });
 
@@ -112,10 +197,20 @@
         });
 
         $('.modal-content2').on('click', '#confirm', function(e){
+
             e.preventDefault();
             var btn = $(this);
             btn.button('loading');
             $('#CloseModal2').addClass('hidden');
+
+            var number = $('#amount_received').val();
+            var number = number.split(" ");
+            var amount = "";
+            for (var i = 0; i < number.length; i++){
+                amount += number[i];
+            }
+
+            $('#amount_received').val(Math.floor(amount));
             var url = "{{ url_for('Payment_admin_foreign_single', agency_id=agency_id, destination_id=destination_id) }}";
             $.ajax({
                 url: url,
@@ -124,7 +219,9 @@
                 success: function(data) {
                     btn.addClass('disabled');
                     btn.html('<i class="glyphicon glyphicon-ok"></i> Success');
-                    window.location.replace(window.location.origin+"{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}").delay(2000);
+                    $('#CloseModal2').trigger('click');
+                    $('#myModal .modal-content').html(data);
+{#                    window.location.replace(window.location.origin+"{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}").delay(2000);#}
                 }
             });
         });

@@ -228,11 +228,15 @@ def Transaction_user(user_id=None):
     return render_template('/transaction/transaction_user.html', **locals())
 
 
-@app.route('/print_received/<int:transaction_id>')
-def print_received(transaction_id):
+@app.route('/print_receipt/<int:transaction_id>')
+def print_receipt(transaction_id):
 
     transaction_get = TransactionModel.get_by_id(transaction_id)
     detail_transaction = calcul_transaction(transaction_get)
+
+    admin = False
+    if request.args.get('admin'):
+        admin = True
 
     content = render_template('/transaction/recu.html', **locals())
     output = StringIO()
@@ -240,6 +244,7 @@ def print_received(transaction_id):
     pdf = pisa.CreatePDF(content, output, encoding='utf-8')
     pdf_data = pdf.dest.getvalue()
     output.close()
+
 
     response = make_response(pdf_data)
     response.headers['Content-Type'] = "application/pdf"
@@ -426,6 +431,10 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
         transaction_get = TransactionModel.get_by_id(int(parent_transaction.id()))
         detail_transaction = calcul_transaction(transaction_get)
 
+        admin = False
+        if request.args.get('admin'):
+            admin = True
+
         #content = StringIO('contenu')
         content = render_template('/transaction/facture.html', **locals())
         output = StringIO()
@@ -454,6 +463,10 @@ def Payment_admin_local(agency_id):
 
     agency_get_id = AgencyModel.get_by_id(agency_id)
 
+    user_manager = UserModel.query(
+        UserModel.agency == agency_get_id.key
+    )
+
     transaction_admin_agency_query = TransactionModel.query(
         TransactionModel.agency == agency_get_id.key,
         TransactionModel.transaction_admin == True
@@ -463,8 +476,10 @@ def Payment_admin_local(agency_id):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
+    received = False
     if request.method == "POST" and agency_get_id.escrow_amount(True) < 0:
         amount = float(request.form['amount'])
+        user_id = int(request.form['employe'])
 
         diff = agency_get_id.escrow_amount() - agency_get_id.escrow_amount(True)
 
@@ -483,13 +498,48 @@ def Payment_admin_local(agency_id):
         parent_transaction.agency = agency_get_id.key
         parent_transaction.is_payment = True
         parent_transaction.transaction_admin = True
+        parent_transaction.pre_amount = diff
 
         parent_transaction.destination = agency_get_id.destination
         parent_transaction.transaction_date = function.datetime_convert(date_auto_nows)
 
         user_current_id = UserModel.get_by_id(int(session.get('user_id')))
         parent_transaction.user = user_current_id.key
-        parent_transaction.put()
+
+
+        user_employe_id = UserModel.get_by_id(int(user_id))
+        parent_transaction.employe = user_employe_id.key
+
+        parent_transaction = parent_transaction.put()
+
+        received = True
+
+    # Traitement de l'envoie d'email et de la facture
+    if received:
+        transaction_get = TransactionModel.get_by_id(int(parent_transaction.id()))
+        detail_transaction = calcul_transaction(transaction_get)
+
+        admin = False
+        if request.args.get('admin'):
+            admin = True
+
+        #content = StringIO('contenu')
+        content = render_template('/transaction/facture.html', **locals())
+        output = StringIO()
+        pisa.log.setLevel('DEBUG')
+        pdf = pisa.CreatePDF(content, output, encoding='utf-8')
+        pdf_data = pdf.dest.getvalue()
+        output.close()
+        name_pdf = str(parent_transaction.id())+"_received.pdf"
+
+        from google.appengine.api import mail
+        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+                   to=user_employe_id.email,
+                   subject="Your received for transaction "+str(parent_transaction.id()),
+                   body="Your message for your received",
+                   attachments=[(name_pdf, pdf_data)])
+
+        detail_transaction = calcul_transaction(transaction_get)
 
     return render_template('/transaction/payment_local_admin.html', **locals())
 
@@ -517,6 +567,11 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
 
     agency_get_id = AgencyModel.get_by_id(agency_id)
     destination_get_id = DestinationModel.get_by_id(destination_id)
+
+    user_manager = UserModel.query(
+        UserModel.agency == agency_get_id.key
+    )
+
 
     transaction_destination_query = TransactionModel.query(
         TransactionModel.destination == destination_get_id.key,
@@ -575,6 +630,7 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
 
         amount_agency = entry_amount_agency - expense_amount
 
+    received = False
     if request.method == "POST":
 
         amount_local = 0
@@ -608,6 +664,8 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
 
         amount_form = float(request.form['amount'])
 
+        user_id = int(request.form['employe'])
+
         diff = amount_local - amount
 
         amount_diff = diff - amount_form
@@ -625,12 +683,42 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
         parent_transaction.agency = agency_get_id.key
         parent_transaction.is_payment = True
         parent_transaction.transaction_admin = True
+        parent_transaction.pre_amount = diff
+
 
         parent_transaction.destination = destination_get_id.key
         parent_transaction.transaction_date = function.datetime_convert(date_auto_nows)
 
         user_current_id = UserModel.get_by_id(int(session.get('user_id')))
         parent_transaction.user = user_current_id.key
-        parent_transaction.put()
+
+        user_employe_id = UserModel.get_by_id(int(user_id))
+        parent_transaction.user = user_employe_id.key
+        parent_transaction = parent_transaction.put()
+
+        received = True
+
+    # Traitement de l'envoie d'email et de la facture
+    if received:
+        transaction_get = TransactionModel.get_by_id(int(parent_transaction.id()))
+        detail_transaction = calcul_transaction(transaction_get)
+
+        #content = StringIO('contenu')
+        content = render_template('/transaction/facture.html', **locals())
+        output = StringIO()
+        pisa.log.setLevel('DEBUG')
+        pdf = pisa.CreatePDF(content, output, encoding='utf-8')
+        pdf_data = pdf.dest.getvalue()
+        output.close()
+        name_pdf = str(parent_transaction.id())+"_received.pdf"
+
+        from google.appengine.api import mail
+        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+                   to=user_employe_id.email,
+                   subject="Your received for transaction "+str(parent_transaction.id()),
+                   body="Your message for your received",
+                   attachments=[(name_pdf, pdf_data)])
+
+        detail_transaction = calcul_transaction(transaction_get)
 
     return render_template('/transaction/payment_foreign_admin_single.html', **locals())

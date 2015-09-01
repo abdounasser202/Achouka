@@ -52,6 +52,7 @@
         </tr>
     </table>
     </div>
+    {% if not admin %}
     <h1 style="font-size: 18px; margin-top: 20px;">Ticket paid</h1>
     <table style="border: 1px solid #ddd; line-height:1.4">
             <thead>
@@ -80,6 +81,7 @@
                 {% endfor %}
             </tbody>
     </table>
+    {% endif %}
 
     <h1 style="font-size: 18px; margin-top: 20px;">Detail transaction</h1>
     <table style="border: 1px solid #ddd; line-height:1.4; margin-top: 20px;">
@@ -104,8 +106,8 @@
     
     <table style="margin-top:50px; text-align:center; font-size:16px">
         <tr>
-            <td>Manager <p style="font-size: 12px;">{{ transaction_get.user.get().last_name }} {{ transaction_get.user.get().first_name }}</p></td>
-            <td>Seller <p style="font-size: 12px;">{{ transaction_get.employe.get().last_name }} {{ transaction_get.employe.get().first_name }}</p></td>
+            <td>{% if not admin %} Manager {% else %} Administrator {% endif %} <p style="font-size: 12px;">{{ transaction_get.user.get().last_name }} {{ transaction_get.user.get().first_name }}</p></td>
+            <td>{% if not admin %} Seller {% else %} Manager {% endif %} <p style="font-size: 12px;">{{ transaction_get.employe.get().last_name }} {{ transaction_get.employe.get().first_name }}</p></td>
         </tr>
     </table>
     

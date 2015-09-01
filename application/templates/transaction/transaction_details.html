@@ -43,8 +43,8 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-    {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') %}
-        <a href="{{ url_for('print_received', transaction_id=transaction_id) }}" target="_blank" class="btn btn-danger">Print received</a>
+    {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') and current_transaction_get_id.is_payment %}
+        <a href="{{ url_for('print_receipt', transaction_id=transaction_id) }}" target="_blank" class="btn btn-danger">Print receipt</a>
     {% endif %}
 </div>
 <script>

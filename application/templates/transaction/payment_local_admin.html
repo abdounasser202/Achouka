@@ -9,6 +9,30 @@
 
         <h4 class="modal-title">Transaction </h4>
 </div>
+{% if received %}
+<div class="modal-body">
+        <h3 class="text-primary">Transaction ID: {{ parent_transaction.id() }}</h3>
+        <hr/>
+        <h4 class="text-primary"> Details Transaction</h4>
+        <table class="table table-hover table-stripped">
+            <tbody>
+                <tr>
+                    <td><strong>Escrow:</strong></td>
+                    <td>{{ transaction_get.pre_amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Amount Received:</strong></td>
+                    <td> {{ transaction_get.amount|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Outstanding payment:</strong></td>
+                    <td><span class="text-danger">{{ (transaction_get.pre_amount - transaction_get.amount)|format_price() }} {{ transaction_get.destination.get().currency.get().code }}</span></td>
+                </tr>
+            </tbody>
+        </table>
+    <br/>
+</div>
+{% else %}
 <div class="modal-body scrollable-shadow" style="height: 500px; overflow-y: auto">
      <h3 class="text-primary">POS : {{ agency_get_id.name }} at {{ agency_get_id.destination.get().name }}</h3>
      <hr/>
@@ -16,8 +40,11 @@
         <thead>
         <tr>
             <th>Transaction Date </th>
+            <th>Transaction ID </th>
             <th>Amount</th>
             <th>User</th>
+            <th>Manager</th>
+            <th class="nosort"></th>
         </tr>
         </thead>
         <tbody>
@@ -25,17 +52,21 @@
                 <tr>
 
                     <td>{{ transaction.transaction_date }}</td>
+                    <td>{{ transaction.key.id() }}</td>
                     <td>{{ transaction.amount|format_price() }} {{ transaction.destination.get().currency.get().code }}</td>
                     <td>{{ transaction.user.get().last_name }} {{ transaction.user.get().first_name }}</td>
+                    <td>{{ transaction.employe.get().last_name }} {{ transaction.employe.get().first_name }}</td>
+                    <td><a href="{{ url_for('print_receipt', transaction_id=transaction.key.id()) }}?admin=1" target="_blank" class="btn btn-danger btn-xs">Print</a></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
 </div>
+{% endif %}
 <div class="modal-footer bg-info">
     <form class="form-horizontal" id="formulaires">
-        {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
+        {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) and not received %}
             <div class="col-lg-6">
                     <div class="form-group text-left" id="form-input">
                         <label for="amount_received" class="col-sm-6 control-label">Amount received ({{ agency_get_id.destination.get().currency.get().code }}) :</label>
@@ -45,25 +76,36 @@
                         </div>
                     </div>
             </div>
-            <div class="col-lg-3">
-                    <div class="form-group text-left" id="form-input">
+            <div class="col-lg-4">
+                    <div class="form-group text-left" id="form-select">
                         <div class="col-sm-12">
-                          <input type="text" class="form-control" id="amount_received" name="amount">
-                          <span class="help-block hidden text-danger" id="help-error">Amount required or the data is not numeric and greater than zero</span>
+                            <select name="employe" id="employe" class="form-control g-select" required="required">
+                                    <option value="">Select manager</option>
+                                    {% for user in user_manager %}
+                                        {% if user.has_roles('manager_agency') %}
+                                            <option value="{{ user.key.id() }}">{{ user.last_name }} {{ user.first_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                            </select>
+                        <span class="help-block hidden text-danger" id="help-error-employe">Name of the user manager is required</span>
                         </div>
                     </div>
             </div>
-            <div class="col-lg-3"></div>
+            <div class="col-lg-2"></div>
         {% endif %}
+        <div class="col-lg-12">
+            <button type="button" class="btn" {% if received %} onclick="window.location.replace(window.location.origin+'{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}')" {% else %} data-dismiss="modal" {% endif %}>Close</button>
+            {% if received %}
+                <a href="{{ url_for('print_receipt', transaction_id=parent_transaction.id()) }}?admin=1" target="_blank" class="btn btn-danger">Print receipt</a>
+            {% endif %}
+            {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) and not received %}
+                <button type="submit" class="btn btn-primary" id="submit">Valid payment</button>
+            {% endif %}
+        </div>
     </form>
-    <div class="col-lg-12">
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
-        {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
-            <button type="button" class="btn btn-primary" id="submit">Valid payment</button>
-        {% endif %}
-    </div>
+
 </div>
-{% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) %}
+{% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) and not received %}
 <!-- Modal -->
     <div class="modal fade modal2" id="modal2" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -71,6 +113,7 @@
             <div class="modal-footer">
                 <div class="col-lg-8 text-danger text-left" style="padding: 7px;">
                     <strong>Do you confirm receiving: <span id="amr"></span> {{ agency_get_id.destination.get().currency.get().code }}</strong>
+
                 </div>
                 <div class="col-lg-4">
                     <button type="button" class="btn btn-success" id="confirm" data-loading-text="Waiting...">Confirm</button>
@@ -87,12 +130,13 @@
 <script>
     $('#dataTable1').dataTable({
         "paging": true,
-        "bFilter": false,
+        "bFilter": true,
         'aoColumnDefs': [
             {'bSortable': false, 'aTargets': ['nosort']},
             {'bSearchable': false, "aTargets": ['nosort']}
         ]
     });
+
     {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true)%}
 
         $('#amount_received').autoNumeric("init",{
@@ -112,17 +156,35 @@
 
                 var amount_received = Math.floor(amount);
 
-                if(amount_received != "" && $.isNumeric(amount_received) && amount_received > 0){
+                var employe = $('#employe').val();
+
+                if(amount_received != "" && $.isNumeric(amount_received) && amount_received > 0 && employe != ""){
                     $('#modal2').attr({style:'display:block;padding-right: 17px;background-color: rgba(255,255,255,0.5);padding-top: 275px;'}).addClass('in');
                     $('.modal-backdrop').after('<div class="modal-backdrop fade in"></div>');
                     $(this).addClass('disabled');
                     $('#help-error').addClass('hidden');
+                    $('#help-error-employe').addClass('hidden');
                     $('#form-input').removeClass('has-error');
+                    $('#form-select').removeClass('has-error');
                     $('#amr').text($('#amount_received').val());
 
                 }else{
-                    $('#help-error').removeClass('hidden');
-                    $('#form-input').addClass('has-error');
+                    if(amount_received == "") {
+                        $('#help-error').removeClass('hidden');
+                        $('#form-input').addClass('has-error');
+                        if(employe != ""){
+                            $('#form-select').removeClass('has-error');
+                            $('#help-error-employe').addClass('hidden');
+                        }
+                    }
+                    if(employe == ""){
+                        $('#form-select').addClass('has-error');
+                        $('#help-error-employe').removeClass('hidden');
+                        if(amount_received != ""){
+                            $('#help-error').addClass('hidden');
+                            $('#form-input').removeClass('has-error');
+                        }
+                    }
                 }
         });
 
@@ -155,7 +217,9 @@
                 success: function(data) {
                     btn.addClass('disabled');
                     btn.html('<i class="glyphicon glyphicon-ok"></i> Success');
-                    window.location.replace(window.location.origin+"{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}").delay(2000);
+                    $('#CloseModal2').trigger('click');
+                    $('#myModal .modal-content').html(data);
+{#                    window.location.replace(window.location.origin+"{{ url_for('Transaction_Agency', agency_id=agency_get_id.key.id() ) }}").delay(2000);#}
                 }
             });
         });
