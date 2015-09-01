@@ -56,7 +56,7 @@
                                 <tbody>
                                 {% set num = 1 %}
                                     {% for ticket in all_ticket %}
-                                        <tr id="{{ ticket.key.id() }}" {% if not ticket.is_boarding and ticket.generate_boarding %} class="ValidTicket info" {% endif %}>
+                                        <tr id="{{ ticket.key.id() }}" {% if not ticket.is_boarding and ticket.generate_boarding and search %} class="ValidTicket info" {% endif %}>
                                             {% if printer %}
                                                 <td>{{ num }}</td>
                                             {% endif %}
@@ -179,7 +179,8 @@
         $('body').on('click', ".ValidTicket", function(e){
                 e.preventDefault();
                 var _id = $(this).attr("id");
-                var url_modal = "{{ url_for('ticket_information') }}"+_id;
+                var _id_departure = {{ departure_id }};
+                var url_modal = "{{ url_for('ticket_information') }}"+_id+"/"+_id_departure;
                 $('#myModal').modal({
                      show: true,
                      backdrop:"static"

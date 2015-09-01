@@ -62,12 +62,23 @@
                                         </td>
                                         <td>{{ type.price|format_price() }} {{ type.currency.get().code }}</td>
                                         <td>
+
                                             <a href="{{ url_for('TicketType_Edit', tickettype_id=type.key.id()) }}" class="btn btn-link  btn-xs">Edit</a>
+
                                             {% if type.active %}
                                                 <button  class="btn btn-danger btn-xs verified-disabled" id="{{ type.key.id() }}">Disable</button>
                                             {% else %}
-                                                <a href="{{ url_for('Active_tickettype', tickettype_id=type.key.id()) }}"  class="btn  btn-success btn-xs">Activate</a>
-                                                <a href="{{ url_for('delete_tickettype', tickettype_id=type.key.id()) }}" class="btn btn-link btn-xs">Delete</a>
+                                                <div class="btn-group">
+                                                  <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
+                                                  </button>
+                                                  <ul class="dropdown-menu" role="menu">
+                                                    <li><a href="{{ url_for('Active_tickettype', tickettype_id=type.key.id()) }}"  class="btn  btn-success btn-xs">Activate</a></li>
+                                                    <li><a href="{{ url_for('delete_tickettype', tickettype_id=type.key.id()) }}" class="btn btn-link btn-xs">Delete</a></li>
+
+
+                                                  </ul>
+                                                </div>
                                             {% endif %}
                                         </td>
                                     </tr>

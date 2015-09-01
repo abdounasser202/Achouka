@@ -321,6 +321,7 @@ def Departure_details(departure_id):
     all_ticket = TicketModel.query(
         TicketModel.departure == departure_get.key
     )
+    search = False
     printer = False
     if request.args.get('printer'):
         printer = True
@@ -355,7 +356,7 @@ def search_customer_to_board(departure_id):
         TicketPoly.is_boarding == False,
         TicketPoly.departure == departure_get.key
     )
-
+    search = True
     all_ticket = []
     for ticket in ticket_sold:
         find_ticket_sold = function.find(str(ticket.key.id())+" ", str(number_ticket))
@@ -365,11 +366,11 @@ def search_customer_to_board(departure_id):
     return render_template('/departure/list_ticket_found_unboard.html', **locals())
 
 
-@app.route('/ticket_information/<int:ticket_id>')
+@app.route('/ticket_information/<int:ticket_id>/<int:departure_id>')
 @app.route('/ticket_information/')
 @login_required
 @roles_required(('super_admin', 'manager_agency'))
-def ticket_information(ticket_id=None):
+def ticket_information(ticket_id=None, departure_id=None):
     from ..ticket.models_ticket import TicketPoly
 
     ticket = TicketPoly.get_by_id(ticket_id)
@@ -382,3 +383,16 @@ def ticket_information(ticket_id=None):
         close = True
 
     return render_template('/departure/ticket_information_validation.html', **locals())
+
+@app.route('/reset_table_ticket/<int:departure_id>')
+def reset_table_ticket(departure_id):
+    from ..ticket.models_ticket import TicketPoly
+
+    departure_get = DepartureModel.get_by_id(departure_id)
+
+    all_ticket = TicketPoly.query(
+        TicketPoly.departure == departure_get.key
+    )
+
+    search = False
+    return render_template('/departure/list_ticket_found_unboard.html', **locals())

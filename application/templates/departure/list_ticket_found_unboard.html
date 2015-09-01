@@ -10,7 +10,7 @@
     </thead>
     <tbody>
         {% for ticket in all_ticket %}
-            <tr>
+            <tr id="{{ ticket.key.id() }}" {% if not ticket.is_boarding and ticket.generate_boarding and search %} class="ValidTicket info" {% endif %}>
                 <td>{{ ticket.key.id() }}</td>
                 <td>{{ ticket.class_name.get().name }}</td>
                 <td>
