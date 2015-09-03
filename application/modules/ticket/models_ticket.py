@@ -46,15 +46,25 @@ class TicketPoly(polymodel.PolyModel):
     def make_to_dict_poly(self):
         to_dict = {}
         to_dict['ticket_allocated_id'] = self.key.id()
-        to_dict['sellpriceAg'] = self.sellpriceAg
-        to_dict['sellpriceAgCurrency'] = self.sellpriceAgCurrency.id()
+        if self.sellpriceAgCurrency:
+            to_dict['sellpriceAgCurrency'] = self.sellpriceAgCurrency.id()
+            to_dict['sellpriceAg'] = self.sellpriceAg
 
         to_dict['type_name'] = self.type_name.id()
         to_dict['class_name'] = self.class_name.id()
-        to_dict['journey_name'] = self.journey_name.id()
-        to_dict['travel_ticket'] = self.travel_ticket.id()
 
-        to_dict['agency'] = self.agency.id()
+        to_dict['journey_name'] = None
+        if self.journey_name:
+            to_dict['journey_name'] = self.journey_name.id()
+
+        to_dict['travel_ticket'] = None
+        if self.travel_ticket:
+            to_dict['travel_ticket'] = self.travel_ticket.id()
+
+        to_dict['agency'] = None
+        if self.agency:
+            to_dict['agency'] = self.agency.id()
+
         to_dict['is_prepayment'] = self.is_prepayment
         to_dict['statusValid'] = self.statusValid
         to_dict['is_return'] = self.is_return
@@ -75,10 +85,10 @@ class TicketPoly(polymodel.PolyModel):
             to_dict['ticket_seller'] = self.ticket_seller.id()
 
         to_dict['date_reservation'] = str(self.date_reservation)
-        to_dict['sellprice'] = self.sellprice
 
         if self.sellpriceCurrency:
             to_dict['sellpriceCurrency'] = self.sellpriceCurrency.id()
+            to_dict['sellprice'] = self.sellprice
 
         return to_dict
 
