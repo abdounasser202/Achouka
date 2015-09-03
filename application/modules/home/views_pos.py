@@ -79,6 +79,12 @@ def reset_remaining_ticket():
 def search_customer_pos():
     from ..departure.models_departure import DepartureModel
 
+    child = False
+    if request.args.get('child'):
+        child = True
+        parent_ticket = request.args.get('parent_ticket')
+
+
     current_departure = None
     if request.form['current_departure']:
         current_departure = DepartureModel.get_by_id(int(request.form['current_departure']))

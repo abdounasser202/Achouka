@@ -32,7 +32,7 @@
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
                 </div>
-                
+
                 <div class="form-group {% if form.passport_number.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.passport_number.label }} :</label>
                     {{ form.passport_number(class_='form-control', id="passport")|safe }}
@@ -40,7 +40,7 @@
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
                 </div>
-                
+
                 <div class="form-group {% if form.nic_number.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.nic_number.label }} :</label>
                     {{ form.nic_number(class_='form-control', id="nic")|safe }}
@@ -48,7 +48,7 @@
                         <span class="help-block text-danger">{{ message }}</span>
                       {% endfor %}
                 </div>
-                
+
                 <div class="form-group {% if form.email.errors %} has-error {% endif %} has-feedback">
                     <label>{{ form.email.label }} :</label>
                     {{ form.email(class_='form-control')|safe }}
@@ -101,75 +101,93 @@
               <div class="panel-body text-center">
                   <div class="alert alert-danger hidden" id="alert"> </div>
                   <div class="row">
-                  {% if not child %}
-                      {% for type_name in ticket_type_name %}
-                          {% if not type_name.special and not type_name.is_child %}
-                              <div class="col-lg-6">
-                                    <div class="radio">
-                                      <label>
-                                        <input type="radio" name="type_name" class="TicketTypeName" value="{{ type_name.key.id() }}" {% if type_name.default or type_name.key.id() == form.type_name.data|int %} checked {% endif %}>
-                                        {{ type_name.name }}
-                                      </label>
-                                    </div>
-                              </div>
-                          {% endif %}
-                      {% endfor %}
-                      <div class="col-lg-12">
-                            <div class="radio">
-                                <div class="">
-                                    <div class="col-lg-1">
-                                        {% for type_name in ticket_type_name %}
-                                              {% if type_name.special %}
-                                                  {% if form.type_name.data|int == type_name.key.id() %}
-                                                        {% set checked = True %}
+                      {% if not child %}
+                          {% for type_name in ticket_type_name %}
+                              {% if not type_name.special and not type_name.is_child %}
+                                  <div class="col-lg-6">
+                                        <div class="radio">
+                                          <label>
+                                            <input type="radio" name="type_name" class="TicketTypeName" value="{{ type_name.key.id() }}" {% if type_name.default or type_name.key.id() == form.type_name.data|int %} checked {% endif %}>
+                                            {{ type_name.name }}
+                                          </label>
+                                        </div>
+                                  </div>
+                              {% endif %}
+                          {% endfor %}
+                          <div class="col-lg-12">
+                                <div class="radio">
+                                    <div class="">
+                                        <div class="col-lg-1">
+                                            {% for type_name in ticket_type_name %}
+                                                  {% if type_name.special %}
+                                                      {% if form.type_name.data|int == type_name.key.id() %}
+                                                            {% set checked = True %}
+                                                      {% endif %}
                                                   {% endif %}
-                                              {% endif %}
-                                          {% endfor %}
-                                        <label>
-                                            <input type="radio" name="type_name" value="" class="CheckBox-Select" {% if checked %} checked {% endif %}>
-                                        </label>
-                                    </div>
-                                    <div class="col-lg-10">
-                                      <select name="type_name_select" id="CheckBox-Select" class="form-control"  disabled="disabled">
-                                          {% for type_name in ticket_type_name %}
-                                              {% if type_name.special and not type_name.is_child %}
-                                                  <option value="{{ type_name.key.id() }}" {% if form.type_name.data|int == type_name.key.id() %} selected {% endif %}>{{ type_name.name }}</option>
+                                              {% endfor %}
+                                            <label>
+                                                <input type="radio" name="type_name" value="" class="CheckBox-Select" {% if checked %} checked {% endif %}>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-10">
+                                          <select name="type_name_select" id="CheckBox-Select" class="form-control"  disabled="disabled">
+                                              {% for type_name in ticket_type_name %}
+                                                  {% if type_name.special and not type_name.is_child %}
+                                                      <option value="{{ type_name.key.id() }}" {% if form.type_name.data|int == type_name.key.id() %} selected {% endif %}>{{ type_name.name }}</option>
+                                                  {% else %}
+                                                      <option value="">No Special</option>
+                                                  {% endif %}
                                               {% else %}
-                                                <option value="">No Special</option>
-                                              {% endif %}
-                                          {% else %}
-                                              <option value="">No Special</option>
-                                          {% endfor %}
-                                      </select>
+                                                  <option value="">No Special</option>
+                                              {% endfor %}
+                                          </select>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                      </div>
-                  {% else %}
-                    {% for type_name in ticket_type_name %}
-                              <div class="col-lg-6">
-                                    <div class="radio">
-                                      <label>
-                                        <input type="radio" name="type_name" class="TicketTypeName" value="{{ type_name.key.id() }}"  checked >
-                                        {{ type_name.name }}
-                                      </label>
+                          </div>
+                      {% else %}
+                        {% for type_name in ticket_type_name %}
+                                  <div class="col-lg-6">
+                                        <div class="radio">
+                                          <label>
+                                            <input type="radio" name="type_name" class="TicketTypeName" value="{{ type_name.key.id() }}"  checked >
+                                            {{ type_name.name }}
+                                          </label>
+                                        </div>
+                                  </div>
+                          {% endfor %}
+                          <div class="col-lg-12 hidden">
+                                <div class="radio">
+                                    <div class="">
+                                        <div class="col-lg-1">
+                                            <label>
+                                                <input type="radio" name="type_name" value="" class="CheckBox-Select" {% if checked %} checked {% endif %}>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-10">
+                                          <select name="type_name_select" id="CheckBox-Select" class="form-control"  disabled="disabled">
+                                              <option value="">No Special</option>
+                                          </select>
+                                        </div>
                                     </div>
-                              </div>
-                      {% endfor %}
-                  {% endif %}
+                                </div>
+                          </div>
+                      {% endif %}
                   </div>
 
                   <hr/>
                     <div class="row">
+                        {% set num_class = 1 %}
                         {% for class in class_ticket %}
                                   <div class="col-lg-6">
                                         <div class="radio">
                                           <label>
-                                            <input type="radio" name="class_name" class="ClassTicket" value="{{ class.key.id() }}" {% if class.default or form.class_name.data|int == class.key.id() %} checked {% endif %}>
+                                            <input type="radio" name="class_name" class="ClassTicket" value="{{ class.key.id() }}" {% if class.default or form.class_name.data|int == class.key.id() or num_class == 1 %} checked {% endif %}>
                                             {{ class.name }}
                                           </label>
                                         </div>
                                   </div>
+                            {% set num_class = num_class + 1 %}
                         {% endfor %}
                     </div>
                   <hr/>
@@ -218,7 +236,6 @@
 
                       </div>
                     </div>
-
         </div>
                 <div class="col-lg-12">
                     <div class="ticket_background clearfix">
@@ -287,25 +304,6 @@
     </div>
   </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="myModal_Reservation" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header bg-warning">
-            <h4 class="modal-title">WARNING</h4>
-        </div>
-        <div class="modal-body text-center">
-            <h2>This journey accept reservation only</h2>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-succes" data-dismiss="modal">Accept</button>
-            <a href="{{ url_for('Pos') }}" class="btn btn-danger">Refuse</a>
-        </div>
-    </div>
-  </div>
-</div>
-
 <script>
     $('#datepickerbirth').inputmask("date", { placeholder:"__/__/____"});
 
@@ -320,13 +318,6 @@
             $('#ScreenCreateTicket').addClass('hidden').html('');
     });
 
-    /* affichage de l'alerte danger */
-    {% if warning %}
-        $('#myModal_Reservation').modal({
-             show: true,
-             backdrop:"static"
-        });
-    {% endif %}
 
     /*---------------------------------
 
@@ -461,20 +452,20 @@
             contentType: 'application/json;charset=UTF-8',
             dataType: "json",
             success: function(data) {
-                if(data['statut'] == 'OK'){
+                if(data['statut'] === 'OK'){
                     $('#TicketPrice').text(data['price']);
                     $('#TicketCurrency').text(data['currency']);
                 }else{
                     $('#TicketPrice').text(data['value']);
                     $('#TicketCurrency').text('');
                 }
-                if(data['haveticket'] == 'true'){
-                    $('#alert').html('');
-                    $('#alert').addClass('hidden');
+                if(data['haveticket'] === "true"){
+                    $("#alert").html('');
+                    $("#alert").addClass('hidden');
                     $('#submit').removeAttr('disabled');
                 }else{
-                    $('#alert').removeClass('hidden');
-                    $('#alert').text('You don\'t have this ticket type. Request purchase from manager');
+                    $("#alert").removeClass('hidden');
+                    $("#alert").text('You don\'t have this ticket type. Request purchase from manager');
                     $('#submit').attr({disabled:'disabled'});
                 }
 
