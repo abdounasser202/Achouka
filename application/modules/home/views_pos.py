@@ -31,7 +31,7 @@ def Pos(departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -254,7 +254,7 @@ def create_customer_and_ticket_return(ticket_id, departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -449,7 +449,7 @@ def create_customer_and_ticket_pos(customer_id=None, departure_id=None):
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )
@@ -1034,7 +1034,7 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
     departure = DepartureModel.query(
         DepartureModel.departure_date >= datetime.date.today()
     ).order(
-        -DepartureModel.departure_date,
+        DepartureModel.departure_date,
         DepartureModel.schedule,
         DepartureModel.time_delay
     )

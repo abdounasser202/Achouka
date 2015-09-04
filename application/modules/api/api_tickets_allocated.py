@@ -54,7 +54,7 @@ def get_doublon_ticket_return_sale(token):
     from ..travel.models_travel import TravelModel
 
     travel_destination = TravelModel.query(
-        TravelModel.destination_check == get_agency.destination.get().key
+        TravelModel.destination_check == get_agency.destination
     )
 
     data = {'status': 200, 'tickets_return_sale': []}
@@ -66,7 +66,7 @@ def get_doublon_ticket_return_sale(token):
                 TicketModel.is_return == True,
                 TicketModel.selling == True,
                 TicketModel.is_boarding == True,
-                TicketModel.date_reservation >= date
+                TicketModel.date_reservation <= date
             )
         else:
             ticket_for_travel = TicketModel.query(
@@ -92,7 +92,6 @@ def ticket_local_sale_put(token):
 
     # recuperation de nos valeurs envoye par POST
     ticket_sale = request.form.getlist('ticket_sale')
-    transaction = request.form.getlist('transaction')
     # convertion du tableau en Unicode
 
     for ticket_sale in ticket_sale:
@@ -146,14 +145,19 @@ def ticket_local_sale_put(token):
             old_data.is_return = data_get['is_return']
 
             if data_get['is_return']:
-                duplicate_ticket = TicketModel()
-                duplicate_ticket.type_name = old_data.type_name
-                duplicate_ticket.class_name = old_data.class_name
-                duplicate_ticket.is_count = False
-                duplicate_ticket.datecreate = function.datetime_convert(date_auto_nows)
-                duplicate_ticket.customer = customer_ticket.key
-                duplicate_ticket.parent_return = old_data.key
-                duplicate_ticket.put()
+                duplicate_exist = TicketModel.query(
+                    TicketModel.parent_return == old_data.key
+                ).count()
+
+                if not duplicate_exist:
+                    duplicate_ticket = TicketModel()
+                    duplicate_ticket.type_name = old_data.type_name
+                    duplicate_ticket.class_name = old_data.class_name
+                    duplicate_ticket.is_count = False
+                    duplicate_ticket.datecreate = function.datetime_convert(date_auto_nows)
+                    duplicate_ticket.customer = customer_ticket.key
+                    duplicate_ticket.parent_return = old_data.key
+                    duplicate_ticket.put()
 
             if data_get['child_upgrade']:
                 old_data.is_upgrade = data_get['is_upgrade']
@@ -164,36 +168,61 @@ def ticket_local_sale_put(token):
                 upgrade_parent.statusValid = False
                 upgrade_parent.put()
 
+                from ..transaction.models_transaction import ExpensePaymentTransactionModel, TransactionModel
+                transaction = TransactionModel()
+                transaction.reason = "Upgrade ticket"
+                transaction.amount = old_data.sellprice
+                transaction.is_payment = False
+                transaction.agency = old_data.agency
+                transaction.destination = old_data.departure.destination.get().destination_start
+                transaction.transaction_date = old_data.date_reservation
+                transaction.user = old_data.ticket_seller
+
+                transaction_id = transaction.put()
+
+                link_transaction = ExpensePaymentTransactionModel()
+                link_transaction.transaction = transaction_id
+                link_transaction.ticket = old_data.key
+                link_transaction.amount = old_data.sellprice
+                link_transaction.put()
+
             if data_get['parent_return']:
                 parent_return = TicketModel.get_by_id(data_get['parent_return'])
                 parent_return.statusValid = False
                 parent_return.put()
 
-            if transaction:
-                from ..transaction.models_transaction import ExpensePaymentTransactionModel,TransactionModel
+            if not data_get['child_upgrade']:
 
-                for transaction in data_get['transaction']:
-                    new_transaction = TransactionModel()
-                    new_transaction.agency = agency_ticket.key
-                    new_transaction.amount = transaction['amount']
-                    new_transaction.destination = travel_ticket.destination_start
-                    new_transaction.is_payment = transaction['is_payment']
-                    new_transaction.reason = transaction['reason']
-                    new_transaction.transaction_date = function.datetime_convert(data_get['date_reservation'])
-                    new_transaction.user = user_seller.key
-                    put_transaction = new_transaction.put()
+                from ..transaction.models_transaction import ExpensePaymentTransactionModel, TransactionModel
+                transaction_expense_payment_exit = ExpensePaymentTransactionModel.query(
+                    ExpensePaymentTransactionModel.ticket == old_data.key,
+                    ExpensePaymentTransactionModel.is_difference == True
+                ).count()
 
-                    new_transaction_line = ExpensePaymentTransactionModel()
-                    new_transaction_line.amount = transaction['amount']
-                    new_transaction_line.is_difference = True
-                    new_transaction_line.ticket = old_data.key
-                    new_transaction_line.transaction = put_transaction
-                    new_transaction_line.put()
+                last_transaction = None
+                if not transaction_expense_payment_exit and data_get['transaction_different']:
+                    transaction = TransactionModel()
+                    transaction.agency = old_data.agency
+                    transaction.amount = data_get['transaction_different']
+                    transaction.destination = old_data.travel_ticket.get().destination_start
+                    transaction.is_payment = False
+                    transaction.user = old_data.ticket_seller
+                    transaction.transaction_date = old_data.date_reservation
+                    transaction.reason = " Additional cost to the ticket price difference"
+                    last_transaction = transaction.put()
+
+                    if last_transaction:
+                        link_transaction = ExpensePaymentTransactionModel()
+                        link_transaction.amount = data_get['transaction_different']
+                        link_transaction = last_transaction
+                        link_transaction.ticket = old_data.key
+                        link_transaction.is_difference = True
+                        link_transaction.put()
 
             from ..question.models_question import QuestionModel
             for question in data_get['ticket_question']:
                 question_id = QuestionModel.get_by_id(question['question_id'])
-                if question_id:
+                if not question_id:
                     answer = TicketQuestion()
                     answer.ticket_id = old_data.key
                     answer.question_id = question_id.key

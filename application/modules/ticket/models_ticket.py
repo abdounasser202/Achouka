@@ -90,6 +90,14 @@ class TicketPoly(polymodel.PolyModel):
             to_dict['sellpriceCurrency'] = self.sellpriceCurrency.id()
             to_dict['sellprice'] = self.sellprice
 
+
+        to_dict['child_return'] = []
+        child = TicketModel.query(
+            TicketModel.parent_return == self.key
+        )
+        for child in child:
+            to_dict['child_return'].append(child.make_to_dict())
+
         return to_dict
 
 
@@ -108,13 +116,6 @@ class TicketModel(TicketPoly):
 
     def make_to_dict(self):
         to_dict = self.make_to_dict_poly()
-
-        to_dict['child_return'] = []
-        child = TicketModel.query(
-            TicketModel.parent_return == self.key
-        )
-        for child in child:
-            to_dict['child_return'].append(child.make_to_dict())
 
         to_dict['parent_child'] = None
         if self.parent_child:
