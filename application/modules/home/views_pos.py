@@ -162,6 +162,7 @@ def Ticket_found(ticket_id):
 
     return render_template('/pos/ticket_found.html', **locals())
 
+
 @app.route('/find_parent_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['POST'])
 @app.route('/find_parent_ticket_return', methods=['POST'])
 def find_parent_ticket_return(ticket_id=None, departure_id=None):
@@ -170,6 +171,8 @@ def find_parent_ticket_return(ticket_id=None, departure_id=None):
     departure_get = DepartureModel.get_by_id(departure_id)
 
     number_ticket = request.form['number_tickets']
+
+    upgrade = request.args.get('upgrade')
 
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
@@ -197,6 +200,7 @@ def find_parent_ticket_return(ticket_id=None, departure_id=None):
 @app.route('/select_parent_ticket/<int:ticket_id>')
 def select_parent_ticket(ticket_id, departure_id):
 
+    upgrade = request.args.get('upgrade')
     return render_template('/pos/select_parent_ticket.html', **locals())
 
 @app.route('/create_customer_and_ticket_return/<int:ticket_id>/<int:departure_id>', methods=['GET', 'POST'])
@@ -945,7 +949,8 @@ def create_customer_and_ticket_upgrade(ticket_id, departure_id=None):
     ticket_get = TicketModel.get_by_id(ticket_id)
 
     departure_get = DepartureModel.get_by_id(departure_id)
-
+    upgrade = request.args.get('upgrade')
+    parent_ticket = request.args.get("parent_ticket")
 
     ticket_type_query = TicketTypeModel.query(
         TicketTypeModel.journey_name != ticket_get.journey_name,
@@ -965,7 +970,7 @@ def create_customer_and_ticket_upgrade_2(departure_id, ticket_id, ticket_type_id
     from ..departure.models_departure import DepartureModel
 
     departure_get = DepartureModel.get_by_id(departure_id)
-
+    upgrade = request.args.get('upgrade')
 
     ticket_type_get = TicketTypeModel.get_by_id(ticket_type_id)
 
@@ -1148,6 +1153,10 @@ def create_upgrade_ticket(departure_id, ticket_id, ticket_type_same_id, ticket_t
         child_ticket.departure = departure_current.key
 
         child_ticket.parent_return = None
+
+        if request.args.get("parent_ticket"):
+            ticket_parent = TicketModel.get_by_id(int(request.args.get("parent_ticket")))
+            child_ticket.parent_child = ticket_parent.key
 
         # Modification du ticket enfant
         ticket_update = child_ticket.put()
