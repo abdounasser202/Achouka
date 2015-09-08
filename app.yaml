@@ -41,3 +41,6 @@ handlers:
 
 - url: .*
   script: run.application.app
+
+- url: /.*
+  script: run.application.app

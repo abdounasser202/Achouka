@@ -88,6 +88,13 @@ indexes:
 
 - kind: TicketPoly
   properties:
+  - name: class
+  - name: selling
+  - name: statusValid
+  - name: date_update
+
+- kind: TicketPoly
+  properties:
   - name: departure
   - name: generate_boarding
   - name: is_boarding

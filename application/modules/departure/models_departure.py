@@ -11,7 +11,7 @@ class DepartureModel(ndb.Model):
     time_delay = ndb.TimeProperty()
     destination = ndb.KeyProperty(kind=TravelModel)
     vessel = ndb.KeyProperty(kind=VesselModel)
-    date_update = ndb.DateProperty(auto_now=True)
+    date_update = ndb.DateTimeProperty(auto_now=True)
 
     def make_to_dict(self):
         to_dict = {}

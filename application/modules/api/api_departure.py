@@ -13,7 +13,7 @@ cache = Cache(app)
 def get_departure_api(token):
     
     try:
-        date = function.date_convert(request.args.get('last_update'))
+        date = function.datetime_convert(request.args.get('last_update'))
     except:
         date = None
 

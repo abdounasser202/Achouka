@@ -43,7 +43,7 @@ def get_ticket_allocated(token):
 def get_doublon_ticket_return_sale(token):
 
     try:
-        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
+        date = function.datetime_convert(request.args.get('last_update'))
     except:
         date = None
 
@@ -66,7 +66,7 @@ def get_doublon_ticket_return_sale(token):
                 TicketModel.is_return == True,
                 TicketModel.selling == True,
                 TicketModel.is_boarding == True,
-                TicketModel.date_reservation <= date
+                TicketModel.date_reservation >= date
             )
         else:
             ticket_for_travel = TicketModel.query(
@@ -240,9 +240,8 @@ def ticket_local_sale_put(token):
 
 @app.route('/get_ticket_online/get/<token>')
 def get_ticket_online(token):
-
     try:
-        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
+        date = function.datetime_convert(request.args.get('last_update'))
     except:
         date = None
 
@@ -252,7 +251,7 @@ def get_ticket_online(token):
 
     if date:
         ticket_sale = TicketModel.query(
-            TicketModel.date_reservation >= date,
+            TicketModel.date_update >= date,
             TicketModel.selling == True,
             TicketModel.is_return == False,
             TicketModel.is_boarding == False,
@@ -271,69 +270,3 @@ def get_ticket_online(token):
     resp = jsonify(data)
     return resp
 
-
-@app.route('/ticket_disable_api/get/<token>', methods=['POST'])
-def ticket_disable_api(token):
-    import unicodedata, ast
-
-    # recuperation de nos valeurs envoye par POST
-    ticket_valis = request.form.getlist('ticket_status')
-
-    # convertion du tableau en Unicode
-    for ticket_valis in ticket_valis:
-        unicodedata.normalize('NFKD', ticket_valis).encode('ascii', 'ignore')
-
-    # transformation de notre unicode en dictionnaire
-    ticket_valid = ast.literal_eval(ticket_valis)
-
-    get_agency = AgencyModel.get_by_key(token)
-    if not get_agency:
-        return not_found(message="Your token is not correct")
-
-    save = None
-    count = 0
-    for data_get in ticket_valid:
-        old_data = TicketModel.get_by_id(int(data_get))
-        if old_data:
-            old_data.statusValid = False
-            save = old_data.put()
-            count += 1
-
-    if save:
-        return not_found(error=200, message="You have send "+str(count)+" tickets to disable in online apps")
-    else:
-        return not_found(error=404, message="You have send "+str(count)+" ticket to disable in online apps")
-
-
-@app.route('/get_ticket_return_foreign_disabled/get/<token>')
-def get_ticket_return_foreign_disabled(token):
-
-    try:
-        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.min.time())
-    except:
-        date = None
-
-    get_agency = AgencyModel.get_by_key(token)
-    if not get_agency:
-        return not_found(message="Your token is not correct")
-
-    if date:
-        ticket_sale = TicketModel.query(
-            TicketModel.selling == True,
-            TicketModel.is_return == True,
-            TicketModel.statusValid == False,
-            TicketModel.date_update >= date
-        )
-    else:
-        ticket_sale = TicketModel.query(
-            TicketModel.selling == True,
-            TicketModel.is_return == True,
-            TicketModel.statusValid == False
-        )
-
-    data = {'status': 200, 'tickets_return_disabled': []}
-    for ticket in ticket_sale:
-        if ticket.travel.destination_check == get_agency.destination:
-            data['tickets_return_disabled'].append(ticket.key.id())
-    resp = jsonify(data)
-    return resp

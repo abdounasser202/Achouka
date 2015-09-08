@@ -10,7 +10,7 @@ cache = Cache(app)
 def get_customer_api(token):
 
     try:
-        date = datetime.datetime.combine(request.args.get('last_update'), datetime.datetime.now().time())
+        date = function.datetime_convert(request.args.get('last_update'))
     except:
         date = None
 
@@ -32,6 +32,7 @@ def get_customer_api(token):
     return resp
 
 
+@app.route('/customer/put', methods=['POST'])
 @app.route('/customer/put/<token>', methods=['POST'])
 def put_customer_api(token):
     import unicodedata, ast

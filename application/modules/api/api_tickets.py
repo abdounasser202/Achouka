@@ -33,3 +33,30 @@ def get_tickets_api(token):
         data['tickets'].append(tickets.make_to_dict())
     resp = jsonify(data)
     return resp
+
+
+@app.route('/send_change_status_ticket_api')
+def send_change_status_ticket_api():
+
+    from ..ticket.models_ticket import TicketModel
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    ticket_status = TicketModel.query(
+        TicketModel.statusValid == True,
+        TicketModel.selling == True
+    )
+
+    for ticket in ticket_status:
+        date_valid = ticket.date_reservation - function.datetime_convert(date_auto_nows)
+        if date_valid.days >= 30 and not ticket.is_return:
+            ticket.statusValid = False
+            ticket.put()
+
+        if date_valid.days >= 60 and ticket.is_return:
+            ticket.statusValid = False
+            ticket.put()
+
+    return "True"

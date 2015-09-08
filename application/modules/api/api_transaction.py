@@ -22,7 +22,7 @@ def get_transaction_api(token):
 
     if date:
         get_transaction = TransactionModel.query(
-            TransactionModel.transaction_date >= date,
+            TransactionModel.transaction_date <= date,
             TransactionModel.agency == get_agency.key
         )
     else:

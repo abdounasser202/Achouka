@@ -1,0 +1,4 @@
+cron:
+- description: Verification de la validite des tickets
+  url: /send_change_status_ticket_api
+  schedule: every 30 mins
