@@ -1,7 +1,7 @@
 __author__ = 'Vercossa'
 
 from api_function import *
-from ..ticket.models_ticket import TicketModel, AgencyModel, CurrencyModel, TravelModel, DepartureModel, UserModel, CustomerModel,\
+from ..ticket.models_ticket import TicketModel, TicketPoly, AgencyModel, CurrencyModel, TravelModel, DepartureModel, UserModel, CustomerModel,\
     TicketQuestion
 
 # Flask-Cache (configured to use App Engine Memcache API)
@@ -241,7 +241,7 @@ def ticket_local_sale_put(token):
 @app.route('/get_ticket_online/get/<token>')
 def get_ticket_online(token):
     try:
-        date = function.datetime_convert(request.args.get('last_update'))
+        date = datetime.datetime.combine(function.date_convert(request.args.get('last_update')), function.time_convert(request.args.get('time')))
     except:
         date = None
 
@@ -250,17 +250,13 @@ def get_ticket_online(token):
         return not_found(message="Your token is not correct")
 
     if date:
-        ticket_sale = TicketModel.query(
-            TicketModel.date_update >= date,
-            TicketModel.selling == True,
-            TicketModel.is_return == False,
-            TicketModel.is_boarding == False,
+        ticket_sale = TicketPoly.query(
+            TicketPoly.date_update >= date,
+            TicketPoly.selling == True,
         )
     else:
-        ticket_sale = TicketModel.query(
-            TicketModel.selling == True,
-            TicketModel.is_boarding == False,
-            TicketModel.is_return == False
+        ticket_sale = TicketPoly.query(
+            TicketPoly.selling == True
         )
 
     data = {'status': 200, 'tickets_sale': []}

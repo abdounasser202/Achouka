@@ -23,8 +23,10 @@ class DepartureModel(ndb.Model):
             to_dict['delay'] = True
         else:
             to_dict['delay'] = False
-        to_dict['departure_destination'] = self.destination.id()
-        to_dict['departure_vessel'] = self.vessel.id()
+        if self.destination:
+            to_dict['departure_destination'] = self.destination.id()
+        if self.vessel:
+            to_dict['departure_vessel'] = self.vessel.id()
         return to_dict
 
     def reserved(self):

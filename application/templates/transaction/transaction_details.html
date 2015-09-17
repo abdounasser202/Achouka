@@ -4,7 +4,7 @@
             <strong>AMOUNT : </strong> {{ current_transaction_get_id.amount|format_price() }} {{ current_transaction_get_id.destination.get().currency.get().code }}
         </div>
 
-        <h4 class="modal-title">Detail Transaction : {{ current_transaction_get_id.key.id() }}</h4>
+        <h4 class="modal-title">Transaction ID : {{ current_transaction_get_id.key.id() }}</h4>
 </div>
 
 <div class="modal-body scrollable-shadow" style="height: 500px; overflow-y: auto">

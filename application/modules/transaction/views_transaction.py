@@ -145,7 +145,7 @@ def Transaction_user(user_id=None):
         #Traitement de la transaction parente
 
         parent_transaction = TransactionModel()
-        parent_transaction.reason = "Ticket Sale"
+        parent_transaction.reason = "Ticket Sales"
         parent_transaction.amount = amount_to_save
         parent_transaction.pre_amount = user_get_id.escrow_amount(full=True)
         parent_transaction.agency = user_get_id.agency
@@ -368,7 +368,7 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
 
         #Traitement de la transaction parente
         parent_transaction = TransactionModel()
-        parent_transaction.reason = "Payment"
+        parent_transaction.reason = "Foreign Ticket Sales"
         parent_transaction.amount = amount_to_save
         parent_transaction.pre_amount = user_get_id.escrow_amount(True)
         parent_transaction.agency = user_get_id.agency
@@ -626,9 +626,11 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
             expense_amount += expense.amount
 
         # TOTAL RETENU
-        amount = entry_amount - expense_amount
+        amount_admin = entry_query - expense_amount
 
         amount_agency = entry_amount_agency - expense_amount
+
+        amount = amount_agency - amount_admin
 
     received = False
     if request.method == "POST":

@@ -1,7 +1,7 @@
 <div class="modal-header bg-primary">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <div class="pull-right text-right bg-info text-danger" style="margin-right:40px; margin-top: -6px; padding: 10px;">
-            <strong>AMOUNT : </strong> {% set price = amount*-1 %}{{ price|format_price() }} {{ destination_get_id.currency.get().code }}
+            <strong>AMOUNT : </strong> {% set price = amount %}{{ price|format_price() }} {{ destination_get_id.currency.get().code }}
 
         </div>
 

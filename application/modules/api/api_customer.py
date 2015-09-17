@@ -10,7 +10,7 @@ cache = Cache(app)
 def get_customer_api(token):
 
     try:
-        date = function.datetime_convert(request.args.get('last_update'))
+        date = datetime.datetime.combine(function.date_convert(request.args.get('last_update')), function.time_convert(request.args.get('time')))
     except:
         date = None
 
@@ -39,9 +39,11 @@ def put_customer_api(token):
 
     # recuperation de nos valeurs envoye par POST
     customer = request.form.getlist('customer')
+
     # convertion du tableau en Unicode
     for customer in customer:
         unicodedata.normalize('NFKD', customer).encode('ascii', 'ignore')
+
     #transformation de notre unicode en dictionnaire
     customers = ast.literal_eval(customer)
 

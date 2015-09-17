@@ -46,7 +46,7 @@
                                                 {% if current_user.key != user.user_id %}
                                                     {% if user.user_id.get().is_enabled %}
                                                         <a href="{{ url_for('activate_user_admin', user_id=user.user_id.get().key.id()) }}"
-                                                           class="btn btn-danger btn-xs">Disabled</a>
+                                                           class="btn btn-danger btn-xs">Disable</a>
                                                     {% else %}
                                                         <a href="{{ url_for('activate_user_admin', user_id=user.user_id.get().key.id()) }}"
                                                            class="btn btn-success btn-xs">Activate</a>

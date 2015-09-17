@@ -36,7 +36,6 @@ class AgencyModel(BaseModel):
         to_dict['agency_destination'] = self.destination.id()
         return to_dict
 
-
     def TicketCount(self):
         from ..ticket.models_ticket import TicketModel
 
@@ -114,6 +113,86 @@ class AgencyModel(BaseModel):
         escrow = entry_amount - expense_amount
 
         return escrow
+
+    # Difference de montant pour savoir combien, il y'a a verser et combien verse
+    def difference_amount(self):
+        difference = self.escrow_amount() - self.escrow_amount(True)
+        return difference
+
+    def difference_amount_foreign(self):
+        from ..transaction.models_transaction import TransactionModel
+
+        destination_transaction_query = TransactionModel.query(
+            TransactionModel.agency == self.key,
+            TransactionModel.destination != self.destination
+        )
+
+        destinations_table = []
+        for transaction in destination_transaction_query:
+
+            entry_query_manager = TransactionModel.query(
+                TransactionModel.is_payment == True,
+                TransactionModel.agency == self.key,
+                TransactionModel.transaction_admin == False,
+                TransactionModel.destination == transaction.destination
+            )
+
+            # SOMMES DES ENTRES
+            entry_amount_manger = 0
+            for entry in entry_query_manager:
+                entry_amount_manger += entry.amount
+
+
+            entry_query_admin = TransactionModel.query(
+                TransactionModel.is_payment == True,
+                TransactionModel.agency == self.key,
+                TransactionModel.transaction_admin == True,
+                TransactionModel.destination == transaction.destination
+            )
+
+            # SOMMES DES ENTRES
+            entry_amount_admin = 0
+            for entry in entry_query_admin:
+                entry_amount_admin += entry.amount
+
+
+            expense_query = TransactionModel.query(
+                TransactionModel.is_payment == False,
+                TransactionModel.agency == self.key,
+                TransactionModel.transaction_admin == False,
+                TransactionModel.destination == transaction.destination
+            )
+
+            # SOMMES DES SORTIES
+            expense_amount = 0
+            for expense in expense_query:
+                expense_amount += expense.amount
+
+            amount_admin = entry_amount_admin - expense_amount
+            amount_manager = entry_amount_manger - expense_amount
+
+            amount = amount_manager - amount_admin
+
+            trans_init = {}
+            trans_init['amount'] = amount
+            trans_init['destination'] = transaction.destination
+            trans_init['agency'] = transaction.agency
+
+            destinations_table.append(trans_init)
+
+        grouper = itemgetter("destination", "agency")
+
+        # REGROUPEMENT DES MONTANTS PAR DESTINATION
+        difference_amount_foreigns = []
+        for key, grp in groupby(sorted(destinations_table, key=grouper), grouper):
+            temp_dict = dict(zip(["destination", "agency"], key))
+            temp_dict['amount'] = 0
+            for item in grp:
+                temp_dict['amount'] = item['amount']
+            difference_amount_foreigns.append(temp_dict)
+
+        return difference_amount_foreigns
+
 
     # Montant des tickets etrangers (defaut POS, True = Agency)
     def escrow_amount_foreign(self, value=False):

@@ -132,11 +132,11 @@ def Vessel_Edit(vessel_id=None):
 
             if vessel_id:
                  activity.nature = 4
-                 flash(u' Vessel Update. ', 'success')
+                 flash(u' Vessel Updated. ', 'success')
 
             else:
                 activity.nature = 1
-                flash(u' Vessel Save. ', 'success')
+                flash(u' Vessel Saved. ', 'success')
 
             activity.put()
             return redirect(url_for('Vessel_Index'))

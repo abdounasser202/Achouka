@@ -2,7 +2,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <div class="pull-right text-right bg-info text-danger" style="margin-right:40px; margin-top: -6px; padding: 10px;">
             <strong>AMOUNT : </strong>
-            {{ (agency_get_id.escrow_amount(true)*-1)|format_price() }}
+            {{ (agency_get_id.difference_amount())|format_price() }}
             {{ agency_get_id.destination.get().currency.get().code }}
 
         </div>

@@ -31,7 +31,7 @@
                                             <table class="table table-hover" id="dataTableStat1">
                                                 <thead>
                                                 <tr>
-                                                    <th>Date</th>
+                                                    <th>Date and time</th>
                                                     <th>Transaction ID</th>
                                                     <th>Reason</th>
                                                     <th>Amount</th>
@@ -115,7 +115,35 @@
 
                             <div class="col-lg-4">
 
+                                <div class="well text-center text-danger">
+                                    Manager <small>Amount Payable </small>
+                                    <br/><br/>
+                                    <table class="table table-condensed">
+                                        <tbody>
+                                            <tr>
+                                                <td>LOCAL</td>
+                                                <td>
+                                                    {% set price = current_agency.difference_amount()  %}
+                                                    {{ price|format_price() }} {{ current_agency.destination.get().currency.get().code }}
+                                                </td>
+                                            </tr>
+                                            {% for destination in current_agency.difference_amount_foreign() %}
+                                                {% if destination['amount'] != 0  %}
+                                                    <tr>
+                                                        <td>{{ destination['destination'].get().name }}</td>
+                                                        <td>
+                                                            {% set price = destination['amount'] %}
+                                                            {{ price|format_price() }}
 
+                                                            {{ destination['destination'].get().currency.get().code }}
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr/>
                                 <div class="well text-center">
                                     POS <small>Escrow Amount </small>
                                     <br/><br/>

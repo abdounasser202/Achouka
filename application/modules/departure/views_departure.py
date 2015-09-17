@@ -302,7 +302,7 @@ def Time_Delay_Edit(departure_id):
         activity.last_value = "Add "+str(function.time_convert(request.form['time_delay']))+" to schedule time"
         activity.put()
         depart = departmod.put()
-        flash(u' Delay add successfully. ', 'success')
+        flash(u' Delay added successfully. ', 'success')
         return redirect(url_for('Departure_Index'))
     return render_template('/departure/edit-delay.html', **locals())
 

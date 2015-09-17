@@ -146,7 +146,7 @@ def Destination_Edit(destination_id=None):
                 activity.time = function.datetime_convert(date_auto_nows)
                 activity.put()
 
-                flash(u' Destination Update. ', 'success')
+                flash(u' Destination Updated. ', 'success')
                 return redirect(url_for('Destination_Index'))
 
             else:
@@ -167,10 +167,10 @@ def Destination_Edit(destination_id=None):
 
             if destination_id:
                 activity.nature = 4
-                flash(u' Destination Update. ', 'success')
+                flash(u' Destination Updated. ', 'success')
             else:
                 activity.nature = 1
-                flash(u' Destination Save. ', 'success')
+                flash(u' Destination Saved. ', 'success')
 
             activity.put()
             return redirect(url_for('Destination_Index'))

@@ -89,6 +89,29 @@ indexes:
 - kind: TicketPoly
   properties:
   - name: class
+  - name: is_boarding
+  - name: is_return
+  - name: selling
+  - name: date_update
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: is_boarding
+  - name: is_return
+  - name: selling
+  - name: travel_ticket
+  - name: date_reservation
+
+- kind: TicketPoly
+  properties:
+  - name: class
+  - name: selling
+  - name: date_update
+
+- kind: TicketPoly
+  properties:
+  - name: class
   - name: selling
   - name: statusValid
   - name: date_update
@@ -100,6 +123,16 @@ indexes:
   - name: is_boarding
   - name: selling
   - name: class_name
+
+- kind: TicketPoly
+  properties:
+  - name: selling
+  - name: date_reservation
+
+- kind: TicketPoly
+  properties:
+  - name: selling
+  - name: date_update
 
 - kind: TransactionModel
   properties:

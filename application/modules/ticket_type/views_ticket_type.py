@@ -151,10 +151,10 @@ def TicketType_Edit(tickettype_id=None):
 
         if tickettype_id:
             activity.nature = 4
-            flash(u' Ticket Type Updated!', 'success')
+            flash(u' Ticket Updated!', 'success')
         else:
             activity.nature = 1
-            flash(u' Ticket Type Saved!', 'success')
+            flash(u' Ticket Saved!', 'success')
         activity.put()
 
         return redirect(url_for('TicketType_Index'))

@@ -35,16 +35,16 @@ def Customer_Edit(customer_id=None):
     customer = CustomerModel.get_by_id(customer_id)
     form = FormCustomer(obj=customer)
 
-    # Nbre de voyage
+    # Nbre de voyage effective
     num_journey = journey_number(customer)
 
-    #Nbre de voyage
+    #Nbre de trajet effectue et effective
     nbr_travels = nbr_travel(customer)
 
     #Pour chaque trajet son nombre
     travel_line = travel_number(customer)
 
-    #Nombre de ticket vendu en cours
+    #Nombre de ticket achete en cours
     ticket_num = ticket_number(customer)
 
     #Nre de ticket deja achete
@@ -159,7 +159,8 @@ def nbr_ticket(customer_key=None):
 
     if customer_key:
         customer_travel_line = TicketModel.query(
-            TicketModel.customer == customer_key.key
+            TicketModel.customer == customer_key.key,
+            TicketModel.selling == True
         ).count()
     else:
         user_travel = 0
@@ -200,11 +201,12 @@ def ticket_type_number(customer_key=None):
 
         for key, grp in groupby(sorted(grp, key=under_grouper), under_grouper):
             temp_dict_under = dict(zip(["class_name", "journey_name"], key))
-            temp_dict['number'] += 1
             temp_dict_under['numbers'] = 0
             for item in grp:
-                temp_dict_under['journey'] = item['journey_name']
-                temp_dict_under['numbers'] += 1
+                if item['journey_name']:
+                    temp_dict['number'] += 1
+                    temp_dict_under['journey'] = item['journey_name']
+                    temp_dict_under['numbers'] += 1
             temp_dict['journey_query'].append(temp_dict_under)
 
         user_travel.append(temp_dict)

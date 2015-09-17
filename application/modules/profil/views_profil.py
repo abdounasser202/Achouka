@@ -171,10 +171,10 @@ def Profil_Edit(profil_id=None):
                 activity.nature = 4
                 activity.put()
 
-                flash(u' Profil Save. '+str(form.standard.data), 'success')
+                flash(u' Profile Saved. ', 'success')
                 return redirect(url_for('Profil_Index'))
             else:
-                form.name.errors.append('This name profil '+ str(form.name.data) + 'is already exist')
+                form.name.errors.append('This name profile '+ str(form.name.data) + 'is already exist')
         else:
             profil.name = form.name.data
 
@@ -196,7 +196,7 @@ def Profil_Edit(profil_id=None):
 
             activity.put()
 
-            flash(u' Profil Save. ', 'success')
+            flash(u' Profile Saved. ', 'success')
             return redirect(url_for('Profil_Index'))
 
     return render_template('/profil/edit.html', **locals())
@@ -250,9 +250,9 @@ def Add_Role_Profil(profil_id):
             nombre += 1
 
         if nombre > 0:
-            flash('you have add '+str(nombre)+' Role for this profil', 'success')
+            flash('you have added '+str(nombre)+' Role for this profil', 'success')
         else:
-            flash('you have add '+str(nombre)+' Role for this profil', 'danger')
+            flash('you have added '+str(nombre)+' Role for this profil', 'danger')
         # Mise a jour de la date de modification du profil
         profil_update.put()
         return redirect(url_for('Profil_Edit', profil_id=profil_id))
