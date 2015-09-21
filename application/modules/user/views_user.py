@@ -85,7 +85,7 @@ def User_Admin_Index():
     count = 0
     for feed in feed:
         vess = UserModel.get_by_id(feed.identity)
-        if vess.has_roles('admin') and current_user.has_roles('admin'):
+        if vess and vess.has_roles('admin') and current_user.has_roles('admin'):
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = vess.last_name+" "+vess.first_name
@@ -94,7 +94,7 @@ def User_Admin_Index():
             feed_list['id'] = feed.identity
             feed_tab.append(feed_list)
             count += 1
-        if vess.has_roles(('admin','super_admin')) and current_user.has_roles('super_admin'):
+        if vess and vess.has_roles(('admin','super_admin')) and current_user.has_roles('super_admin'):
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = vess.last_name+" "+vess.first_name
@@ -319,7 +319,7 @@ def User_Index():
     for feed in feed:
         user = UserModel.get_by_id(feed.identity)
 
-        if not current_user.has_roles(('admin', 'super_admin')) and agency_user and user.agency == agency_user.key and user.agency:
+        if user and not current_user.has_roles(('admin', 'super_admin')) and agency_user and user.agency == agency_user.key and user.agency:
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = user.last_name+" "+user.first_name
@@ -329,7 +329,7 @@ def User_Index():
             feed_tab.append(feed_list)
             count += 1
 
-        if current_user.has_roles(('admin', 'super_admin')):
+        if user and current_user.has_roles(('admin', 'super_admin')):
             feed_list = {}
             feed_list['user'] = feed.user_modify
             feed_list['data'] = user.last_name+" "+user.first_name
