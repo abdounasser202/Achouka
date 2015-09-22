@@ -46,7 +46,7 @@ def login_user_api(password, email, token):
             return resp
 
         # Admin
-        if user_login.profil and tokens and not user_login.agency and user_login.is_active(token):
+        if user_login.profil and tokens and not user_login.agency and user_login.is_active():
             #prendre les utilisateurs de l'agence en cours
             user_profil = ProfilModel.get_by_id(user_login.profil.id())
             data['profil_user'] = user_profil.make_to_dict()
