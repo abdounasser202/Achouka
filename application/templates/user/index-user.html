@@ -36,47 +36,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% if not current_user.has_roles('manager_agency') %}
-                                    {% for user in user %}
-                                        {% if user.user_id not in user_admins and user_admins %}
-                                            <tr {% if user.user_id.get().is_enabled %} class="success" {% else %} class="danger" {% endif %}>
-                                                <td>{{ user.user_id.get().first_name }} {{ user.user_id.get().last_name }}</td>
-                                                <td>{{ user.user_id.get().email }} </td>
-                                                <td>{{ user.user_id.get().profil.get().name }} </td>
-                                                <td>{{ user.user_id.get().agency.get().name }} </td>
-                                                <td>{{ user.user_id.get().date_last_logged }} </td>
-                                                <td>
-
-
-                                                    <div class="btn-group">
-                                                      <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
-                                                        <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
-                                                      </button>
-                                                      <ul class="dropdown-menu" role="menu">
-                                                        <li><a href="" class="btn btn-link btn-xs">Reset password </a></li>
-                                                        <li><a href="" class="btn btn-link btn-xs">Change email </a></li>
-                                                        <li><a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
-                                                       class="btn btn-link btn-xs">Edit </a></li>
-                                                          <li>
-
-                                                    {% if current_user.key != user.user_id %}
-                                                        {% if user.user_id.get().is_enabled %}
-                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="label label-danger btn-xs">Disable</a>
-                                                        {% else %}
-                                                            <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
-                                                               class="label label-success btn-xs">Activate</a>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                          </li>
-                                                      </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endif %}
-
-                                    {% endfor %}
-                                {% else %}
+                                {% if current_user.has_roles('manager_agency') and not current_user.has_roles('admin') %}
                                     {% for user in user %}
                                         {% if user.user_id not in user_admins and user_admins and user.user_id.get().agency == agency_user.key %}
                                             <tr {% if user.user_id.get().is_enabled %} class="success" {% else %} class="danger" {% endif %}>
@@ -113,9 +73,51 @@
 
                                                 </td>
                                             </tr>
+
                                         {% endif %}
 
                                     {% endfor %}
+                                    {% else %}
+                                            {% for user in user %}
+                                                {% if user.user_id not in user_admins and user_admins %}
+                                                    <tr {% if user.user_id.get().is_enabled %} class="success" {% else %} class="danger" {% endif %}>
+                                                        <td>{{ user.user_id.get().first_name }} {{ user.user_id.get().last_name }}</td>
+                                                        <td>{{ user.user_id.get().email }} </td>
+                                                        <td>{{ user.user_id.get().profil.get().name }} </td>
+                                                        <td>{{ user.user_id.get().agency.get().name }} </td>
+                                                        <td>{{ user.user_id.get().date_last_logged }} </td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                              <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-cog"></i> <span class="caret"></span>
+                                                              </button>
+                                                              <ul class="dropdown-menu" role="menu">
+                                                                <li><a href="" class="btn btn-link btn-xs">Reset password </a></li>
+                                                                <li><a href="" class="btn btn-link btn-xs">Change email </a></li>
+                                                                <li><a href="{{ url_for('User_Edit',  user_id=user.user_id.get().key.id()) }}"
+                                                               class="btn btn-link btn-xs">Edit </a></li>
+                                                                  <li>
+                                                                       {% if current_user.key != user.user_id %}
+                                                                {% if user.user_id.get().is_enabled %}
+                                                                    <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
+                                                                       class="label label-danger btn-xs">Disable</a>
+                                                                {% else %}
+                                                                    <a href="{{ url_for('Activate_User', user_id=user.user_id.get().key.id()) }}"
+                                                                       class="label label-success btn-xs">Activate</a>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                                  </li>
+                                                              </ul>
+                                                            </div>
+
+
+
+                                                        </td>
+                                                    </tr>
+
+                                                {% endif %}
+
+                                            {% endfor %}
                                 {% endif %}
                                 </tbody>
                             </table>
