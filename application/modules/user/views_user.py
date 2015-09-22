@@ -418,7 +418,7 @@ def User_Edit(user_id=None):
         AgencyModel.is_achouka == True
     )
 
-    if current_user.has_roles('manager_agency'):
+    if current_user.has_roles('manager_agency') and not current_user.has_roles('admin'):
         agency_user = AgencyModel.get_by_id(int(session.get('agence_id')))
 
     feed_tab = []

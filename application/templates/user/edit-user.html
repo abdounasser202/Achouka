@@ -121,7 +121,7 @@
 
                                                 </div>
                                             </div>
-                                            {% if current_user.has_roles('manager_agency') %}
+                                            {% if current_user.has_roles('manager_agency') and not current_user.has_roles('admin') %}
                                                     <div class="form-group {% if form.agency.errors %} has-error {% endif %} has-feedback">
                                                         <label class="col-sm-3 control-label">Select agency :</label>
                                                         <div class="col-sm-9">
