@@ -151,6 +151,7 @@
                       </div>
               </div>
           </div>
+
           {% if ticket.upgrade_parent %}
               <div class="row">
                       <div class="col-lg-12">
@@ -235,7 +236,7 @@
                                       <tbody>
                                       <tr>
                                           <td><strong>Number ticket</strong></td>
-                                          <td>{{ ticket.parent_child.get().id() }}</td>
+                                          <td>{{ ticket.parent_child.get().key.id() }}</td>
                                       </tr>
                                       <tr>
                                           <td><strong>Price of ticket</strong></td>
