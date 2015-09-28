@@ -140,7 +140,7 @@ def ticket_local_sale_put(token):
             old_data.generate_boarding = data_get['generate_boarding']
             old_data.is_boarding = data_get['is_boarding']
             old_data.selling = data_get['selling']
-
+            old_data.is_count = data_get['is_count']
 
             old_data.is_return = data_get['is_return']
 
@@ -161,8 +161,6 @@ def ticket_local_sale_put(token):
 
             if data_get['child_upgrade']:
                 old_data.is_upgrade = data_get['is_upgrade']
-                old_data.is_count = data_get['is_count']
-
                 upgrade_parent = TicketModel.get_by_id(data_get['upgrade_parent'])
                 old_data.upgrade_parent = upgrade_parent.key
                 upgrade_parent.statusValid = False

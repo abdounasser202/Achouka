@@ -23,7 +23,7 @@ def login_user_api(password, email, token):
         verified_token = request.args.get('exist')
         tokens = None
         agency_exist = AgencyModel.get_by_key(token)
-        if verified_token == '1' and agency_exist:
+        if agency_exist:
             tokens = agency_exist.Key()
             data['current_agency'] = agency_exist.make_to_dict()
             from ..destination.models_destination import DestinationModel
@@ -54,9 +54,9 @@ def login_user_api(password, email, token):
             return resp
 
         if tokens:
-            return not_found(error=403, message="Forbidden. you have not permission to access/<token>")
+            return not_found(error=403, message="Forbidden. you have not permission to access /<token>")
         else:
-            return not_found(error=400, message="Bad Request. your token's agency is not correct/<token>")
+            return not_found(error=400, message="Bad Request. your token's agency is not correct /<token>")
 
 
 @app.route("/user/get/<token>")
