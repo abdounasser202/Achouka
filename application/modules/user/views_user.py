@@ -427,7 +427,7 @@ def User_Edit(user_id=None):
         User = UserModel.get_by_id(user_id)
         form = FormEditUser(obj=User)
 
-        feed = ActivityModel.query(
+        feeds = ActivityModel.query(
             ActivityModel.object == 'UserModel',
             ActivityModel.identity == User.key.id()
         ).order(
@@ -435,7 +435,7 @@ def User_Edit(user_id=None):
         )
 
         count = 0
-        for feed in feed:
+        for feed in feeds:
             feed_list = {}
             feed_list['user'] = feed.user_modify
             vess = UserModel.get_by_id(feed.identity)
