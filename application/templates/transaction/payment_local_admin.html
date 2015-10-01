@@ -1,7 +1,7 @@
 <div class="modal-header bg-primary">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <div class="pull-right text-right bg-info text-danger" style="margin-right:40px; margin-top: -6px; padding: 10px;">
-            <strong>AMOUNT : </strong>
+            <strong>Expected Amount : </strong>
             {{ (agency_get_id.difference_amount())|format_price() }}
             {{ agency_get_id.destination.get().currency.get().code }}
 
@@ -33,9 +33,10 @@
     <br/>
 </div>
 {% else %}
-<div class="modal-body scrollable-shadow" style="height: 500px; overflow-y: auto">
+<div class="modal-body scrollable-shadow" style="height: 550px; overflow-y: auto">
      <h3 class="text-primary">POS : {{ agency_get_id.name }} at {{ agency_get_id.destination.get().name }}</h3>
      <hr/>
+     <h4 class="text-primary">Previous payments</h4><br/>
      <table class="table table-hover" id="dataTable1">
         <thead>
         <tr>
@@ -99,7 +100,7 @@
                 <a href="{{ url_for('print_receipt', transaction_id=parent_transaction.id()) }}?admin=1" target="_blank" class="btn btn-danger">Print receipt</a>
             {% endif %}
             {% if agency_get_id.escrow_amount(true) < 0 and agency_get_id.escrow_amount() > agency_get_id.escrow_amount(true) and not received %}
-                <button type="submit" class="btn btn-primary" id="submit">Valid payment</button>
+                <button type="submit" class="btn btn-primary" id="submit">Valided payment</button>
             {% endif %}
         </div>
     </form>

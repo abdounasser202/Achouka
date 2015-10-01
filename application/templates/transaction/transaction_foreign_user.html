@@ -128,7 +128,7 @@
             <a href="{{ url_for('print_receipt', transaction_id=parent_transaction.id()) }}" target="_blank" class="btn btn-danger">Print receipt</a>
         {% endif %}
         {% if not current_user.has_roles(('admin','super_admin')) and current_user.has_roles('manager_agency') and not received %}
-            <button type="submit" class="btn btn-primary" id="submit">Valid payment</button>
+            <button type="submit" class="btn btn-primary" id="submit">Valided payment</button>
         {% endif %}
     </div>
 </form>
