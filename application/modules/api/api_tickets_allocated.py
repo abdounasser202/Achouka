@@ -172,7 +172,7 @@ def ticket_local_sale_put(token):
                 transaction.amount = old_data.sellprice
                 transaction.is_payment = False
                 transaction.agency = old_data.agency
-                transaction.destination = old_data.departure.destination.get().destination_start
+                transaction.destination = departure_ticket.destination.get().destination_start
                 transaction.transaction_date = old_data.date_reservation
                 transaction.user = old_data.ticket_seller
 
@@ -202,7 +202,7 @@ def ticket_local_sale_put(token):
                     transaction = TransactionModel()
                     transaction.agency = old_data.agency
                     transaction.amount = data_get['transaction_different']
-                    transaction.destination = old_data.travel_ticket.get().destination_start
+                    transaction.destination = travel_ticket.destination_start
                     transaction.is_payment = False
                     transaction.user = old_data.ticket_seller
                     transaction.transaction_date = old_data.date_reservation
