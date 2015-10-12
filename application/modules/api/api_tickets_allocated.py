@@ -251,10 +251,12 @@ def get_ticket_online(token):
         ticket_sale = TicketPoly.query(
             TicketPoly.date_update >= date,
             TicketPoly.selling == True,
+            TicketPoly.agency == get_agency.key
         )
     else:
         ticket_sale = TicketPoly.query(
-            TicketPoly.selling == True
+            TicketPoly.selling == True,
+            TicketPoly.agency == get_agency.key
         )
 
     data = {'status': 200, 'tickets_sale': []}
