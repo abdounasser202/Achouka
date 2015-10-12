@@ -114,6 +114,102 @@ class AgencyModel(BaseModel):
 
         return escrow
 
+    def escrow_seller(self):
+
+        from ..ticket.models_ticket import TicketModel
+
+        user_ticket_query = TicketModel.query(
+            TicketModel.agency == self.key,
+            TicketModel.selling == True,
+            TicketModel.is_count == True
+        )
+
+        # recupere le montant des tickets qui n'ont pas encore de transaction de paiement
+        ticket_no_transaction_amount = self.ticket_no_transaction_amount(user_ticket_query)
+
+        # recupere le montant des tickets qui ont des transactions et qui sont deficitaire
+        ticket_transaction_amount = self.ticket_transaction_amount(user_ticket_query)
+
+        # sommes des montants retournes
+        escrow = ticket_no_transaction_amount + ticket_transaction_amount
+        
+        if escrow != 0:
+            escrow = '{:,}'.format(escrow).replace(',', ' ')
+            return str(escrow)+" "+self.destination.get().currency.get().code
+        else:
+            return None
+
+    #Montant des tickets qui n'ont pas encore de transaction de paiement
+    def ticket_no_transaction_amount(self, list_ticket_travel_query, local_agency=True):
+
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel
+
+        ticket_no_transaction_amount = 0
+        for ticket in list_ticket_travel_query:
+            if local_agency:
+                if ticket.travel_ticket.get().destination_start == self.destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.destination and transaction_line.is_difference is False:
+                            number += 1
+
+                    if number == 0:
+                       ticket_no_transaction_amount += ticket.sellprice
+            else:
+                if ticket.travel_ticket.get().destination_start != self.destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination != self.destination and transaction_line.is_difference is False:
+                            number += 1
+
+                    if number == 0:
+                       ticket_no_transaction_amount += ticket.sellprice
+
+        return ticket_no_transaction_amount
+
+    # Montant des tickets qui ont des transactions et qui sont deficitaire
+    def ticket_transaction_amount(self, list_ticket_travel_query, local_agency=True):
+        from ..transaction.models_transaction import ExpensePaymentTransactionModel
+
+        ticket_transaction_amount = 0
+        for ticket in list_ticket_travel_query:
+            if local_agency:
+                if ticket.travel_ticket.get().destination_start == self.destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    transaction_amount = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination == self.destination and transaction_line.is_difference is False:
+                            number += 1
+                            transaction_amount += transaction_line.amount
+
+                    if number >= 1 and ticket.sellprice > transaction_amount:
+                        ticket_transaction_amount += ticket.sellprice-transaction_amount
+            else:
+                if ticket.travel_ticket.get().destination_start != self.destination:
+                    expensepayment_query = ExpensePaymentTransactionModel.query(
+                        ExpensePaymentTransactionModel.ticket == ticket.key
+                    )
+                    number = 0
+                    transaction_amount = 0
+                    for transaction_line in expensepayment_query:
+                        if transaction_line.transaction.get().is_payment is True and transaction_line.transaction.get().destination != self.destination and transaction_line.is_difference is False:
+                            number += 1
+                            transaction_amount += transaction_line.amount
+
+                    if number >= 1 and ticket.sellprice > transaction_amount:
+                        ticket_transaction_amount += ticket.sellprice - transaction_amount
+
+        return ticket_transaction_amount
+
     # Difference de montant pour savoir combien, il y'a a verser et combien verse
     def difference_amount(self):
         difference = self.escrow_amount() - self.escrow_amount(True)
