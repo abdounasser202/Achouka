@@ -34,16 +34,16 @@
                             },
                             data: [
                             {
-                                type: "line",
+                                type: "column",
 {#                                showInLegend: true,#}
                                 lineThickness: 2,
                                 name: "Traffic",
                                 markerType: "square",
                                 color: "#4d90fe",
-                                toolTipContent: '<span class="text-center" style="background-color:#5bc0de;font-size:80%;padding:2.6em;padding-top:.2em;padding-bottom:.3em;color:#fff;">{travel}</span><br>{date}<hr style="margin-top:10px;margin-bottom:10px;"/><span>Amount: {y} {currency}</span>',
+                                toolTipContent: '<span class="text-center" style="background-color:#5bc0de;font-size:80%;padding:2.6em;padding-top:.2em;padding-bottom:.3em;color:#fff;">{travel}</span><br>{date}<hr style="margin-top:5px;margin-bottom:5px;"/><span>Amount: {y} {currency}</span>',
                                 dataPoints: [
                                 {% for ticket in the_ticket_agency %}
-                                    { x: new Date("{{ ticket['date'] }} {{ ticket['heure'] }}"),
+                                    { label : "{{ ticket['date'] }} {{ ticket['heure'] }}",
                                         y: {{ ticket['price'] }},
                                         travel: "{{ ticket['departure_start'] }} - {{ ticket['departure_check'] }}",
                                         date:"{{ ticket['date'] }} {{ ticket['heure'] }}",
