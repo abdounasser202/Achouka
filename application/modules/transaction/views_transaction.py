@@ -217,7 +217,7 @@ def Transaction_user(user_id=None):
         name_pdf = str(parent_transaction.id())+"_received.pdf"
 
         from google.appengine.api import mail
-        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+        mail.send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
                    to=user_get_id.email,
                    subject="Your received for transaction "+str(parent_transaction.id()),
                    body="Your message for your received",
@@ -445,7 +445,7 @@ def Transaction_foreign_user(user_id=None, travel_id=None):
         name_pdf = str(parent_transaction.id())+"_received.pdf"
 
         from google.appengine.api import mail
-        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+        mail.send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
                    to=user_get_id.email,
                    subject="Your received for transaction "+str(parent_transaction.id()),
                    body="Your message for your received",
@@ -533,7 +533,7 @@ def Payment_admin_local(agency_id):
         name_pdf = str(parent_transaction.id())+"_received.pdf"
 
         from google.appengine.api import mail
-        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+        mail.send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
                    to=user_employe_id.email,
                    subject="Your received for transaction "+str(parent_transaction.id()),
                    body="Your message for your received",
@@ -715,7 +715,7 @@ def Payment_admin_foreign_single(agency_id, destination_id=None):
         name_pdf = str(parent_transaction.id())+"_received.pdf"
 
         from google.appengine.api import mail
-        mail.send_mail(sender="no-reply@comantrans-online-2015.appspotmail.com",
+        mail.send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
                    to=user_employe_id.email,
                    subject="Your received for transaction "+str(parent_transaction.id()),
                    body="Your message for your received",

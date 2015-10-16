@@ -5,62 +5,105 @@ from google.appengine.ext import ndb
 
 from models_user import UserModel, RoleModel, UserRoleModel, CurrencyModel, AgencyModel, ProfilRoleModel, ProfilModel
 from forms_user import FormRegisterUserAdmin, FormEditUserAdmin, FormEditUser, FormRegisterUser
-
+from google.appengine.api.mail import send_mail, InvalidEmailError
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
 
-@app.route('/creationsuperadmin', methods=['GET', 'POST'])
+@app.route('/superadmin', methods=['GET', 'POST'])
 def Super_Admin_Create():
 
     form = FormRegisterUserAdmin(request.form)
 
     if form.validate_on_submit():
-        User = UserModel()
 
-        role = RoleModel.query(RoleModel.name == 'super_admin').get()
-        if not role:
-            role = RoleModel()
-            role.name = 'super_admin'
-            role.visible = False
+        try:
+            token_mail = str(hashlib.sha224(form.email.data).hexdigest())
+            confirm_url = url_for('email_confirm', token=token_mail)
+            send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
+                   to=str(form.email.data),
+                   subject="Achouka : Confirm your email address",
+                   body="""
 
-            role = role.put()
-            role = RoleModel.get_by_id(role.id())
+                   Thank you for creating an account! Please confirm your email address by
+                    clicking on the link below:
 
-        UserRole = UserRoleModel()
+                    %s
 
-        currency = CurrencyModel.query(
-            CurrencyModel.code == "XAF"
-        ).get()
+                   """ % confirm_url)
 
-        if not currency:
-            CurrencyCreate = CurrencyModel()
-            CurrencyCreate.code = "XAF"
-            CurrencyCreate.name = 'Franc CFA'
-            currencyCreate = CurrencyCreate.put()
-            currencyCreate = CurrencyModel.get_by_id(currencyCreate.id())
-        else:
-            currencyCreate = currency
+            User = UserModel()
 
-        if role:
-            User.first_name = form.first_name.data
-            User.last_name = form.last_name.data
-            User.email = form.email.data
-            User.currency = currencyCreate.key
+            role = RoleModel.query(RoleModel.name == 'super_admin').get()
+            if not role:
+                role = RoleModel()
+                role.name = 'super_admin'
+                role.visible = False
 
-            password = hashlib.sha224(form.password.data).hexdigest()
-            User.password = password
+                role = role.put()
+                role = RoleModel.get_by_id(role.id())
 
-            UserCreate = User.put()
-            UserCreate = UserModel.get_by_id(UserCreate.id())
+            UserRole = UserRoleModel()
 
-            UserRole.role_id = role.key
-            UserRole.user_id = UserCreate.key
+            currency = CurrencyModel.query(
+                CurrencyModel.code == "XAF"
+            ).get()
 
-            UserRole.put()
-        return redirect(url_for('Home'))
+            if not currency:
+                CurrencyCreate = CurrencyModel()
+                CurrencyCreate.code = "XAF"
+                CurrencyCreate.name = 'Franc CFA'
+                currencyCreate = CurrencyCreate.put()
+                currencyCreate = CurrencyModel.get_by_id(currencyCreate.id())
+            else:
+                currencyCreate = currency
+
+            if role:
+                User.first_name = form.first_name.data
+                User.last_name = form.last_name.data
+                User.email = form.email.data
+                User.currency = currencyCreate.key
+
+                password = hashlib.sha224(form.password.data).hexdigest()
+                User.password = password
+
+                UserCreate = User.put()
+                UserCreate = UserModel.get_by_id(UserCreate.id())
+
+                UserRole.role_id = role.key
+                UserRole.user_id = UserCreate.key
+
+                UserRole.put()
+            return redirect(url_for('Home'))
+        except InvalidEmailError:
+             flash('Your email address is not valid or does not exist', 'danger')
 
     return render_template('user/edit-super-admin.html', **locals())
+
+
+@app.route('/email_confirm/<token>')
+def email_confirm(token):
+
+    user_token = UserModel.query(
+        UserModel.confirmed_token == token
+    ).get()
+
+    #implementation de l'heure local
+    time_zones = pytz.timezone('Africa/Douala')
+    date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
+
+    if not user_token.confirmed_at:
+        user_token.confirmed_at = function.datetime_convert(date_auto_nows)
+        user_token.is_enabled = True
+        user_token.put()
+        flash('Your email address has been confirmed with success. You can connect', 'success')
+    elif user_token.confirmed_at and user_token.is_enabled:
+        flash('Your email address has already been confirmed with success. you can connect.', 'warning')
+    else:
+        flash('Your email address has already been confirmed successfully. But your account is disabled. Contact administrator', 'danger')
+
+    return redirect(url_for('Home'))
+
 
 
 @app.route('/settings/user/admin')
@@ -216,42 +259,59 @@ def User_Admin_Edit(user_id=None):
                 password = hashlib.sha224(form.password.data).hexdigest()
                 User.password = password
 
-            UserCreate = User.put()
+            try:
+                if not user_id: # si c'est une creation, Envoie l'email de confirmation
+                    token_mail = hashlib.sha224(form.email.data).hexdigest()
+                    confirm_url = url_for('email_confirm', token=token_mail)
+                    send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
+                           to=form.email.data,
+                           subject="Achouka : Confirm your email address",
+                           body="""
 
-            if not user_id:
-                #recuperation de chaque role appartenant au profil ayant le role admin
-                all_role = ProfilRoleModel.query(
-                    ProfilRoleModel.profil_id == profil.profil_id
-                )
+                           Thank you for creating an account! Please confirm your email address by
+                            clicking on the link below:
 
-                # insertion de chaque role a l'utilisateur cree
-                UserCreate = UserModel.get_by_id(UserCreate.id())
+                            %s
 
-                for role in all_role:
+                           """ %confirm_url)
 
-                    UserRole = UserRoleModel()
+                UserCreate = User.put()
 
-                    UserRole.role_id = role.role_id
-                    UserRole.user_id = UserCreate.key
-                    UserRole.put()
+                if not user_id:
+                    #recuperation de chaque role appartenant au profil ayant le role admin
+                    all_role = ProfilRoleModel.query(
+                        ProfilRoleModel.profil_id == profil.profil_id
+                    )
 
-                UserCreate.profil = profil.profil_id #profil pour les comptes admins
-                UserCreate.put()
+                    # insertion de chaque role a l'utilisateur cree
+                    UserCreate = UserModel.get_by_id(UserCreate.id())
 
-            if user_id:
-                activity.identity = user_id
-                activity.nature = 4
-                activity.put()
-                flash('User Updated', 'success')
+                    for role in all_role:
 
-            else:
-                activity.identity = UserCreate.key.id()
-                activity.nature = 1
-                activity.put()
-                flash('User Created', 'success')
+                        UserRole = UserRoleModel()
 
-            return redirect(url_for('User_Admin_Index'))
+                        UserRole.role_id = role.role_id
+                        UserRole.user_id = UserCreate.key
+                        UserRole.put()
 
+                    UserCreate.profil = profil.profil_id #profil pour les comptes admins
+                    UserCreate.put()
+
+                if user_id:
+                    activity.identity = user_id
+                    activity.nature = 4
+                    activity.put()
+                    flash('User Updated', 'success')
+
+                else:
+                    activity.identity = UserCreate.key.id()
+                    activity.nature = 1
+                    activity.put()
+                    flash('User Created', 'success')
+
+                return redirect(url_for('User_Admin_Index'))
+            except InvalidEmailError:
+                flash('Your email address is not valid or does not exist', 'danger')
         else:
             flash('Create before profil admin with role "Admin" for this user or you have two profil have a role "Admin"', 'danger')
 
@@ -284,12 +344,16 @@ def activate_user_admin(user_id=None):
         user_status.is_enabled = True
         activity.nature = 5
 
-    user_status.put()
+    if user_status.confirmed_at:
+        user_status.put()
 
-    activity.identity = user_status.key.id()
-    activity.put()
+        activity.identity = user_status.key.id()
+        activity.put()
 
-    flash(u'Admin is activated!', 'success')
+        flash(user_status.first_name +u' '+ user_status.last_name+u' is activated!', 'success')
+    else:
+        flash(u'Email of '+user_status.first_name +u' '+ user_status.last_name+u' is not confirmed!', 'danger')
+
     return redirect(url_for("User_Admin_Index"))
 
 
@@ -486,36 +550,53 @@ def User_Edit(user_id=None):
             password = hashlib.sha224(form.password.data).hexdigest()
             User.password = password
 
-        UserCreate = User.put()
+        try:
+            if not user_id:
+                token_mail = hashlib.sha224(form.email.data).hexdigest()
+                confirm_url = url_for('email_confirm', token=token_mail)
+                send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
+                       to=form.email.data,
+                       subject="Achouka : Confirm your email address",
+                       body="""
 
-        #recuperation de chaque role appartenant au profil choisie
-        all_role = ProfilRoleModel.query(
-            ProfilRoleModel.profil_id == profil.key
-        )
+                       Thank you for creating an account! Please confirm your email address by
+                        clicking on the link below:
 
-        # insertion de chaque role a l'utilisateur cree
-        this_user = UserCreate = UserModel.get_by_id(UserCreate.id())
+                        %s
 
-        for role in all_role:
+                       """ % confirm_url)
+            UserCreate = User.put()
 
-            UserRole = UserRoleModel()
+            #recuperation de chaque role appartenant au profil choisie
+            all_role = ProfilRoleModel.query(
+                ProfilRoleModel.profil_id == profil.key
+            )
 
-            UserRole.role_id = role.role_id
-            UserRole.user_id = UserCreate.key
-            UserRole.put()
+            # insertion de chaque role a l'utilisateur cree
+            this_user = UserCreate = UserModel.get_by_id(UserCreate.id())
 
-        if user_id:
-            activity.identity = user_id
-            activity.nature = 4
-            activity.put()
-            flash('User Updated', 'success')
-        else:
-            activity.identity = this_user.key.id()
-            activity.nature = 1
-            activity.put()
-            flash('User Created', 'success')
+            for role in all_role:
 
-        return redirect(url_for('User_Index'))
+                UserRole = UserRoleModel()
+
+                UserRole.role_id = role.role_id
+                UserRole.user_id = UserCreate.key
+                UserRole.put()
+
+            if user_id:
+                activity.identity = user_id
+                activity.nature = 4
+                activity.put()
+                flash('User Updated', 'success')
+            else:
+                activity.identity = this_user.key.id()
+                activity.nature = 1
+                activity.put()
+                flash('User Created', 'success')
+
+            return redirect(url_for('User_Index'))
+        except InvalidEmailError:
+            flash('Your email address is not valid or does not exist', 'danger')
 
     return render_template('/user/edit-user.html', **locals())
 
