@@ -6,6 +6,8 @@ from google.appengine.ext import ndb
 from models_user import UserModel, RoleModel, UserRoleModel, CurrencyModel, AgencyModel, ProfilRoleModel, ProfilModel
 from forms_user import FormRegisterUserAdmin, FormEditUserAdmin, FormEditUser, FormRegisterUser
 from google.appengine.api.mail import send_mail, InvalidEmailError
+from google.appengine.api import app_identity
+
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
@@ -19,21 +21,21 @@ def Super_Admin_Create():
 
         try:
             token_mail = str(hashlib.sha224(form.email.data).hexdigest())
-            confirm_url = url_for('email_confirm', token=token_mail)
+            server_url = app_identity.get_default_version_hostname()
+            confirm_url = "http://"+server_url+""+url_for('email_confirm', token=token_mail)
             send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
                    to=str(form.email.data),
                    subject="Achouka : Confirm your email address",
                    body="""
 
-                   Thank you for creating an account! Please confirm your email address by
-                    clicking on the link below:
+                   Thank you for creating an account! Please confirm your email address by clicking on the link below:
 
-                    %s
+                   %s
 
                    """ % confirm_url)
 
             User = UserModel()
-
+            User.confirmed_token = token_mail
             role = RoleModel.query(RoleModel.name == 'super_admin').get()
             if not role:
                 role = RoleModel()
@@ -92,12 +94,13 @@ def email_confirm(token):
     time_zones = pytz.timezone('Africa/Douala')
     date_auto_nows = datetime.datetime.now(time_zones).strftime("%Y-%m-%d %H:%M:%S")
 
-    if not user_token.confirmed_at:
+    if not user_token.confirmed:
         user_token.confirmed_at = function.datetime_convert(date_auto_nows)
         user_token.is_enabled = True
+        user_token.confirmed = True
         user_token.put()
         flash('Your email address has been confirmed with success. You can connect', 'success')
-    elif user_token.confirmed_at and user_token.is_enabled:
+    elif user_token.confirmed and user_token.is_enabled:
         flash('Your email address has already been confirmed with success. you can connect.', 'warning')
     else:
         flash('Your email address has already been confirmed successfully. But your account is disabled. Contact administrator', 'danger')
@@ -261,19 +264,20 @@ def User_Admin_Edit(user_id=None):
 
             try:
                 if not user_id: # si c'est une creation, Envoie l'email de confirmation
-                    token_mail = hashlib.sha224(form.email.data).hexdigest()
-                    confirm_url = url_for('email_confirm', token=token_mail)
+                    token_mail = str(hashlib.sha224(form.email.data).hexdigest())
+                    server_url = app_identity.get_default_version_hostname()
+                    confirm_url = "http://"+server_url+""+url_for('email_confirm', token=token_mail)
                     send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
-                           to=form.email.data,
+                           to=str(form.email.data),
                            subject="Achouka : Confirm your email address",
                            body="""
 
-                           Thank you for creating an account! Please confirm your email address by
-                            clicking on the link below:
+                           Thank you for creating an account! Please confirm your email address by clicking on the link below:
 
-                            %s
+                           %s
 
-                           """ %confirm_url)
+                           """ % confirm_url)
+                    User.confirmed_token = token_mail
 
                 UserCreate = User.put()
 
@@ -552,19 +556,20 @@ def User_Edit(user_id=None):
 
         try:
             if not user_id:
-                token_mail = hashlib.sha224(form.email.data).hexdigest()
-                confirm_url = url_for('email_confirm', token=token_mail)
+                token_mail = str(hashlib.sha224(form.email.data).hexdigest())
+                server_url = app_identity.get_default_version_hostname()
+                confirm_url = "http://"+server_url+""+url_for('email_confirm', token=token_mail)
                 send_mail(sender="no-reply@comatrans-online-2015.appspotmail.com",
-                       to=form.email.data,
+                       to=str(form.email.data),
                        subject="Achouka : Confirm your email address",
                        body="""
 
-                       Thank you for creating an account! Please confirm your email address by
-                        clicking on the link below:
+                       Thank you for creating an account! Please confirm your email address by clicking on the link below:
 
-                        %s
+                       %s
 
                        """ % confirm_url)
+                User.confirmed_token = token_mail
             UserCreate = User.put()
 
             #recuperation de chaque role appartenant au profil choisie
