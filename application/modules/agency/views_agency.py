@@ -191,7 +191,7 @@ def Agency_Edit(agency_id=None):
                     activity.identity = this_agency.id()
                     activity.nature = 4
                     activity.put()
-                flash(u' Agency Update. ', 'success')
+                flash(u' Agency Updated. ', 'success')
 
             else:
                 activity.identity = this_agency.id()

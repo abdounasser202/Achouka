@@ -363,7 +363,7 @@ def search_customer_to_board(departure_id):
         if find_ticket_sold:
             all_ticket.append(ticket)
 
-    return render_template('/departure/list_ticket_found_unboard.html', **locals())
+    return render_template('departure/list_ticket_found_unboard.html', **locals())
 
 
 @app.route('/ticket_information/<int:ticket_id>/<int:departure_id>')

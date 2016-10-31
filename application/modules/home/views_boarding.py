@@ -351,6 +351,7 @@ def generate_pdf_boarding(ticket_id):
 
     return response
 
+
 @app.route('/customer_aboard')
 @app.route('/customer_aboard/<int:departure_id>')
 def customer_aboard(departure_id):

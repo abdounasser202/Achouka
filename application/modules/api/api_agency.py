@@ -29,7 +29,7 @@ def get_agency_api(token):
             resp = jsonify(data)
             return resp
         else:
-            return not_found(message="Agency Not Updated")
+            return not_found(message="No change in agency settings")
     else:
         data = {'status': 200, 'agency': get_agency.make_to_dict()}
         resp = jsonify(data)

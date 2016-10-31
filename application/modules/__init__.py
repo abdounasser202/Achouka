@@ -17,20 +17,21 @@ import datetime
 from google.appengine.api import urlfetch
 import json
 
-#ajoute des fonts dans mes pdfs
+# ajoute des fonts dans mes pdfs
 import os
 import lib.reportlab
 
 #import pour l'impression des ticket
 from lib.reportlab.pdfgen import canvas
-from lib.reportlab.lib.pagesizes import A5
-# from lib.reportlab.platypus.doctemplate import SimpleDocTemplate
+from lib.reportlab.lib.pagesizes import A5, A4
+
+# from lib.reportlab.platypus.doctemplate import SimpleDocTemplate, Paragraph, Table, TableStyle,
 from lib.reportlab.lib import colors
 from lib.reportlab.lib.units import cm
 
 
 
-from lib.reportlab.platypus import Paragraph
+from lib.reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 from lib.reportlab.lib.styles import getSampleStyleSheet
 from lib.reportlab.pdfbase import pdfmetrics
 from lib.reportlab.pdfbase.ttfonts import TTFont
